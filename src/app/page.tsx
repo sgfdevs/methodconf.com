@@ -18,7 +18,7 @@ export default function Home() {
                     src={logo}
                     alt="Method Logo"
                 />
-                <h2 className="text-2xl mt-9">
+                <h2 className="text-2xl lg:text-5xl lg:font-thin mt-9">
                     October 12th 2024 @ The{' '}
                     <a
                         href="https://efactory.missouristate.edu/"
