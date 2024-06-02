@@ -12,6 +12,7 @@ services:
       - 3000:3000
     stop_grace_period: 0s
     profiles: [frontend-dev]
+
   frontend-prod:
     build:
       context: ./
