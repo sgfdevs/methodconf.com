@@ -1,3 +1,6 @@
 docker/
+node_modules/
+.next/
 docker-compose.yml
-node_modules
+README.md
+.gitignore
