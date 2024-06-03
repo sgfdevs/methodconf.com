@@ -1,6 +1,7 @@
 export interface ISectionTitleBarProps {
     title: string;
 }
+
 export function SectionTitleBar({ title }: ISectionTitleBarProps) {
     return (
         <div className="bg-black pt-14">

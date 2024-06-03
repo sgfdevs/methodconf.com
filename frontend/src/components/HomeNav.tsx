@@ -1,10 +1,10 @@
 import Image, { getImageProps } from 'next/image';
+import { Navigation } from '@/components/Navigation';
+import { SPEAKER_LINK } from '@/constants';
 import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
 import headerGradient from '../../public/header-gradient.svg';
-import { Navigation } from '@/components/Navigation';
-import { SPEAKER_LINK } from '@/constants';
 
 export function HomeNav() {
     const { props: headerGradientImg } = getImageProps({
