@@ -3,6 +3,7 @@ import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
 import headerGradient from '../../public/header-gradient.svg';
+import { Navigation } from '@/components/Navigation';
 
 export function HomeNav() {
     const { props: headerGradientImg } = getImageProps({
@@ -44,25 +45,16 @@ export function HomeNav() {
                 </div>
             </div>
 
-            <nav className="w-full bg-primary">
-                <div className="w-full px-8 flex justify-end">
-                    <ul className="flex space-x-5 translate-y-1/2">
-                        {[
-                            { url: '#location', title: 'Location' },
-                            { url: '#sponsor', title: 'Sponsor' },
-                        ].map(({ url, title }) => (
-                            <li key={url} className="">
-                                <a
-                                    className="text-white bg-black p-4 uppercase block font-bold tracking-wider text-sm hover:-translate-y-1 transition-transform"
-                                    href={url}
-                                >
-                                    {title}
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </nav>
+            <Navigation
+                links={[
+                    {
+                        url: 'https://sessionize.com/method-conference-2024/',
+                        title: 'Speak',
+                    },
+                    { url: '#location', title: 'Location' },
+                    { url: '#sponsor', title: 'Sponsor' },
+                ]}
+            />
         </header>
     );
 }
