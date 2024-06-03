@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.button {
+    @apply text-white bg-black p-4 uppercase font-bold tracking-wider text-sm hover:-translate-y-1 transition-transform
+}

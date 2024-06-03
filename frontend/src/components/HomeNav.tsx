@@ -4,6 +4,7 @@ import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
 import headerGradient from '../../public/header-gradient.svg';
 import { Navigation } from '@/components/Navigation';
+import { SPEAKER_LINK } from '@/constants';
 
 export function HomeNav() {
     const { props: headerGradientImg } = getImageProps({
@@ -20,9 +21,10 @@ export function HomeNav() {
                         src={logo}
                         alt="Method Logo"
                     />
-                    <h2 className="text-2xl lg:text-5xl lg:font-thin mt-9">
+                    <h1 className="text-2xl lg:text-5xl lg:font-thin mt-9">
+                        <span className="sr-only">Method Conference </span>
                         Saturday, October 12th, 2024 in Springfield, MO
-                    </h2>
+                    </h1>
                     <p className="text-lg mt-5">
                         An immersive day of code, content, and design
                     </p>
@@ -47,10 +49,7 @@ export function HomeNav() {
 
             <Navigation
                 links={[
-                    {
-                        url: 'https://sessionize.com/method-conference-2024/',
-                        title: 'Speak',
-                    },
+                    { url: SPEAKER_LINK, title: 'Speak' },
                     { url: '#location', title: 'Location' },
                     { url: '#sponsor', title: 'Sponsor' },
                 ]}
