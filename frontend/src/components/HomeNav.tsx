@@ -15,7 +15,7 @@ export function HomeNav() {
     return (
         <header>
             <div className="w-full bg-secondary text-white flex flex-col justify-between">
-                <div className="container mx-auto px-4 relative text-center pt-20">
+                <div className="content-container relative text-center pt-20">
                     <Image
                         className="max-w-full mx-auto"
                         src={logo}

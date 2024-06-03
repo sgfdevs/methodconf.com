@@ -1,7 +1,7 @@
 import { SPEAKER_LINK } from '@/constants';
 import { NewsletterForm } from '@/components/NewsletterForm';
 
-export function HomeIntro() {
+export function HomeIntroSection() {
     return (
         <section className="flex flex-col lg:flex-row">
             <div className="bg-gray-100 py-16 lg:w-1/2 lg:px-5">

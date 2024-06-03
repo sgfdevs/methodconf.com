@@ -7,7 +7,7 @@ export interface INavigationProps {
 export function Navigation({ links }: INavigationProps) {
     return (
         <nav className="w-full bg-primary">
-            <div className="w-full container mx-auto flex justify-end">
+            <div className="content-container flex justify-end">
                 <ul className="flex space-x-5 translate-y-1/2">
                     {links.map((link) => (
                         <li key={link.url}>

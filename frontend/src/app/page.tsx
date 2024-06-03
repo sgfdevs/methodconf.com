@@ -1,12 +1,14 @@
 import { HomeNav } from '@/components/HomeNav';
-import { HomeIntro } from '@/components/HomeIntro';
+import { HomeIntroSection } from '@/components/sections/HomeIntroSection';
+import { SponsorsSection } from '@/components/sections/SponsorsSection';
 
 export default function Home() {
     return (
         <>
             <HomeNav />
             <main>
-                <HomeIntro />
+                <HomeIntroSection />
+                <SponsorsSection />
             </main>
         </>
     );

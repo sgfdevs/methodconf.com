@@ -5,3 +5,12 @@
 .button {
     @apply text-white bg-black p-4 uppercase font-bold tracking-wider text-sm hover:-translate-y-1 transition-transform
 }
+
+.content-container {
+    @apply container mx-auto;
+    width: calc(100% - theme(spacing.8));
+
+    @media screen(md) {
+        width: calc(100% - theme(spacing.20));
+    }
+}
