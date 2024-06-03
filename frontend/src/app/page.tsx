@@ -11,7 +11,7 @@ export default function Home() {
     });
 
     return (
-        <main className="w-full min-h-screen bg-app-dark text-white flex flex-col justify-between">
+        <main className="w-full min-h-screen bg-secondary text-white flex flex-col justify-between">
             <div className="container mx-auto px-4 relative text-center pt-20">
                 <Image
                     className="max-w-full mx-auto"

@@ -3,6 +3,7 @@ import { Source_Sans_3 } from 'next/font/google';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import './globals.css';
+import { Footer } from '@/components/Footer';
 
 config.autoAddCss = false;
 
@@ -19,7 +20,10 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={sourceSans.className}>{children}</body>
+            <body className={`${sourceSans.className} font-light`}>
+                {children}
+                <Footer />
+            </body>
         </html>
     );
 }
