@@ -14,3 +14,7 @@
         width: calc(100% - theme('spacing.20'));
     }
 }
+
+.links a {
+    @apply text-primary underline
+}

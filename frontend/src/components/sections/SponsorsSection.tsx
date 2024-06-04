@@ -4,7 +4,7 @@ import logo from '../../../public/method-logo.svg';
 
 export function SponsorsSection() {
     return (
-        <section>
+        <section id="sponsor">
             <SectionTitleBar title="Sponsors" />
 
             <div className="py-20">
