@@ -40,7 +40,7 @@ export function NavLink({ url, title }: INavLinkProps) {
     }
 
     return (
-        <Link className={classes} href={url}>
+        <Link className={classes} href={url} scroll={url.startsWith('#')}>
             {title}
         </Link>
     );
