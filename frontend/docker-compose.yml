@@ -9,7 +9,7 @@ services:
       - ./:/app
     restart: always
     ports:
-      - 3000:3000
+      - ${APP_PORT:-3000}:3000
     stop_grace_period: 0s
     profiles: [frontend-dev]
 
@@ -17,10 +17,10 @@ services:
     build:
       context: ./
       dockerfile: ./docker/prod.Dockerfile
-      # args:
-      #   ENV_VARIABLE: ${ENV_VARIABLE}
-      #   NEXT_PUBLIC_ENV_VARIABLE: ${NEXT_PUBLIC_ENV_VARIABLE}
+      args:
+        NEWSLETTER_ENDPOINT: ${NEWSLETTER_ENDPOINT}
+        NEWSLETTER_LIST_ID: ${NEWSLETTER_LIST_ID}
     restart: always
     ports:
-      - 3000:3000
+      - ${APP_PORT:-3000}:3000
     profiles: [frontend-prod]
