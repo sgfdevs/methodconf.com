@@ -9,7 +9,7 @@ import sgfFlag from '../../public/sgf-flag.svg';
 
 export function Footer() {
     return (
-        <footer className="content-container mx-auto flex justify-between items-center pt-12 pb-16 flex-col sm:flex-row-reverse">
+        <footer className="content-container mx-auto flex justify-between items-center pt-4 pb-8 sm:pt-12 sm:pb-16 flex-col sm:flex-row-reverse">
             <section className="mb-5 sm:mb-0">
                 <nav className="flex space-x-6">
                     {[

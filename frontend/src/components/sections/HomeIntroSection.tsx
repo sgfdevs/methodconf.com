@@ -5,7 +5,7 @@ export function HomeIntroSection() {
     return (
         <section className="flex flex-col lg:flex-row">
             <div className="bg-gray-100 py-16 lg:w-1/2 lg:px-5">
-                <div className="container mx-auto lg:max-w-[500px]">
+                <div className="content-container lg:max-w-[500px]">
                     <div className="mb-8">
                         <h2 className="font-bold text-xl lg:text-4xl">
                             Invest In Yourself and Hone Your Craft
@@ -23,7 +23,7 @@ export function HomeIntroSection() {
                 </div>
             </div>
             <div className="lg:w-1/2 lg:px-5">
-                <div className="max-w-[650px] lg:max-w-[400px] mx-auto py-8 lg:pt-16">
+                <div className="content-container max-w-[650px] lg:max-w-[400px] mx-auto py-8 lg:pt-16">
                     <p className="font-bold text-xl mb-4">
                         Stay in-the-know about event updates and new speaker
                         announcements.
