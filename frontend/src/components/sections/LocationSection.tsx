@@ -1,5 +1,6 @@
 import { SectionTitleBar } from '@/components/SectionTitleBar';
 import { LOCATION_IFRAME_URL } from '@/constants';
+import { Fragment } from 'react';
 
 export interface IDetailSection {
     heading: string;
@@ -60,7 +61,7 @@ export function LocationSection() {
                     <div className="w-full lg:w-2/5">
                         <dl>
                             {details.map(({ heading, content }) => (
-                                <>
+                                <Fragment key={heading}>
                                     <dt className="font-bold text-3xl">
                                         {heading}
                                     </dt>
@@ -70,7 +71,7 @@ export function LocationSection() {
                                             __html: content,
                                         }}
                                     ></dd>
-                                </>
+                                </Fragment>
                             ))}
                         </dl>
                     </div>

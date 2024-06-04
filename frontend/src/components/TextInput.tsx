@@ -4,6 +4,9 @@ export interface ITextInputProps {
     label: string;
     name: string;
     className?: string;
+    value?: string;
+    onChange: (value: string) => void;
+    required?: boolean;
     type?: 'text' | 'email';
 }
 
@@ -11,6 +14,9 @@ export function TextInput({
     label,
     name,
     className = '',
+    value,
+    onChange,
+    required = false,
     type = 'text',
 }: ITextInputProps) {
     const id = useId();
@@ -22,9 +28,12 @@ export function TextInput({
                 <input
                     type={type}
                     id={id}
+                    value={value}
+                    onChange={(evt) => onChange(evt.target.value)}
                     className="block px-2.5 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-gray-100 appearance-none focus:outline-none focus:ring-0 peer"
                     placeholder=" "
                     name={name}
+                    required={required}
                 />
                 <label
                     htmlFor={id}
