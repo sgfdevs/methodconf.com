@@ -18,7 +18,11 @@ export function SponsorsSection() {
                             Interested in becoming a sponsor?
                         </p>
 
-                        <a href="#" className="button inline-block">
+                        <a
+                            target="_blank"
+                            href="/2024-Method-Conference-Sponsorship-Packet.pdf"
+                            className="button inline-block"
+                        >
                             See Opportunities
                         </a>
                     </div>
