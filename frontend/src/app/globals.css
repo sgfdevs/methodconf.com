@@ -8,9 +8,9 @@
 
 .content-container {
     @apply container mx-auto;
-    width: calc(100% - theme(spacing.8));
+    width: calc(100% - theme('spacing.8'));
 
     @media screen(md) {
-        width: calc(100% - theme(spacing.20));
+        width: calc(100% - theme('spacing.20'));
     }
 }
