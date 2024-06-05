@@ -12,9 +12,10 @@ export function HomeIntroSection() {
                         </h2>
                         <p>
                             Method Conference Springfield, MO is an immersive
-                            one-day conference with 6 sessions, workshops and
-                            keynote with an intense focus on digital
-                            development, design, UX, content, code, and more.
+                            one-day conference with three tracks, two one-hour
+                            session tracks, a workshop track, and a keynote. All
+                            with an intense focus on digital development,
+                            design, UX, content, code, and more.
                         </p>
                     </div>
                     <a href={SPEAKER_LINK} className="button inline-block">
