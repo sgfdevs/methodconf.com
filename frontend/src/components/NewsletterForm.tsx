@@ -35,7 +35,8 @@ export function NewsletterForm() {
         }
 
         await Swal.fire({
-            text: `Thanks for signing up for updates. You\'ll be hearing from us soon!`,
+            title: 'Check your email',
+            text: `You\'ll be sent an email to confirm your subscriptions to our newsletter`,
             icon: 'success',
         });
 
