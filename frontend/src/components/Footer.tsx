@@ -2,8 +2,9 @@ import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faYoutube,
-    faGithub,
     faXTwitter,
+    faLinkedin,
+    faInstagram,
 } from '@fortawesome/free-brands-svg-icons';
 import sgfFlag from '../../public/sgf-flag.svg';
 
@@ -14,16 +15,20 @@ export function Footer() {
                 <nav className="flex space-x-6">
                     {[
                         {
+                            icon: faLinkedin,
+                            url: 'https://www.linkedin.com/company/methodconf',
+                        },
+                        {
+                            icon: faInstagram,
+                            url: 'https://www.instagram.com/methodconference/',
+                        },
+                        {
                             icon: faXTwitter,
                             url: 'https://twitter.com/methodconf',
                         },
                         {
                             icon: faYoutube,
                             url: 'https://www.youtube.com/c/sgfdevs/videos',
-                        },
-                        {
-                            icon: faGithub,
-                            url: 'https://github.com/sgfdevs/',
                         },
                     ].map(({ icon, url }) => (
                         <a
