@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Source_Sans_3 } from 'next/font/google';
+import PlausibleProvider from 'next-plausible';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import './globals.css';
@@ -20,6 +21,12 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="scroll-smooth">
+            <head>
+                <PlausibleProvider
+                    domain="methodconf.com"
+                    customDomain="https://plausible.sgf.dev"
+                />
+            </head>
             <body className={`${sourceSans.className} font-light`}>
                 {children}
                 <Footer />
