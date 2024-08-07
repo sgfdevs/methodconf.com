@@ -6,6 +6,10 @@
     @apply text-white bg-black p-4 uppercase font-bold tracking-wider text-sm hover:-translate-y-1 transition-transform
 }
 
+.button.secondary {
+    @apply bg-primary
+}
+
 .content-container {
     @apply container mx-auto;
     width: calc(100% - theme('spacing.8'));

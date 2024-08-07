@@ -1,6 +1,6 @@
 import Image, { getImageProps } from 'next/image';
 import { Navigation } from '@/components/Navigation';
-import { SPEAKER_LINK } from '@/constants';
+import { SPEAKER_LINK, TICKET_LINK } from '@/constants';
 import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
@@ -28,6 +28,14 @@ export function HomeNav() {
                     <p className="text-lg mt-5">
                         An immersive day of code, content, and design
                     </p>
+                    <br />
+                    <a
+                        href={TICKET_LINK}
+                        target="_blank"
+                        className="button secondary inline-block"
+                    >
+                        Buy Tickets
+                    </a>
                 </div>
 
                 <div
