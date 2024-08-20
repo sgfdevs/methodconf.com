@@ -57,7 +57,7 @@ export function HomeNav() {
 
             <Navigation
                 links={[
-                    { url: SPEAKER_LINK, title: 'Speak' },
+                    { url: TICKET_LINK, title: 'Tickets' },
                     { url: '#location', title: 'Location' },
                     { url: '#sponsor', title: 'Sponsor' },
                 ]}

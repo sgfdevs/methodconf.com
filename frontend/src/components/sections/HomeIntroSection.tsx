@@ -1,4 +1,4 @@
-import { SPEAKER_LINK, TICKET_LINK } from '@/constants';
+import { TICKET_LINK } from '@/constants';
 import { NewsletterForm } from '@/components/NewsletterForm';
 
 export function HomeIntroSection() {
@@ -18,9 +18,6 @@ export function HomeIntroSection() {
                             design, UX, content, code, and more.
                         </p>
                     </div>
-                    <a href={SPEAKER_LINK} className="button inline-block">
-                        Sign Up to Speak
-                    </a>
                     <a href={TICKET_LINK} className="button inline-block ml-2">
                         Buy Tickets
                     </a>
