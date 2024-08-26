@@ -19,5 +19,6 @@ RUN dotnet publish "MethodConf.Cms.csproj" -c $BUILD_CONFIGURATION -o /app/publi
 
 FROM base AS final
 WORKDIR /app
+RUN mkdir -p wwwroot/media && mkdir -p umbraco/Data/TEMP
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "MethodConf.Cms.dll"]
