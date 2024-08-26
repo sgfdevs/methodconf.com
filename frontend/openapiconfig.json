@@ -1,0 +1,10 @@
+{
+    "generatorName": "typescript-fetch",
+    "validateSpec": false,
+    "additionalProperties": {
+        "removeOperationIdPrefix": "true",
+        "useSingleRequestParameter": "true",
+        "withoutRuntimeChecks": true,
+        "fileNaming": "camelCase"
+    }
+}
