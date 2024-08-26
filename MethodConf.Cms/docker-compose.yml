@@ -17,4 +17,3 @@ services:
 volumes:
   media-cache:
   data-protection-keys:
-  
