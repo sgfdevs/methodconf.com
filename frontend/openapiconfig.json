@@ -1,0 +1,10 @@
+{
+    "generatorName": "typescript-fetch",
+    "output": "#{cwd}/src/apiClient",
+    "validateSpec": false,
+    "additionalProperties": {
+        "removeOperationIdPrefix": "true",
+        "useSingleRequestParameter": "true",
+        "withoutRuntimeChecks": true
+    }
+}
