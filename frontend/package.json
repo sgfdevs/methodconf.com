@@ -8,7 +8,7 @@
         "start": "next start",
         "lint": "next lint",
         "lint:fix": "next lint --fix",
-        "generate:api-client": "openapi-generator-cli generate -i http://localhost:7158/umbraco/swagger/delivery/swagger.json?urls.primaryName=Umbraco%20Delivery%20API -c openapiconfig.json"
+        "generate:api-client": "openapi-generator-cli generate -i http://localhost:7158/umbraco/swagger/delivery/swagger.json?urls.primaryName=Umbraco%20Delivery%20API -c openapiconfig.json -o ./src/apiClient"
     },
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^6.6.0",
