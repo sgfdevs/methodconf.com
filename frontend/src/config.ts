@@ -6,6 +6,8 @@ export const LOCATION_IFRAME_URL =
 
 export const TICKET_LINK = '/tickets';
 
+export const DEFAULT_CONFERENCE = '2024';
+
 export const NEWSLETTER_ENDPOINT = parseUrl(process.env.NEWSLETTER_ENDPOINT);
 export const NEWSLETTER_LIST_ID = process.env.NEWSLETTER_LIST_ID;
 export const CMS_BASE_URL =
