@@ -18,12 +18,8 @@ RUN \
 
 COPY . .
 
-# Environment variables must be present at build time
+# Public environment variables must be present at build time
 # https://github.com/vercel/next.js/discussions/14030
-ARG NEWSLETTER_ENDPOINT
-ENV NEWSLETTER_ENDPOINT=${NEWSLETTER_ENDPOINT}
-ARG NEWSLETTER_LIST_ID
-ENV NEWSLETTER_LIST_ID=${NEWSLETTER_LIST_ID}
 # ARG NEXT_PUBLIC_ENV_VARIABLE
 # ENV NEXT_PUBLIC_ENV_VARIABLE=${NEXT_PUBLIC_ENV_VARIABLE}
 
