@@ -7,7 +7,7 @@ const command = path.join(
     __dirname,
     'node_modules',
     '.bin',
-    'openapi-generator-cli',
+    'openapi-typescript',
 );
 
 const baseUrl = new URL(process.env.CMS_BASE_URL ?? '');
@@ -17,13 +17,9 @@ const swaggerUrl = new URL(
 );
 
 const args = [
-    'generate',
-    '-i',
     swaggerUrl.toString(),
-    '-c',
-    'openapiconfig.json',
     '-o',
-    path.join(__dirname, 'src', 'data', 'umbracoApiClient'),
+    path.join(__dirname, 'src', 'data', 'umbraco', 'schema.d.ts'),
 ];
 
 exec(`${command} ${args.join(' ')}`, (error, stdout, stderr) => {
