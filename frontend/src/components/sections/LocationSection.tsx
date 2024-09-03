@@ -1,5 +1,5 @@
 import { SectionTitleBar } from '@/components/SectionTitleBar';
-import { LOCATION_IFRAME_URL } from '@/constants';
+import { LOCATION_IFRAME_URL } from '@/config';
 import { Fragment } from 'react';
 
 export interface IDetailSection {
