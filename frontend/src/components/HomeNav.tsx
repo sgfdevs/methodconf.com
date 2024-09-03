@@ -1,6 +1,6 @@
 import Image, { getImageProps } from 'next/image';
 import { Navigation } from '@/components/Navigation';
-import { SPEAKER_LINK, TICKET_LINK } from '@/constants';
+import { SPEAKER_LINK, TICKET_LINK } from '@/config';
 import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';

@@ -1,7 +1,6 @@
-export async function POST(request: Request): Promise<Response> {
-    const NEWSLETTER_ENDPOINT = process.env.NEWSLETTER_ENDPOINT;
-    const NEWSLETTER_LIST_ID = process.env.NEWSLETTER_LIST_ID;
+import { NEWSLETTER_ENDPOINT, NEWSLETTER_LIST_ID } from '@/config';
 
+export async function POST(request: Request): Promise<Response> {
     if (!NEWSLETTER_ENDPOINT || !NEWSLETTER_LIST_ID) {
         return Response.json({ success: false }, { status: 500 });
     }

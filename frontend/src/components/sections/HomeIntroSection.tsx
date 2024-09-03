@@ -1,4 +1,4 @@
-import { TICKET_LINK } from '@/constants';
+import { TICKET_LINK } from '@/config';
 import { NewsletterForm } from '@/components/NewsletterForm';
 
 export function HomeIntroSection() {
