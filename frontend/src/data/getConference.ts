@@ -1,4 +1,4 @@
-import { contentClient } from '@/cms/client';
+import { contentClient } from '@/data/client';
 import { DEFAULT_CONFERENCE } from '@/config';
 
 export async function getConference(

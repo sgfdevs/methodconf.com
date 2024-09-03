@@ -23,7 +23,7 @@ const args = [
     '-c',
     'openapiconfig.json',
     '-o',
-    path.join(__dirname, 'src', 'cms', 'apiClient'),
+    path.join(__dirname, 'src', 'data', 'apiClient'),
 ];
 
 exec(`${command} ${args.join(' ')}`, (error, stdout, stderr) => {

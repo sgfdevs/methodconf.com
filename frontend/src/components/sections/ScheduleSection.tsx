@@ -1,5 +1,5 @@
 import { SectionTitleBar } from '@/components/SectionTitleBar';
-import { getConference } from '@/cms/getConference';
+import { getConference } from '@/data/getConference';
 
 export async function ScheduleSection() {
     await getConference();

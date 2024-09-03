@@ -1,4 +1,4 @@
-import { Configuration, ContentApi, MediaApi } from '@/cms/apiClient';
+import { Configuration, ContentApi, MediaApi } from '@/data/apiClient';
 import { CMS_BASE_URL } from '@/config';
 
 const config = new Configuration({
