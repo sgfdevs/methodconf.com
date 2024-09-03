@@ -10,7 +10,7 @@ const command = path.join(
     'openapi-typescript',
 );
 
-const baseUrl = new URL(process.env.CMS_BASE_URL ?? '');
+const baseUrl = new URL(process.env.UMBRACO_BASE_URL ?? '');
 const swaggerUrl = new URL(
     '/umbraco/swagger/delivery/swagger.json?urls.primaryName=Umbraco%20Delivery%20API',
     baseUrl,
