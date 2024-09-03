@@ -366,7 +366,7 @@ export interface components {
         } & {
             [key: string]: unknown;
         });
-        IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["TrackContentModel"] | components["schemas"]["HomeContentModel"];
+        IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["HomeContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["TrackContentModel"];
         IApiContentModelBase: {
             /** Format: uuid */
             readonly id: string;
@@ -378,7 +378,7 @@ export interface components {
             readonly updateDate: string;
             readonly route: components["schemas"]["ApiContentRouteModel"];
         } & Omit<WithRequired<components["schemas"]["IApiElementModelBase"], "contentType" | "id">, "contentType">;
-        IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["TrackContentResponseModel"] | components["schemas"]["HomeContentResponseModel"];
+        IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["HomeContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["TrackContentResponseModel"];
         IApiContentResponseModelBase: {
             /** Format: uuid */
             readonly id: string;
@@ -393,7 +393,7 @@ export interface components {
                 [key: string]: components["schemas"]["ApiContentRouteModel"];
             };
         } & Omit<WithRequired<components["schemas"]["IApiContentModelBase"], "contentType" | "createDate" | "id" | "route" | "updateDate">, "contentType">;
-        IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"];
+        IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"];
         IApiElementModelBase: {
             /** Format: uuid */
             readonly id: string;
