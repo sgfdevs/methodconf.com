@@ -1,9 +1,41 @@
 import { umbracoClient } from '@/data/umbraco/client';
-import { Sessions } from '@/data/types';
+import { ScheduleItem, Sessions } from '@/data/types';
 import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
-import * as fs from 'node:fs';
+import { DEFAULT_CONFERENCE } from '@/config';
 
-export async function getSchedule(conferenceSlug: string) {
+export async function getSchedule(
+    conferenceSlug: string = DEFAULT_CONFERENCE,
+): Promise<ScheduleItem[]> {
+    const sessionsRootNode = await getSessionsRootNode(conferenceSlug);
+
+    if (!sessionsRootNode) {
+        return [];
+    }
+
+    const { data, error } = await umbracoClient.GET(
+        '/umbraco/delivery/api/v2/content',
+        {
+            params: {
+                query: {
+                    fetch: `descendants:${sessionsRootNode.id}`,
+                    expand: 'all',
+                },
+            },
+        },
+    );
+
+    if (error) {
+        return [];
+    }
+
+    console.log(data?.items?.map((item) => item.route));
+
+    return treeByRoutePath(data.items) as ScheduleItem[];
+}
+
+async function getSessionsRootNode(
+    conferenceSlug: string,
+): Promise<Sessions | undefined> {
     const { data, error } = await umbracoClient.GET(
         '/umbraco/delivery/api/v2/content',
         {
@@ -11,13 +43,14 @@ export async function getSchedule(conferenceSlug: string) {
                 query: {
                     filter: ['contentType:sessions'],
                     fetch: `descendants:${conferenceSlug}`,
+                    sort: ['sortOrder:asc'],
                 },
             },
         },
     );
 
     if (error) {
-        throw error;
+        return;
     }
 
     const [firstNode] = data.items;
@@ -26,19 +59,5 @@ export async function getSchedule(conferenceSlug: string) {
         return;
     }
 
-    const sessionsNode = firstNode as Sessions;
-
-    const { data: data2, error: error2 } = await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content',
-        {
-            params: {
-                query: {
-                    fetch: `descendants:${sessionsNode.id}`,
-                    expand: 'all',
-                },
-            },
-        },
-    );
-
-    console.log(JSON.stringify(treeByRoutePath(data2?.items ?? [])));
+    return firstNode as Sessions;
 }
