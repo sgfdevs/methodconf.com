@@ -1,12 +1,14 @@
 import { umbracoClient } from '@/data/umbraco/client';
-import { ScheduleItem, Sessions } from '@/data/types';
+import { ScheduleItem, Session, Sessions, Track } from '@/data/types';
 import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
-import { DEFAULT_CONFERENCE } from '@/config';
+import { parseSessionDates } from '@/data/parseSessionDates';
+
+const MAXIMUM_SCHEDULE_ITEMS = 100;
 
 export async function getSchedule(
-    conferenceSlug: string = DEFAULT_CONFERENCE,
+    conferenceId: string,
 ): Promise<ScheduleItem[]> {
-    const sessionsRootNode = await getSessionsRootNode(conferenceSlug);
+    const sessionsRootNode = await getSessionsRootNode(conferenceId);
 
     if (!sessionsRootNode) {
         return [];
@@ -18,7 +20,7 @@ export async function getSchedule(
             params: {
                 query: {
                     fetch: `descendants:${sessionsRootNode.id}`,
-                    expand: 'all',
+                    take: MAXIMUM_SCHEDULE_ITEMS,
                 },
             },
         },
@@ -28,13 +30,19 @@ export async function getSchedule(
         return [];
     }
 
-    console.log(data?.items?.map((item) => item.route));
+    const withParsedSessions = data.items.map((item) => {
+        if (item.contentType === 'session') {
+            const updatedItem = item as Session;
+            return parseSessionDates(updatedItem);
+        }
+        return item as Track;
+    });
 
-    return treeByRoutePath(data.items) as ScheduleItem[];
+    return treeByRoutePath(withParsedSessions) as ScheduleItem[];
 }
 
 async function getSessionsRootNode(
-    conferenceSlug: string,
+    conferenceId: string,
 ): Promise<Sessions | undefined> {
     const { data, error } = await umbracoClient.GET(
         '/umbraco/delivery/api/v2/content',
@@ -42,8 +50,7 @@ async function getSessionsRootNode(
             params: {
                 query: {
                     filter: ['contentType:sessions'],
-                    fetch: `descendants:${conferenceSlug}`,
-                    sort: ['sortOrder:asc'],
+                    fetch: `descendants:${conferenceId}`,
                 },
             },
         },

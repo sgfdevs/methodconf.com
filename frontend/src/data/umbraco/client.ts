@@ -4,4 +4,7 @@ import { UMBRACO_BASE_URL } from '@/config';
 
 export const umbracoClient = createClient<paths>({
     baseUrl: UMBRACO_BASE_URL.toString(),
+    fetch: (request) => {
+        return fetch(request, { cache: 'no-cache' });
+    },
 });

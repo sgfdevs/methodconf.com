@@ -12,6 +12,13 @@ export type Session = Omit<
     contentType: 'session';
 };
 
+export type SessionWithDates = Omit<Session, 'properties'> & {
+    properties: Omit<Session['properties'], 'start' | 'end'> & {
+        start: Date | null;
+        end: Date | null;
+    };
+};
+
 export type Track = Omit<
     components['schemas']['TrackContentResponseModel'],
     'contentType'
@@ -19,4 +26,6 @@ export type Track = Omit<
     contentType: 'track';
 };
 
-export type ScheduleItem = Session | (Track & { children: Session[] });
+export type TrackWithSessions = Track & { children: SessionWithDates[] };
+
+export type ScheduleItem = SessionWithDates | TrackWithSessions;

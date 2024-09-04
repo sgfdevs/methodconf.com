@@ -14,16 +14,20 @@ export function parseUrl(urlStr?: string | null): URL | undefined {
     }
 }
 
-export function partition<T>(
-    items: T[],
-    isValid: (item: T) => boolean,
-): [T[], T[]] {
-    const pass: T[] = [];
-    const fail: T[] = [];
+export function splitBy<ItemType, ValidItemType extends ItemType>(
+    items: ItemType[],
+    isValid: (item: ItemType) => item is ValidItemType,
+): [ValidItemType[], Exclude<ItemType, ValidItemType>[]] {
+    const validItems: ValidItemType[] = [];
+    const invalidItems: Exclude<ItemType, ValidItemType>[] = [];
 
     for (const item of items) {
-        (isValid(item) ? pass : fail).push(item);
+        if (isValid(item)) {
+            validItems.push(item);
+        } else {
+            invalidItems.push(item as Exclude<ItemType, ValidItemType>);
+        }
     }
 
-    return [pass, fail];
+    return [validItems, invalidItems];
 }

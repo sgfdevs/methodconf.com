@@ -1,4 +1,4 @@
-import { partition } from '@/util';
+import { splitBy } from '@/util';
 
 type Nested<T> = T & { children: Nested<T>[] };
 
@@ -35,7 +35,7 @@ function treeByRoutePathSorted<T extends { route: { path: string } }>(
         return [];
     }
 
-    const [matchingItems, nonMatchingItems] = partition(otherItems, (item) =>
+    const [matchingItems, nonMatchingItems] = splitBy(otherItems, (item) =>
         item.route.path.startsWith(shortestItem.route.path),
     );
 
