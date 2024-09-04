@@ -9,7 +9,7 @@ export interface SpeakerCardProps {
     style?: CSSProperties;
 }
 
-export function SpeakerCard({ session, style }: SpeakerCardProps) {
+export function SessionCard({ session, style }: SpeakerCardProps) {
     const { start, description, speaker } = session.properties;
 
     const markup = description?.markup;
@@ -22,7 +22,7 @@ export function SpeakerCard({ session, style }: SpeakerCardProps) {
                     {format(start, 'h:mm a')}
                 </time>
             ) : null}
-            <div className="flex">
+            <div className="flex items-center">
                 {profileImage ? (
                     <Image
                         src={imageUrl(profileImage.url, {
@@ -32,9 +32,17 @@ export function SpeakerCard({ session, style }: SpeakerCardProps) {
                         width={100}
                         height={100}
                         alt={`${speaker.name} profile image`}
+                        className="w-[80px] h-[80px] rounded-full mr-3"
                     />
                 ) : null}
-                <h4 className="text-3xl font-bold">{session.name}</h4>
+                <div>
+                    <h4 className="text-3xl font-bold">{session.name}</h4>
+                    {speaker ? (
+                        <p className="mt-2">
+                            {speaker.name}: {speaker.properties.jobTitle}
+                        </p>
+                    ) : null}
+                </div>
             </div>
             <div
                 dangerouslySetInnerHTML={{

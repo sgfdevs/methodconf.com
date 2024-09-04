@@ -7,7 +7,7 @@ import { getConference } from '@/data/getConference';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { format } from 'date-fns';
 import { CONFERENCE_DATE } from '@/config';
-import { SpeakerCard } from '@/components/SpeakerCard';
+import { SessionCard } from '@/components/SessionCard';
 
 export async function ScheduleSection() {
     const conference = await getConference();
@@ -60,7 +60,7 @@ export async function ScheduleSection() {
                     </div>
                 ))}
                 {sessions.map((session) => (
-                    <SpeakerCard
+                    <SessionCard
                         key={session.id}
                         session={session}
                         style={{

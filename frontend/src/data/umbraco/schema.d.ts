@@ -561,6 +561,7 @@ export interface components {
             contentType: "SpeakerContentResponseModel";
         } & (Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["SpeakerContentModel"], "contentType">);
         SpeakerPropertiesModel: {
+            jobTitle?: string | null;
             profileImage?: components["schemas"]["IApiMediaWithCropsModel"][] | null;
             bio?: components["schemas"]["RichTextModel"];
             websiteUrl?: string | null;
