@@ -1,12 +1,11 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import { DEFAULT_CONFERENCE } from '@/config';
-import { components } from '@/data/umbraco/schema';
+import { Conference } from '@/data/types';
+import { getSchedule } from '@/data/getSchedule';
 
 export async function getConference(
     conferenceSlug: string = DEFAULT_CONFERENCE,
-): Promise<
-    components['schemas']['ConferenceContentResponseModel'] | undefined
-> {
+): Promise<Conference | undefined> {
     const { data, error } = await umbracoClient.GET(
         '/umbraco/delivery/api/v2/content/item/{path}',
         {
@@ -22,5 +21,7 @@ export async function getConference(
         return;
     }
 
-    return data;
+    await getSchedule(data.id);
+
+    return data as Conference;
 }

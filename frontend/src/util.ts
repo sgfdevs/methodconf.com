@@ -13,3 +13,17 @@ export function parseUrl(urlStr?: string | null): URL | undefined {
         return;
     }
 }
+
+export function partition<T>(
+    items: T[],
+    isValid: (item: T) => boolean,
+): [T[], T[]] {
+    const pass: T[] = [];
+    const fail: T[] = [];
+
+    for (const item of items) {
+        (isValid(item) ? pass : fail).push(item);
+    }
+
+    return [pass, fail];
+}
