@@ -12,6 +12,6 @@ export const CONFERENCE_DATE = new Date('October 12, 2024');
 
 export const NEWSLETTER_ENDPOINT = parseUrl(process.env.NEWSLETTER_ENDPOINT);
 export const NEWSLETTER_LIST_ID = process.env.NEWSLETTER_LIST_ID;
-export const UMBRACO_BASE_URL =
-    parseUrl(process.env.UMBRACO_BASE_URL) ??
-    _throw('UMBRACO_BASE_URL is not a valid url');
+export const NEXT_PUBLIC_UMBRACO_BASE_URL =
+    parseUrl(process.env.NEXT_PUBLIC_UMBRACO_BASE_URL) ??
+    _throw('NEXT_PUBLIC_UMBRACO_BASE_URL is not a valid url');

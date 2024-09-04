@@ -1,4 +1,4 @@
-import { UMBRACO_BASE_URL } from '@/config';
+import { NEXT_PUBLIC_UMBRACO_BASE_URL } from '@/config';
 
 export interface ImageUrlOptions {
     width?: number;
@@ -6,7 +6,7 @@ export interface ImageUrlOptions {
 }
 
 export function imageUrl(url: string, { width, height }: ImageUrlOptions = {}) {
-    const parsedUrl = new URL(url, UMBRACO_BASE_URL);
+    const parsedUrl = new URL(url, NEXT_PUBLIC_UMBRACO_BASE_URL);
 
     const urlSearchParams = new URLSearchParams();
 
