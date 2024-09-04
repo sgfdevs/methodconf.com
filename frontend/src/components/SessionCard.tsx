@@ -29,7 +29,7 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
                     width={100}
                     height={100}
                     alt={`${speaker.name} profile image`}
-                    className="w-[50px] h-[50px] sm:w-[70px] sm:h-[70px] xl:w-[50px] xl:h-[80px] rounded-full mr-3"
+                    className="w-[50px] h-[50px] sm:w-[70px] sm:h-[70px] xl:w-[80px] xl:h-[80px] rounded-full mr-3"
                 />
             ) : null}
             <div>
