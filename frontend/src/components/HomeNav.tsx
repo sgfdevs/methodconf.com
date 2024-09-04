@@ -1,10 +1,11 @@
 import Image, { getImageProps } from 'next/image';
 import { Navigation } from '@/components/Navigation';
-import { SPEAKER_LINK, TICKET_LINK } from '@/config';
+import { CONFERENCE_DATE, SPEAKER_LINK, TICKET_LINK } from '@/config';
 import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
 import headerGradient from '../../public/header-gradient.svg';
+import { format } from 'date-fns';
 
 export function HomeNav() {
     const { props: headerGradientImg } = getImageProps({
@@ -23,7 +24,8 @@ export function HomeNav() {
                     />
                     <h1 className="text-2xl lg:text-5xl lg:font-thin mt-9">
                         <span className="sr-only">Method Conference </span>
-                        Saturday, October 12th, 2024 in Springfield, MO
+                        {format(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')}, 2024
+                        in Springfield, MO
                     </h1>
                     <p className="text-lg mt-5">
                         An immersive day of code, content, and design

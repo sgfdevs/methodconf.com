@@ -1,16 +1,14 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import { DEFAULT_CONFERENCE } from '@/config';
-import { components } from '@/data/umbraco/schema';
+import { Conference } from '@/data/types';
 
 export async function getConference(
-    conferenceSlug: string = DEFAULT_CONFERENCE,
-): Promise<
-    components['schemas']['ConferenceContentResponseModel'] | undefined
-> {
+    conferenceName: string = DEFAULT_CONFERENCE,
+): Promise<Conference | undefined> {
     const { data, error } = await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content/item/{path}',
+        '/umbraco/delivery/api/v2/content',
         {
-            params: { path: { path: conferenceSlug } },
+            params: { query: { filter: [`name:${conferenceName}`] } },
         },
     );
 
@@ -18,9 +16,11 @@ export async function getConference(
         return;
     }
 
-    if (data.contentType !== 'conference') {
+    const [firstNode] = data.items;
+
+    if (firstNode?.contentType !== 'conference') {
         return;
     }
 
-    return data;
+    return firstNode as Conference;
 }

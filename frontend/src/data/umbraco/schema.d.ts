@@ -294,11 +294,11 @@ export interface components {
             settings?: components["schemas"]["IApiElementModel"];
         };
         ApiBlockListModel: {
-            items: (components["schemas"]["ApiBlockItemModel"] | components["schemas"]["ApiBlockGridItemModel"])[];
+            items: components["schemas"]["ApiBlockItemModel"][];
         };
         ApiContentRouteModel: {
             path: string;
-            startItem: components["schemas"]["ApiContentStartItemModel"];
+            startItem: components["schemas"]["IApiContentStartItemModel"];
         };
         ApiContentStartItemModel: {
             /** Format: uuid */
@@ -313,19 +313,19 @@ export interface components {
             /** Format: uuid */
             readonly destinationId?: string | null;
             readonly destinationType?: string | null;
-            readonly route?: components["schemas"]["ApiContentRouteModel"] | null;
+            route?: components["schemas"]["IApiContentRouteModel"];
             linkType: components["schemas"]["LinkTypeModel"];
         };
         ConferenceContentModel: {
             properties?: components["schemas"]["ConferencePropertiesModel"];
-        } & (Omit<components["schemas"]["IApiContentModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiContentModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "conference";
         });
-        ConferenceContentResponseModel: Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["ConferenceContentModel"], "contentType"> & {
+        ConferenceContentResponseModel: Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["ConferenceContentModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -342,14 +342,14 @@ export interface components {
         };
         HomeContentModel: {
             properties?: components["schemas"]["HomePropertiesModel"];
-        } & (Omit<components["schemas"]["IApiContentModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiContentModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "home";
         });
-        HomeContentResponseModel: Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["HomeContentModel"], "contentType"> & {
+        HomeContentResponseModel: Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["HomeContentModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -366,38 +366,53 @@ export interface components {
         } & {
             [key: string]: unknown;
         });
-        IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["TrackContentModel"] | components["schemas"]["HomeContentModel"];
-        IApiContentModelBase: {
+        IApiContentModel: {
             /** Format: uuid */
             readonly id: string;
             readonly contentType: string;
-            readonly name?: string | null;
-            /** Format: date-time */
-            readonly createDate: string;
-            /** Format: date-time */
-            readonly updateDate: string;
-            readonly route: components["schemas"]["ApiContentRouteModel"];
-        } & Omit<WithRequired<components["schemas"]["IApiElementModelBase"], "contentType" | "id">, "contentType">;
-        IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["TrackContentResponseModel"] | components["schemas"]["HomeContentResponseModel"];
-        IApiContentResponseModelBase: {
-            /** Format: uuid */
-            readonly id: string;
-            readonly contentType: string;
-            readonly name?: string | null;
-            /** Format: date-time */
-            readonly createDate: string;
-            /** Format: date-time */
-            readonly updateDate: string;
-            readonly route: components["schemas"]["ApiContentRouteModel"];
-            readonly cultures: {
-                [key: string]: components["schemas"]["ApiContentRouteModel"];
+            readonly properties: {
+                [key: string]: unknown;
             };
-        } & Omit<WithRequired<components["schemas"]["IApiContentModelBase"], "contentType" | "createDate" | "id" | "route" | "updateDate">, "contentType">;
-        IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"];
-        IApiElementModelBase: {
+            readonly name?: string | null;
+            /** Format: date-time */
+            readonly createDate: string;
+            /** Format: date-time */
+            readonly updateDate: string;
+            route: components["schemas"]["IApiContentRouteModel"];
+        } & Omit<WithRequired<components["schemas"]["IApiElementModel"], "contentType" | "id" | "properties">, "contentType">;
+        IApiContentResponseModel: {
             /** Format: uuid */
             readonly id: string;
             readonly contentType: string;
+            readonly properties: {
+                [key: string]: unknown;
+            };
+            readonly name?: string | null;
+            /** Format: date-time */
+            readonly createDate: string;
+            /** Format: date-time */
+            readonly updateDate: string;
+            route: components["schemas"]["IApiContentRouteModel"];
+            readonly cultures: {
+                [key: string]: components["schemas"]["IApiContentRouteModel"];
+            };
+        } & Omit<WithRequired<components["schemas"]["IApiContentModel"], "contentType" | "createDate" | "id" | "properties" | "route" | "updateDate">, "contentType">;
+        IApiContentRouteModel: {
+            readonly path: string;
+            startItem: components["schemas"]["IApiContentStartItemModel"];
+        };
+        IApiContentStartItemModel: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly path: string;
+        };
+        IApiElementModel: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly contentType: string;
+            readonly properties: {
+                [key: string]: unknown;
+            };
         };
         IApiMediaWithCropsModel: {
             /** Format: uuid */
@@ -468,7 +483,7 @@ export interface components {
         };
         IntroAndEmailSignupBlockElementModel: {
             properties?: components["schemas"]["IntroAndEmailSignupBlockPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiElementModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -503,11 +518,11 @@ export interface components {
         };
         RichTextModel: {
             markup: string;
-            blocks: (components["schemas"]["ApiBlockItemModel"] | components["schemas"]["ApiBlockGridItemModel"])[];
+            blocks: components["schemas"]["ApiBlockItemModel"][];
         };
         ScheduleBlockElementModel: {
             properties?: components["schemas"]["ScheduleBlockPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiElementModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -518,10 +533,10 @@ export interface components {
         SessionContentModel: {
             contentType: "SessionContentModel";
             properties?: components["schemas"]["SessionPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+        } & Omit<components["schemas"]["IApiContentModel"], "contentType">;
         SessionContentResponseModel: {
             contentType: "SessionContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SessionContentModel"], "contentType">);
+        } & (Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["SessionContentModel"], "contentType">);
         SessionPropertiesModel: {
             /** Format: date-time */
             start?: string | null;
@@ -533,19 +548,20 @@ export interface components {
         SessionsContentModel: {
             contentType: "SessionsContentModel";
             properties?: components["schemas"]["SessionsPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+        } & Omit<components["schemas"]["IApiContentModel"], "contentType">;
         SessionsContentResponseModel: {
             contentType: "SessionsContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SessionsContentModel"], "contentType">);
+        } & (Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["SessionsContentModel"], "contentType">);
         SessionsPropertiesModel: Record<string, never>;
         SpeakerContentModel: {
             contentType: "SpeakerContentModel";
             properties?: components["schemas"]["SpeakerPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+        } & Omit<components["schemas"]["IApiContentModel"], "contentType">;
         SpeakerContentResponseModel: {
             contentType: "SpeakerContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SpeakerContentModel"], "contentType">);
+        } & (Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["SpeakerContentModel"], "contentType">);
         SpeakerPropertiesModel: {
+            jobTitle?: string | null;
             profileImage?: components["schemas"]["IApiMediaWithCropsModel"][] | null;
             bio?: components["schemas"]["RichTextModel"];
             websiteUrl?: string | null;
@@ -556,14 +572,14 @@ export interface components {
         SpeakersContentModel: {
             contentType: "SpeakersContentModel";
             properties?: components["schemas"]["SpeakersPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+        } & Omit<components["schemas"]["IApiContentModel"], "contentType">;
         SpeakersContentResponseModel: {
             contentType: "SpeakersContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SpeakersContentModel"], "contentType">);
+        } & (Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["SpeakersContentModel"], "contentType">);
         SpeakersPropertiesModel: Record<string, never>;
         SponsorElementModel: {
             properties?: components["schemas"]["SponsorPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiElementModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -578,7 +594,7 @@ export interface components {
         };
         SponsorTierElementModel: {
             properties?: components["schemas"]["SponsorTierPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiElementModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -591,7 +607,7 @@ export interface components {
         };
         SponsorsBlockElementModel: {
             properties?: components["schemas"]["SponsorsBlockPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiElementModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -602,16 +618,16 @@ export interface components {
         SponsorsContentModel: {
             contentType: "SponsorsContentModel";
             properties?: components["schemas"]["SponsorsPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+        } & Omit<components["schemas"]["IApiContentModel"], "contentType">;
         SponsorsContentResponseModel: {
             contentType: "SponsorsContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SponsorsContentModel"], "contentType">);
+        } & (Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["SponsorsContentModel"], "contentType">);
         SponsorsPropertiesModel: {
             tiers?: components["schemas"]["ApiBlockListModel"];
         };
         TextWithButtonsElementModel: {
             properties?: components["schemas"]["TextWithButtonsPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+        } & (Omit<components["schemas"]["IApiElementModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
@@ -625,10 +641,10 @@ export interface components {
         TrackContentModel: {
             contentType: "TrackContentModel";
             properties?: components["schemas"]["TrackPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+        } & Omit<components["schemas"]["IApiContentModel"], "contentType">;
         TrackContentResponseModel: {
             contentType: "TrackContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["TrackContentModel"], "contentType">);
+        } & (Omit<components["schemas"]["IApiContentResponseModel"], "contentType"> & Omit<components["schemas"]["TrackContentModel"], "contentType">);
         TrackPropertiesModel: Record<string, never>;
     };
     responses: never;
@@ -685,7 +701,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProblemDetails"] | components["schemas"]["HttpValidationProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Not Found */
@@ -745,7 +761,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProblemDetails"] | components["schemas"]["HttpValidationProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Not Found */
@@ -1117,7 +1133,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProblemDetails"] | components["schemas"]["HttpValidationProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
                 };
             };
         };
@@ -1164,7 +1180,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProblemDetails"] | components["schemas"]["HttpValidationProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
                 };
             };
         };

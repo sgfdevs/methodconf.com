@@ -13,3 +13,25 @@ export function parseUrl(urlStr?: string | null): URL | undefined {
         return;
     }
 }
+
+export function splitBy<ItemType, ValidItemType extends ItemType>(
+    items: ItemType[],
+    isValid: (item: ItemType) => item is ValidItemType,
+): [ValidItemType[], Exclude<ItemType, ValidItemType>[]] {
+    const validItems: ValidItemType[] = [];
+    const invalidItems: Exclude<ItemType, ValidItemType>[] = [];
+
+    for (const item of items) {
+        if (isValid(item)) {
+            validItems.push(item);
+        } else {
+            invalidItems.push(item as Exclude<ItemType, ValidItemType>);
+        }
+    }
+
+    return [validItems, invalidItems];
+}
+
+export type MappedOmit<T, K extends keyof T> = {
+    [P in keyof T as P extends K ? never : P]: T[P];
+};
