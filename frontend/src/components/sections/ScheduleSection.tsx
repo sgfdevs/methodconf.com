@@ -2,7 +2,7 @@ import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
 import { getSchedule } from '@/data/getSchedule';
 import { ScheduleItem, ParsedSession } from '@/data/types';
-import { splitBy } from '@/util';
+import { splitByTyped } from '@/util';
 import { getConference } from '@/data/getConference';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { format } from 'date-fns';
@@ -103,7 +103,7 @@ const HOUR_IN_MS = 1000 * 60 * 60;
 function createSessionGrid(
     schedule: ScheduleItem[],
 ): (ParsedSession | null)[][] {
-    const [tracks, topLevelSessions] = splitBy(
+    const [tracks, topLevelSessions] = splitByTyped(
         schedule,
         (item) => item.contentType === 'track',
     );

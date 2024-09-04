@@ -14,7 +14,7 @@ export function parseUrl(urlStr?: string | null): URL | undefined {
     }
 }
 
-export function splitBy<ItemType, ValidItemType extends ItemType>(
+export function splitByTyped<ItemType, ValidItemType extends ItemType>(
     items: ItemType[],
     isValid: (item: ItemType) => item is ValidItemType,
 ): [ValidItemType[], Exclude<ItemType, ValidItemType>[]] {
@@ -26,6 +26,24 @@ export function splitBy<ItemType, ValidItemType extends ItemType>(
             validItems.push(item);
         } else {
             invalidItems.push(item as Exclude<ItemType, ValidItemType>);
+        }
+    }
+
+    return [validItems, invalidItems];
+}
+
+export function splitBy<ItemType>(
+    items: ItemType[],
+    isValid: (item: ItemType) => boolean,
+): [ItemType[], ItemType[]] {
+    const validItems: ItemType[] = [];
+    const invalidItems: ItemType[] = [];
+
+    for (const item of items) {
+        if (isValid(item)) {
+            validItems.push(item);
+        } else {
+            invalidItems.push(item);
         }
     }
 

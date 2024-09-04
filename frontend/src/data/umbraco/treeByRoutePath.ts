@@ -1,4 +1,4 @@
-import { splitBy } from '@/util';
+import { splitBy, splitByTyped } from '@/util';
 
 type Nested<T> = T & { children: Nested<T>[] };
 
