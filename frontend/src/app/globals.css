@@ -19,6 +19,16 @@
     }
 }
 
+.large-content-container {
+    @apply mx-auto;
+    max-width: 1900px;
+    width: calc(100% - theme('spacing.8'));
+
+    @media screen(md) {
+        width: calc(100% - theme('spacing.20'));
+    }
+}
+
 .links a {
     @apply text-primary underline
 }

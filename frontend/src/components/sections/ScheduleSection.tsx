@@ -34,40 +34,51 @@ export async function ScheduleSection() {
     return (
         <section>
             <SectionTitleBar title="Schedule" />
-
-            <h3 className="text-4xl font-thin">
-                {format(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')}
-            </h3>
-            <div
-                className={`${styles.scheduleGrid} gap-8`}
-                style={
-                    {
-                        '--grid-template-areas': cssGrid
-                            .map((row) => `"${row.join(' ')}"`)
-                            .join('\n'),
-                        '--grid-template-columns': tracks.length,
-                    } as React.CSSProperties
-                }
-            >
-                {tracks.map((track) => (
+            <div className="large-content-container">
+                <div className="py-20">
+                    <h3 className="text-xl xl:text-4xl font-thin mb-8">
+                        {format(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')}
+                    </h3>
                     <div
-                        key={track.id}
-                        style={{
-                            gridArea: track.route.path.replaceAll('/', ''),
-                        }}
+                        className={`${styles.scheduleGrid} gap-4 xl:gap-8 overflow-x-scroll`}
+                        style={
+                            {
+                                '--grid-template-areas': cssGrid
+                                    .map((row) => `"${row.join(' ')}"`)
+                                    .join('\n'),
+                                '--grid-template-columns': tracks.length,
+                            } as React.CSSProperties
+                        }
                     >
-                        <h3 className="text-4xl font-thin">{track.name}</h3>
+                        {tracks.map((track) => (
+                            <div
+                                key={track.id}
+                                style={{
+                                    gridArea: track.route.path.replaceAll(
+                                        '/',
+                                        '',
+                                    ),
+                                }}
+                            >
+                                <h3 className="text-xl xl:text-4xl font-thin">
+                                    {track.name}
+                                </h3>
+                            </div>
+                        ))}
+                        {sessions.map((session) => (
+                            <SessionCard
+                                key={session.id}
+                                session={session}
+                                style={{
+                                    gridArea: session.route.path.replaceAll(
+                                        '/',
+                                        '',
+                                    ),
+                                }}
+                            />
+                        ))}
                     </div>
-                ))}
-                {sessions.map((session) => (
-                    <SessionCard
-                        key={session.id}
-                        session={session}
-                        style={{
-                            gridArea: session.route.path.replaceAll('/', ''),
-                        }}
-                    />
-                ))}
+                </div>
             </div>
         </section>
     );

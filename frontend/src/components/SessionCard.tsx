@@ -29,13 +29,15 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
                     width={100}
                     height={100}
                     alt={`${speaker.name} profile image`}
-                    className="w-[80px] h-[80px] rounded-full mr-3"
+                    className="w-[50px] h-[50px] sm:w-[70px] sm:h-[70px] xl:w-[50px] xl:h-[80px] rounded-full mr-3"
                 />
             ) : null}
             <div>
-                <p className="text-3xl font-bold">{session.name}</p>
+                <p className="text-base sm:text-lg xl:text-3xl font-bold">
+                    {session.name}
+                </p>
                 {speaker ? (
-                    <p className="mt-2">
+                    <p className="text-sm sm:text-base mt-2">
                         {speaker.name}: {speaker.properties.jobTitle}
                     </p>
                 ) : null}
@@ -47,10 +49,10 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
         <div
             key={session.id}
             style={style}
-            className={`bg-gray-100 p-8 ${styles.accordionWrapper}`}
+            className={`bg-gray-100 p-4 xl:p-8 ${styles.accordionWrapper}`}
         >
             {start ? (
-                <time className="text-2xl font-thin">
+                <time className="text-lg xl:text-2xl font-thin">
                     {format(start, 'h:mm a')}
                 </time>
             ) : null}
