@@ -8,6 +8,8 @@ export const TICKET_LINK = '/tickets';
 
 export const DEFAULT_CONFERENCE = '2024';
 
+export const CONFERENCE_DATE = new Date('October 12, 2024');
+
 export const NEWSLETTER_ENDPOINT = parseUrl(process.env.NEWSLETTER_ENDPOINT);
 export const NEWSLETTER_LIST_ID = process.env.NEWSLETTER_LIST_ID;
 export const UMBRACO_BASE_URL =
