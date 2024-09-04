@@ -20,6 +20,7 @@ export async function getSchedule(
             params: {
                 query: {
                     fetch: `descendants:${sessionsRootNode.id}`,
+                    expand: 'properties[$all]',
                     take: MAXIMUM_SCHEDULE_ITEMS,
                 },
             },

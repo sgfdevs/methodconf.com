@@ -1,12 +1,13 @@
 import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
 import { getSchedule } from '@/data/getSchedule';
-import { ScheduleItem, SessionWithDates } from '@/data/types';
+import { ScheduleItem, ParsedSession } from '@/data/types';
 import { splitBy } from '@/util';
 import { getConference } from '@/data/getConference';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { format } from 'date-fns';
 import { CONFERENCE_DATE } from '@/config';
+import { SpeakerCard } from '@/components/SpeakerCard';
 
 export async function ScheduleSection() {
     const conference = await getConference();
@@ -59,39 +60,27 @@ export async function ScheduleSection() {
                     </div>
                 ))}
                 {sessions.map((session) => (
-                    <div
+                    <SpeakerCard
                         key={session.id}
+                        session={session}
                         style={{
                             gridArea: session.route.path.replaceAll('/', ''),
                         }}
-                        className="bg-gray-100 p-8"
-                    >
-                        {session.properties.start ? (
-                            <time className="text-2xl font-thin">
-                                {format(session.properties.start, 'h:mm a')}
-                            </time>
-                        ) : null}
-                        <div className="flex">
-                            <h4 className="text-3xl font-bold">
-                                {session.name}
-                            </h4>
-                        </div>
-                    </div>
+                    />
                 ))}
-                <div></div>
             </div>
         </section>
     );
 }
 
-function getSessionDuration(session: SessionWithDates): number {
+function getSessionDuration(session: ParsedSession): number {
     return (
         (session.properties.end?.getTime() ?? 0) -
         (session.properties.start?.getTime() ?? 0)
     );
 }
 
-function sessionSort(a?: SessionWithDates, b?: SessionWithDates): number {
+function sessionSort(a?: ParsedSession, b?: ParsedSession): number {
     return (
         (a?.properties.start?.getTime() ?? 0) -
         (b?.properties.start?.getTime() ?? 0)
@@ -102,7 +91,7 @@ const HOUR_IN_MS = 1000 * 60 * 60;
 
 function createSessionGrid(
     schedule: ScheduleItem[],
-): (SessionWithDates | null)[][] {
+): (ParsedSession | null)[][] {
     const [tracks, topLevelSessions] = splitBy(
         schedule,
         (item) => item.contentType === 'track',
@@ -136,7 +125,7 @@ function createSessionGrid(
 
     const totalRows = mostBlocksInTrack + topLevelSessions.length;
 
-    const sessionGrid: (SessionWithDates | null)[][] = [];
+    const sessionGrid: (ParsedSession | null)[][] = [];
 
     let topLevelSessionIndex = 0;
     let trackSessionIndex = 0;
@@ -162,7 +151,7 @@ function createSessionGrid(
 
         trackSessionIndex++;
 
-        const rowTrackSessions: SessionWithDates[] = rowTrackSession
+        const rowTrackSessions: ParsedSession[] = rowTrackSession
             ? [rowTrackSession]
             : [];
 

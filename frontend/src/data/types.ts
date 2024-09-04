@@ -1,9 +1,17 @@
 import type { components } from '@/data/umbraco/schema';
+import { MappedOmit } from '@/util';
 
 export type Conference =
     components['schemas']['ConferenceContentResponseModel'];
 
 export type Sessions = components['schemas']['SessionsContentResponseModel'];
+
+export type Speaker = Omit<
+    components['schemas']['SpeakerContentResponseModel'],
+    'contentType'
+> & {
+    contentType: 'speaker';
+};
 
 export type Session = Omit<
     components['schemas']['SessionContentResponseModel'],
@@ -12,10 +20,14 @@ export type Session = Omit<
     contentType: 'session';
 };
 
-export type SessionWithDates = Omit<Session, 'properties'> & {
-    properties: Omit<Session['properties'], 'start' | 'end'> & {
+export type ParsedSession = MappedOmit<Session, 'properties'> & {
+    properties: MappedOmit<
+        Session['properties'],
+        'start' | 'end' | 'speaker'
+    > & {
         start: Date | null;
         end: Date | null;
+        speaker: Speaker | null;
     };
 };
 
@@ -26,6 +38,6 @@ export type Track = Omit<
     contentType: 'track';
 };
 
-export type TrackWithSessions = Track & { children: SessionWithDates[] };
+export type TrackWithSessions = Track & { children: ParsedSession[] };
 
-export type ScheduleItem = SessionWithDates | TrackWithSessions;
+export type ScheduleItem = ParsedSession | TrackWithSessions;
