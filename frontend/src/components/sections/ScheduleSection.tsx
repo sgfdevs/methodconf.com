@@ -1,17 +1,20 @@
 import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
-import { getSchedule } from '@/data/getSchedule';
 import { ScheduleItem, ParsedSession } from '@/data/types';
 import { splitByTyped } from '@/util';
-import { getConference } from '@/data/getConference';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { format } from 'date-fns';
 import { CONFERENCE_DATE } from '@/config';
 import { SessionCard } from '@/components/SessionCard';
 
-export async function ScheduleSection() {
-    const conference = await getConference();
-    const schedule = await getSchedule(conference!.id);
+export interface ScheduleSectionProps {
+    schedule?: ScheduleItem[];
+}
+
+export function ScheduleSection({ schedule = [] }: ScheduleSectionProps) {
+    if (schedule.length <= 0) {
+        return;
+    }
 
     const tracks = schedule.filter((item) => item.contentType === 'track');
 
