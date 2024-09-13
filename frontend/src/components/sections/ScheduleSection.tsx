@@ -8,14 +8,10 @@ import { CONFERENCE_DATE } from '@/config';
 import { SessionCard } from '@/components/SessionCard';
 
 export interface ScheduleSectionProps {
-    schedule?: ScheduleItem[];
+    schedule: ScheduleItem[];
 }
 
 export function ScheduleSection({ schedule = [] }: ScheduleSectionProps) {
-    if (schedule.length <= 0) {
-        return;
-    }
-
     const tracks = schedule.filter((item) => item.contentType === 'track');
 
     const sessions = schedule

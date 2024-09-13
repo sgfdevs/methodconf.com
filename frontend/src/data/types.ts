@@ -4,9 +4,11 @@ import { Overwrite } from '@/util';
 export type Conference =
     components['schemas']['ConferenceContentResponseModel'];
 
-export type Sponsor = components['schemas']['SponsorElementModel'];
-
 export type Sponsors = components['schemas']['SponsorsContentResponseModel'];
+
+export type SponsorTier = components['schemas']['SponsorTierElementModel'];
+
+export type Sponsor = components['schemas']['SponsorElementModel'];
 
 export type Sessions = components['schemas']['SessionsContentResponseModel'];
 
