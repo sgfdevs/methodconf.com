@@ -13,10 +13,11 @@ export interface SpeakerCardProps {
 }
 
 export function SessionCard({ session, style }: SpeakerCardProps) {
-    const { start, description, speaker } = session.properties;
+    const { start, description, speaker } = session.properties ?? {};
 
     const markup = description?.markup;
-    const profileImage = speaker?.properties.profileImage?.[0];
+    const profileImage = speaker?.properties?.profileImage?.[0];
+    const jobTitle = speaker?.properties?.jobTitle;
 
     const header = (
         <div className="flex items-center w-full text-left">
@@ -38,7 +39,8 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
                 </p>
                 {speaker ? (
                     <p className="text-sm sm:text-base mt-2">
-                        {speaker.name}: {speaker.properties.jobTitle}
+                        {speaker.name}
+                        {jobTitle ? `: ${jobTitle}` : ''}
                     </p>
                 ) : null}
             </div>

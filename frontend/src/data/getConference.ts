@@ -22,5 +22,5 @@ export async function getConference(
         return;
     }
 
-    return firstNode as Conference;
+    return firstNode;
 }

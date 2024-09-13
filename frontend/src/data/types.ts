@@ -1,42 +1,27 @@
 import type { components } from '@/data/umbraco/schema';
-import { MappedOmit } from '@/util';
+import { Overwrite } from '@/util';
 
 export type Conference =
     components['schemas']['ConferenceContentResponseModel'];
 
 export type Sessions = components['schemas']['SessionsContentResponseModel'];
 
-export type Speaker = Omit<
-    components['schemas']['SpeakerContentResponseModel'],
-    'contentType'
-> & {
-    contentType: 'speaker';
+export type Speaker = components['schemas']['SpeakerContentResponseModel'];
+
+export type Session = components['schemas']['SessionContentResponseModel'];
+
+export type ParsedSession = Omit<Session, 'properties'> & {
+    properties?: Overwrite<
+        NonNullable<Session['properties']>,
+        {
+            start: Date | null;
+            end: Date | null;
+            speaker: Speaker | null;
+        }
+    >;
 };
 
-export type Session = Omit<
-    components['schemas']['SessionContentResponseModel'],
-    'contentType'
-> & {
-    contentType: 'session';
-};
-
-export type ParsedSession = MappedOmit<Session, 'properties'> & {
-    properties: MappedOmit<
-        Session['properties'],
-        'start' | 'end' | 'speaker'
-    > & {
-        start: Date | null;
-        end: Date | null;
-        speaker: Speaker | null;
-    };
-};
-
-export type Track = Omit<
-    components['schemas']['TrackContentResponseModel'],
-    'contentType'
-> & {
-    contentType: 'track';
-};
+export type Track = components['schemas']['TrackContentResponseModel'];
 
 export type TrackWithSessions = Track & { children: ParsedSession[] };
 

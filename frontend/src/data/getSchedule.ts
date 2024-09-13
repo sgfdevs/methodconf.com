@@ -1,5 +1,5 @@
 import { umbracoClient } from '@/data/umbraco/client';
-import { ScheduleItem, Session, Sessions, Track } from '@/data/types';
+import { ScheduleItem, Sessions, Track } from '@/data/types';
 import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
 import { parseSessionDates } from '@/data/parseSessionDates';
 
@@ -33,10 +33,9 @@ export async function getSchedule(
 
     const withParsedSessions = data.items.map((item) => {
         if (item.contentType === 'session') {
-            const updatedItem = item as Session;
-            return parseSessionDates(updatedItem);
+            return parseSessionDates(item);
         }
-        return item as Track;
+        return item;
     });
 
     return treeByRoutePath(withParsedSessions) as ScheduleItem[];
@@ -67,5 +66,5 @@ async function getSessionsRootNode(
         return;
     }
 
-    return firstNode as Sessions;
+    return firstNode;
 }
