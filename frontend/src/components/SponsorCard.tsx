@@ -58,7 +58,12 @@ export function SponsorCard({ sponsor, cardSize }: SponsorCardProps) {
     }
 
     const contentInCard = url ? (
-        <a className={`block ${cardStyles}`} href={url} target="_blank">
+        <a
+            className={`block ${cardStyles}`}
+            href={url}
+            target="_blank"
+            title={title ? title : undefined}
+        >
             {content}
         </a>
     ) : (
