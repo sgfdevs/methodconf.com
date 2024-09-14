@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import { Source_Sans_3 } from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
 import { config } from '@fortawesome/fontawesome-svg-core';
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
     children,
 }: Readonly<{
-    children: React.ReactNode;
+    children: ReactNode;
 }>) {
     return (
         <html lang="en" className="scroll-smooth">

@@ -1,42 +1,34 @@
 import type { components } from '@/data/umbraco/schema';
-import { MappedOmit } from '@/util';
+import type { Overwrite } from '@/util';
 
 export type Conference =
     components['schemas']['ConferenceContentResponseModel'];
 
+export type Sponsors = components['schemas']['SponsorsContentResponseModel'];
+
+export type SponsorTier = components['schemas']['SponsorTierElementModel'];
+
+export type Sponsor = components['schemas']['SponsorElementModel'];
+
 export type Sessions = components['schemas']['SessionsContentResponseModel'];
 
-export type Speaker = Omit<
-    components['schemas']['SpeakerContentResponseModel'],
-    'contentType'
-> & {
-    contentType: 'speaker';
-};
+export type Session = components['schemas']['SessionContentResponseModel'];
 
-export type Session = Omit<
-    components['schemas']['SessionContentResponseModel'],
-    'contentType'
-> & {
-    contentType: 'session';
-};
+export type ParsedSession = Overwrite<
+    Session,
+    {
+        properties?: Overwrite<
+            NonNullable<Session['properties']>,
+            {
+                start: Date | null;
+                end: Date | null;
+                // speaker: Speaker | null;
+            }
+        >;
+    }
+>;
 
-export type ParsedSession = MappedOmit<Session, 'properties'> & {
-    properties: MappedOmit<
-        Session['properties'],
-        'start' | 'end' | 'speaker'
-    > & {
-        start: Date | null;
-        end: Date | null;
-        speaker: Speaker | null;
-    };
-};
-
-export type Track = Omit<
-    components['schemas']['TrackContentResponseModel'],
-    'contentType'
-> & {
-    contentType: 'track';
-};
+export type Track = components['schemas']['TrackContentResponseModel'];
 
 export type TrackWithSessions = Track & { children: ParsedSession[] };
 

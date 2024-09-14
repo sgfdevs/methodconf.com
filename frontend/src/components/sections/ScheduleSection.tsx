@@ -1,18 +1,17 @@
 import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
-import { getSchedule } from '@/data/getSchedule';
-import { ScheduleItem, ParsedSession } from '@/data/types';
+import type { ScheduleItem, ParsedSession } from '@/data/types';
 import { splitByTyped } from '@/util';
-import { getConference } from '@/data/getConference';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { format } from 'date-fns';
 import { CONFERENCE_DATE } from '@/config';
 import { SessionCard } from '@/components/SessionCard';
 
-export async function ScheduleSection() {
-    const conference = await getConference();
-    const schedule = await getSchedule(conference!.id);
+export interface ScheduleSectionProps {
+    schedule: ScheduleItem[];
+}
 
+export function ScheduleSection({ schedule = [] }: ScheduleSectionProps) {
     const tracks = schedule.filter((item) => item.contentType === 'track');
 
     const sessions = schedule
@@ -86,15 +85,15 @@ export async function ScheduleSection() {
 
 function getSessionDuration(session: ParsedSession): number {
     return (
-        (session.properties.end?.getTime() ?? 0) -
-        (session.properties.start?.getTime() ?? 0)
+        (session.properties?.end?.getTime() ?? 0) -
+        (session.properties?.start?.getTime() ?? 0)
     );
 }
 
 function sessionSort(a?: ParsedSession, b?: ParsedSession): number {
     return (
-        (a?.properties.start?.getTime() ?? 0) -
-        (b?.properties.start?.getTime() ?? 0)
+        (a?.properties?.start?.getTime() ?? 0) -
+        (b?.properties?.start?.getTime() ?? 0)
     );
 }
 
@@ -148,8 +147,8 @@ function createSessionGrid(
         const rowTrackSession = trackSessions[trackSessionIndex];
         const isTopLevelSessionRow =
             topLevelSession &&
-            (topLevelSession.properties.start?.getTime() ?? 0) <
-                (rowTrackSession?.properties.start?.getTime() ?? Infinity);
+            (topLevelSession.properties?.start?.getTime() ?? 0) <
+                (rowTrackSession?.properties?.start?.getTime() ?? Infinity);
 
         if (isTopLevelSessionRow) {
             for (let j = 0; j < trackCount; j++) {
@@ -170,8 +169,8 @@ function createSessionGrid(
             const nextTrackSession = trackSessions[trackSessionIndex];
             if (
                 nextTrackSession &&
-                rowTrackSession?.properties.start?.getTime() ===
-                    nextTrackSession.properties.start?.getTime()
+                rowTrackSession?.properties?.start?.getTime() ===
+                    nextTrackSession.properties?.start?.getTime()
             ) {
                 rowTrackSessions.push(nextTrackSession);
                 trackSessionIndex++;

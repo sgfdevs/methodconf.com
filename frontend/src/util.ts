@@ -50,6 +50,4 @@ export function splitBy<ItemType>(
     return [validItems, invalidItems];
 }
 
-export type MappedOmit<T, K extends keyof T> = {
-    [P in keyof T as P extends K ? never : P]: T[P];
-};
+export type Overwrite<T, U> = Omit<T, keyof U> & U;
