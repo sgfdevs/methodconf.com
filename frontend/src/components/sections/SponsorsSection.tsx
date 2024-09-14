@@ -20,7 +20,7 @@ export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
 
             <div className="py-12 sm:py-20">
                 {tiers.length > 0 ? (
-                    <div className="content-container">
+                    <div className="content-container mb-12 sm:mb-14">
                         <p className="text-xl xl:text-4xl font-thin mb-8 text-center">
                             Method Conference 2024 is proud to be sponsored by
                         </p>

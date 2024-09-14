@@ -16,8 +16,8 @@ export function SponsorTierItem({ tier }: SponsorTierProps) {
 
     const headingStyles =
         cardSize === 'large'
-            ? 'text-xl xl:text-4xl font-bold'
-            : 'text-xl xl:text-3xl font-semibold';
+            ? 'text-xl md:text-4xl font-bold'
+            : 'text-xl md:text-3xl font-semibold';
 
     return (
         <div>
@@ -32,7 +32,7 @@ export function SponsorTierItem({ tier }: SponsorTierProps) {
             ) : null}
             {sponsors.length > 0 ? (
                 <div
-                    className={`${cardSize === 'small' ? 'px-4' : ''} sm:px-10 mb-4 sm:mb-5`}
+                    className={`${cardSize === 'small' ? 'px-4' : ''} sm:px-10 mb-8 sm:mb-12`}
                 >
                     <div className="flex flex-wrap justify-center -m-2">
                         {sponsors.map((sponsor) => (
