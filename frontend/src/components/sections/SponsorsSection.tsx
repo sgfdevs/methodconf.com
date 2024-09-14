@@ -19,11 +19,16 @@ export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
             <SectionTitleBar title="Sponsors" />
 
             <div className="py-12 sm:py-20">
-                <div className="content-container">
-                    {tiers.map((tier) => (
-                        <SponsorTierItem key={tier.id} tier={tier} />
-                    ))}
-                </div>
+                {tiers.length > 0 ? (
+                    <div className="content-container">
+                        <p className="text-xl xl:text-4xl font-thin mb-8 text-center">
+                            Method Conference 2024 is proud to be sponsored by
+                        </p>
+                        {tiers.map((tier) => (
+                            <SponsorTierItem key={tier.id} tier={tier} />
+                        ))}
+                    </div>
+                ) : null}
 
                 <div className="content-container bg-black relative overflow-clip">
                     <div className="bg-primary w-0 sm:w-1/4 lg:w-1/3 h-full absolute right-0 top-0 bottom-0"></div>
