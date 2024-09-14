@@ -4,9 +4,9 @@ import React from 'react';
 import Image from 'next/image';
 import { Accordion, AccordionItem } from '@szhsin/react-accordion';
 import type { ParsedSession } from '@/data/types';
-import { format } from 'date-fns';
 import { imageUrl } from '@/data/umbraco/imageUrl';
 import styles from './SessionCard.module.css';
+import { LocalDate } from '@/components/LocalDate';
 
 export interface SpeakerCardProps {
     session: ParsedSession;
@@ -58,7 +58,7 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
         >
             {start ? (
                 <time className="text-lg xl:text-2xl font-thin">
-                    {format(start, 'h:mm a')}
+                    <LocalDate date={start} format="h:mm a" />
                 </time>
             ) : null}
             {markup ? (

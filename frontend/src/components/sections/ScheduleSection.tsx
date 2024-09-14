@@ -3,9 +3,9 @@ import { SectionTitleBar } from '@/components/SectionTitleBar';
 import type { ScheduleItem, ParsedSession } from '@/data/types';
 import { splitByTyped } from '@/util';
 import styles from '@/components/sections/ScheduleSection.module.css';
-import { format } from 'date-fns';
 import { CONFERENCE_DATE } from '@/config';
 import { SessionCard } from '@/components/SessionCard';
+import { LocalDate } from '@/components/LocalDate';
 
 export interface ScheduleSectionProps {
     schedule: ScheduleItem[];
@@ -36,7 +36,10 @@ export function ScheduleSection({ schedule = [] }: ScheduleSectionProps) {
             <div className="large-content-container">
                 <div className="py-20">
                     <h3 className="text-xl xl:text-4xl font-thin mb-8">
-                        {format(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')}
+                        <LocalDate
+                            date={CONFERENCE_DATE}
+                            format="EEEE, MMMM do, yyyy"
+                        />
                     </h3>
                     <div
                         className={`${styles.scheduleGrid} gap-4 xl:gap-8 overflow-x-scroll`}
