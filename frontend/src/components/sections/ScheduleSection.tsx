@@ -1,6 +1,6 @@
 import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
-import { ScheduleItem, ParsedSession } from '@/data/types';
+import type { ScheduleItem, ParsedSession } from '@/data/types';
 import { splitByTyped } from '@/util';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { format } from 'date-fns';

@@ -1,5 +1,5 @@
 import { umbracoClient } from '@/data/umbraco/client';
-import { ContentTypeKeys, ContentTypes } from '@/data/umbraco/types';
+import type { ContentTypeKeys, ContentTypes } from '@/data/umbraco/types';
 
 export type GetChildNodesOfTypeArgs<T> = {
     nodeId: string;

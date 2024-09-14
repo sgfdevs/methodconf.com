@@ -1,4 +1,4 @@
-import { Sponsors } from '@/data/types';
+import type { Sponsors } from '@/data/types';
 import { getFirstChildNodeOfType } from '@/data/umbraco/getChildNodesOfType';
 
 export async function getSponsors(

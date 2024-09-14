@@ -1,8 +1,9 @@
 'use client';
-import React, { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { Accordion, AccordionItem } from '@szhsin/react-accordion';
-import { ParsedSession } from '@/data/types';
+import type { ParsedSession } from '@/data/types';
 import { format } from 'date-fns';
 import { imageUrl } from '@/data/umbraco/imageUrl';
 import styles from './SessionCard.module.css';

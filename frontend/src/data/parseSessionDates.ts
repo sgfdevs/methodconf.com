@@ -1,4 +1,4 @@
-import { Session, ParsedSession } from '@/data/types';
+import type { Session, ParsedSession } from '@/data/types';
 import { parseUtcAsCst } from '@/data/parseUtcAsCst';
 
 export function parseSessionDates(session: Session): ParsedSession {

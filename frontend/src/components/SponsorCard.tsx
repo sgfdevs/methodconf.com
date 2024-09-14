@@ -1,4 +1,4 @@
-import { Sponsor } from '@/data/types';
+import type { Sponsor } from '@/data/types';
 
 export interface SponsorCardProps {
     sponsor: Sponsor;

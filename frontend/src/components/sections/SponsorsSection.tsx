@@ -1,6 +1,6 @@
 import { SectionTitleBar } from '@/components/SectionTitleBar';
 import Image from 'next/image';
-import { Sponsors } from '@/data/types';
+import type { Sponsors } from '@/data/types';
 import logo from '../../../public/method-logo.svg';
 import { SponsorTierItem } from '@/components/SponsorTierItem';
 

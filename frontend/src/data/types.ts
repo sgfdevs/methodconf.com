@@ -1,5 +1,5 @@
 import type { components } from '@/data/umbraco/schema';
-import { Overwrite } from '@/util';
+import type { Overwrite } from '@/util';
 
 export type Conference =
     components['schemas']['ConferenceContentResponseModel'];

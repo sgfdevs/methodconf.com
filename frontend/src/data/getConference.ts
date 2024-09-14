@@ -1,6 +1,6 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import { DEFAULT_CONFERENCE } from '@/config';
-import { Conference } from '@/data/types';
+import type { Conference } from '@/data/types';
 
 export async function getConference(
     conferenceName: string = DEFAULT_CONFERENCE,

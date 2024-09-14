@@ -1,7 +1,8 @@
 'use client';
 
 import { TextInput } from '@/components/TextInput';
-import { FormEvent, useId, useState } from 'react';
+import type { FormEvent } from 'react';
+import { useId, useState } from 'react';
 import Swal from 'sweetalert2';
 
 export function NewsletterForm() {

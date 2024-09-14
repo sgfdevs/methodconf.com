@@ -1,4 +1,4 @@
-import { SponsorTier } from '@/data/types';
+import type { SponsorTier } from '@/data/types';
 import { parseCardSize, SponsorCard } from '@/components/SponsorCard';
 
 export interface SponsorTierProps {
