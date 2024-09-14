@@ -14,5 +14,5 @@ export function LocalDate({ date, format: formatStr }: LocalDateProps) {
         setFormatted(format(date, formatStr));
     }, [date, formatStr]);
 
-    return formatted;
+    return <span suppressHydrationWarning={true}>{formatted}</span>;
 }
