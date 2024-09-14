@@ -7,12 +7,12 @@ export interface SponsorCardProps {
 
 export type CardSize = 'large' | 'medium' | 'small';
 
-export function SponsorCard({ sponsor, cardSize }: SponsorCardProps) {
+export function SponsorCard({ sponsor }: SponsorCardProps) {
     const {
         title,
-        logo,
-        darkBackground = false,
-        url,
+        // logo,
+        // darkBackground = false,
+        // url,
     } = sponsor.properties ?? {};
 
     return <div>{title}</div>;

@@ -1,6 +1,5 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import type { ScheduleItem } from '@/data/types';
-import { Sessions, Track } from '@/data/types';
 import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
 import { parseSessionDates } from '@/data/parseSessionDates';
 import { getFirstChildNodeOfType } from '@/data/umbraco/getChildNodesOfType';
