@@ -1,11 +1,10 @@
 import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
 import type { ScheduleItem, ParsedSession } from '@/data/types';
-import { splitByTyped } from '@/util';
+import { formatDate, splitBy } from '@/util';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { CONFERENCE_DATE } from '@/config';
 import { SessionCard } from '@/components/SessionCard';
-import { LocalDate } from '@/components/LocalDate';
 
 export interface ScheduleSectionProps {
     schedule: ScheduleItem[];
@@ -36,10 +35,7 @@ export function ScheduleSection({ schedule = [] }: ScheduleSectionProps) {
             <div className="large-content-container">
                 <div className="py-20">
                     <h3 className="text-xl xl:text-4xl font-thin mb-8">
-                        <LocalDate
-                            date={CONFERENCE_DATE}
-                            format="EEEE, MMMM do, yyyy"
-                        />
+                        {formatDate(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')}
                     </h3>
                     <div
                         className={`${styles.scheduleGrid} gap-4 xl:gap-8 overflow-x-scroll`}
@@ -105,7 +101,7 @@ const HOUR_IN_MS = 1000 * 60 * 60;
 function createSessionGrid(
     schedule: ScheduleItem[],
 ): (ParsedSession | null)[][] {
-    const [tracks, topLevelSessions] = splitByTyped(
+    const [tracks, topLevelSessions] = splitBy(
         schedule,
         (item) => item.contentType === 'track',
     );

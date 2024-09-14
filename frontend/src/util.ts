@@ -1,3 +1,6 @@
+import { formatInTimeZone } from 'date-fns-tz';
+import { CST_TZ } from '@/config';
+
 export function _throw(msg: string): never {
     throw msg;
 }
@@ -14,24 +17,14 @@ export function parseUrl(urlStr?: string | null): URL | undefined {
     }
 }
 
-export function splitByTyped<ItemType, ValidItemType extends ItemType>(
+export function splitBy<ItemType, ValidItemType extends ItemType>(
     items: ItemType[],
     isValid: (item: ItemType) => item is ValidItemType,
-): [ValidItemType[], Exclude<ItemType, ValidItemType>[]] {
-    const validItems: ValidItemType[] = [];
-    const invalidItems: Exclude<ItemType, ValidItemType>[] = [];
-
-    for (const item of items) {
-        if (isValid(item)) {
-            validItems.push(item);
-        } else {
-            invalidItems.push(item as Exclude<ItemType, ValidItemType>);
-        }
-    }
-
-    return [validItems, invalidItems];
-}
-
+): [ValidItemType[], Exclude<ItemType, ValidItemType>[]];
+export function splitBy<ItemType>(
+    items: ItemType[],
+    isValid: (item: ItemType) => boolean,
+): [ItemType[], ItemType[]];
 export function splitBy<ItemType>(
     items: ItemType[],
     isValid: (item: ItemType) => boolean,
@@ -48,6 +41,10 @@ export function splitBy<ItemType>(
     }
 
     return [validItems, invalidItems];
+}
+
+export function formatDate(date: Date, formatStr: string): string {
+    return formatInTimeZone(date, CST_TZ, formatStr);
 }
 
 export type Overwrite<T, U> = Omit<T, keyof U> & U;

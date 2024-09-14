@@ -5,7 +5,7 @@ import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
 import headerGradient from '../../public/header-gradient.svg';
-import { LocalDate } from '@/components/LocalDate';
+import { formatDate } from '@/util';
 
 export function HomeNav() {
     const { props: headerGradientImg } = getImageProps({
@@ -24,11 +24,8 @@ export function HomeNav() {
                     />
                     <h1 className="text-2xl lg:text-5xl lg:font-thin mt-9">
                         <span className="sr-only">Method Conference </span>
-                        <LocalDate
-                            date={CONFERENCE_DATE}
-                            format="EEEE, MMMM do, yyyy"
-                        />
-                        in Springfield, MO
+                        {formatDate(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')} in
+                        Springfield, MO
                     </h1>
                     <p className="text-lg mt-5">
                         An immersive day of code, content, and design
