@@ -7,7 +7,6 @@ import type {
 } from '@/data/types';
 import { formatDate, splitBy } from '@/util';
 import styles from '@/components/sections/ScheduleSection.module.css';
-import { CONFERENCE_DATE } from '@/config';
 import { SessionCard } from '@/components/SessionCard';
 
 export interface ScheduleSectionProps {
