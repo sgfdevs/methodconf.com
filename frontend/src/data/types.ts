@@ -4,6 +4,18 @@ import type { Overwrite } from '@/util';
 export type Conference =
     components['schemas']['ConferenceContentResponseModel'];
 
+export type ParsedConference = Overwrite<
+    Conference,
+    {
+        properties: Overwrite<
+            NonNullable<Conference['properties']>,
+            {
+                date?: Date;
+            }
+        >;
+    }
+>;
+
 export type Sponsors = components['schemas']['SponsorsContentResponseModel'];
 
 export type SponsorTier = components['schemas']['SponsorTierElementModel'];
@@ -17,12 +29,11 @@ export type Session = components['schemas']['SessionContentResponseModel'];
 export type ParsedSession = Overwrite<
     Session,
     {
-        properties?: Overwrite<
+        properties: Overwrite<
             NonNullable<Session['properties']>,
             {
-                start: Date | null;
-                end: Date | null;
-                // speaker: Speaker | null;
+                start?: Date;
+                end?: Date;
             }
         >;
     }

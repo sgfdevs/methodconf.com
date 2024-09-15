@@ -6,16 +6,32 @@ import { ScheduleSection } from '@/components/sections/ScheduleSection';
 import { getConference } from '@/data/getConference';
 import { getSchedule } from '@/data/getSchedule';
 import { getSponsors } from '@/data/getSponsors';
+import { notFound } from 'next/navigation';
 
-export default async function Home() {
-    const { schedule, sponsors } = await getHomePageData();
+export interface RootPageProps {
+    params: { conference: string };
+}
+
+export default async function Home({ params }: RootPageProps) {
+    const { conference, schedule, sponsors } = await getHomePageData(
+        params.conference,
+    );
+
+    if (!conference) {
+        return notFound();
+    }
 
     return (
         <>
-            <HomeNav />
+            <HomeNav params={params} conference={conference} />
             <main>
-                <HomeIntroSection />
-                {schedule ? <ScheduleSection schedule={schedule} /> : null}
+                <HomeIntroSection params={params} />
+                {schedule ? (
+                    <ScheduleSection
+                        conference={conference}
+                        schedule={schedule}
+                    />
+                ) : null}
                 <LocationSection />
                 {sponsors ? <SponsorsSection sponsors={sponsors} /> : null}
             </main>
@@ -23,8 +39,8 @@ export default async function Home() {
     );
 }
 
-async function getHomePageData() {
-    const conference = await getConference();
+async function getHomePageData(conferenceSlug: string) {
+    const conference = await getConference(conferenceSlug);
 
     if (!conference) {
         return {};

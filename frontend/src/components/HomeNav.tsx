@@ -1,17 +1,24 @@
 import Image, { getImageProps } from 'next/image';
 import { Navigation } from '@/components/Navigation';
-import { CONFERENCE_DATE, TICKET_LINK } from '@/config';
+import { formatDate } from '@/util';
+import type { ParsedConference } from '@/data/types';
+import type { RootPageProps } from '@/app/[conference]/page';
 import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
 import headerGradient from '../../public/header-gradient.svg';
-import { formatDate } from '@/util';
 
-export function HomeNav() {
+interface HomeNavProps extends RootPageProps {
+    conference: ParsedConference;
+}
+
+export function HomeNav({ params, conference }: HomeNavProps) {
     const { props: headerGradientImg } = getImageProps({
         src: headerGradient,
         alt: '',
     });
+
+    const { date } = conference.properties;
 
     return (
         <header>
@@ -24,7 +31,9 @@ export function HomeNav() {
                     />
                     <h1 className="text-2xl lg:text-5xl lg:font-thin mt-9">
                         <span className="sr-only">Method Conference </span>
-                        {formatDate(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')} in
+                        {date
+                            ? `${formatDate(date, 'EEEE, MMMM do, yyyy')} in `
+                            : ''}
                         Springfield, MO
                     </h1>
                     <p className="text-lg mt-5">
@@ -32,7 +41,7 @@ export function HomeNav() {
                     </p>
                     <br />
                     <a
-                        href={TICKET_LINK}
+                        href={`/${params.conference}/tickets`}
                         target="_blank"
                         className="button secondary inline-block"
                     >
@@ -59,7 +68,7 @@ export function HomeNav() {
 
             <Navigation
                 links={[
-                    { url: TICKET_LINK, title: 'Tickets' },
+                    { url: `/${params.conference}/tickets`, title: 'Tickets' },
                     { url: '#location', title: 'Location' },
                     { url: '#sponsor', title: 'Sponsor' },
                 ]}

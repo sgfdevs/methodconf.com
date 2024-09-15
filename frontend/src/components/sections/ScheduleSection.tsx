@@ -1,16 +1,26 @@
 import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
-import type { ScheduleItem, ParsedSession } from '@/data/types';
+import type {
+    ScheduleItem,
+    ParsedSession,
+    ParsedConference,
+} from '@/data/types';
 import { formatDate, splitBy } from '@/util';
 import styles from '@/components/sections/ScheduleSection.module.css';
 import { CONFERENCE_DATE } from '@/config';
 import { SessionCard } from '@/components/SessionCard';
 
 export interface ScheduleSectionProps {
+    conference: ParsedConference;
     schedule: ScheduleItem[];
 }
 
-export function ScheduleSection({ schedule = [] }: ScheduleSectionProps) {
+export function ScheduleSection({
+    conference,
+    schedule = [],
+}: ScheduleSectionProps) {
+    const { date } = conference.properties;
+
     const tracks = schedule.filter((item) => item.contentType === 'track');
 
     const sessions = schedule
@@ -34,9 +44,12 @@ export function ScheduleSection({ schedule = [] }: ScheduleSectionProps) {
             <SectionTitleBar title="Schedule" />
             <div className="large-content-container">
                 <div className="py-20">
-                    <h3 className="text-xl xl:text-4xl font-thin mb-8">
-                        {formatDate(CONFERENCE_DATE, 'EEEE, MMMM do, yyyy')}
-                    </h3>
+                    {date ? (
+                        <h3 className="text-xl xl:text-4xl font-thin mb-8">
+                            {formatDate(date, 'EEEE, MMMM do, yyyy')}
+                        </h3>
+                    ) : null}
+
                     <div
                         className={`${styles.scheduleGrid} gap-4 xl:gap-8 overflow-x-scroll`}
                         style={
