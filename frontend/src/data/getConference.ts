@@ -1,13 +1,18 @@
 import { umbracoClient } from '@/data/umbraco/client';
-import type { Conference } from '@/data/types';
+import type { ParsedConference } from '@/data/types';
+import { parseConference } from '@/data/parseConference';
 
 export async function getConference(
     conferenceSlug: string,
-): Promise<Conference | undefined> {
+): Promise<ParsedConference | undefined> {
     const { data, error } = await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content',
+        '/umbraco/delivery/api/v2/content/item/{path}',
         {
-            params: { query: { filter: [`name:${conferenceSlug}`] } },
+            params: {
+                path: {
+                    path: conferenceSlug,
+                },
+            },
         },
     );
 
@@ -15,11 +20,9 @@ export async function getConference(
         return;
     }
 
-    const [firstNode] = data.items;
-
-    if (firstNode?.contentType !== 'conference') {
+    if (data?.contentType !== 'conference') {
         return;
     }
 
-    return firstNode;
+    return parseConference(data);
 }

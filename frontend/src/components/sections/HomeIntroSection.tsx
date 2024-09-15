@@ -1,7 +1,9 @@
-import { TICKET_LINK } from '@/config';
 import { NewsletterForm } from '@/components/NewsletterForm';
+import type { RootPageProps } from '@/app/[conference]/page';
 
-export function HomeIntroSection() {
+export interface HomeIntroSectionProps extends RootPageProps {}
+
+export function HomeIntroSection({ params }: HomeIntroSectionProps) {
     return (
         <section className="flex flex-col lg:flex-row">
             <div className="bg-gray-100 py-16 lg:w-1/2 lg:px-5">
@@ -18,7 +20,11 @@ export function HomeIntroSection() {
                             design, UX, content, code, and more.
                         </p>
                     </div>
-                    <a href={TICKET_LINK} className="button inline-block ml-2">
+                    <a
+                        href={`/${params.conference}/tickets`}
+                        target="_blank"
+                        className="button inline-block ml-2"
+                    >
                         Buy Tickets
                     </a>
                 </div>
