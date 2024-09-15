@@ -1,24 +1,11 @@
-import { umbracoClient } from '@/data/umbraco/client';
 import type { ParsedConference } from '@/data/types';
 import { parseConference } from '@/data/parseConference';
+import { getItemByPath } from '@/data/umbraco/getItemByPath';
 
 export async function getConference(
     conferenceSlug: string,
 ): Promise<ParsedConference | undefined> {
-    const { data, error } = await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content/item/{path}',
-        {
-            params: {
-                path: {
-                    path: conferenceSlug,
-                },
-            },
-        },
-    );
-
-    if (error) {
-        return;
-    }
+    const data = await getItemByPath(conferenceSlug);
 
     if (data?.contentType !== 'conference') {
         return;

@@ -7,6 +7,7 @@ import type { ParsedSession } from '@/data/types';
 import { imageUrl } from '@/data/umbraco/imageUrl';
 import styles from './SessionCard.module.css';
 import { formatDate } from '@/util';
+import Link from 'next/link';
 
 export interface SpeakerCardProps {
     session: ParsedSession;
@@ -14,9 +15,9 @@ export interface SpeakerCardProps {
 }
 
 export function SessionCard({ session, style }: SpeakerCardProps) {
-    const { start, description, speaker } = session.properties ?? {};
+    const { start, description, speakers } = session.properties ?? {};
 
-    const speakerContent = speaker?.find((s) => s.contentType === 'speaker');
+    const speakerContent = speakers?.find((s) => s.contentType === 'speaker');
 
     const markup = description?.markup;
     const profileImage = speakerContent?.properties?.profileImage?.[0];
@@ -42,7 +43,12 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
                 </p>
                 {speakerContent ? (
                     <p className="text-sm sm:text-base mt-2">
-                        {speakerContent.name}
+                        <Link
+                            href={speakerContent.route.path}
+                            className="text-primary"
+                        >
+                            {speakerContent.name}
+                        </Link>
                         {jobTitle ? `: ${jobTitle}` : ''}
                     </p>
                 ) : null}
