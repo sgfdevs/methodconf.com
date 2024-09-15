@@ -30,13 +30,13 @@ export function ScheduleSection({
 
     const cssGrid: string[][] = createSessionGrid(schedule).map((gridRow) =>
         gridRow.map((gridColumn) =>
-            gridColumn ? gridColumn.route.path.replaceAll('/', '') : '...',
+            gridColumn ? createGridAreaId(gridColumn.route.path) : '...',
         ),
     );
 
-    cssGrid.unshift(
-        tracks.map((track) => track.route.path.replaceAll('/', '')),
-    );
+    cssGrid.unshift(tracks.map((track) => createGridAreaId(track.route.path)));
+
+    console.log(cssGrid);
 
     return (
         <section>
@@ -64,9 +64,8 @@ export function ScheduleSection({
                             <div
                                 key={track.id}
                                 style={{
-                                    gridArea: track.route.path.replaceAll(
-                                        '/',
-                                        '',
+                                    gridArea: createGridAreaId(
+                                        track.route.path,
                                     ),
                                 }}
                             >
@@ -80,9 +79,8 @@ export function ScheduleSection({
                                 key={session.id}
                                 session={session}
                                 style={{
-                                    gridArea: session.route.path.replaceAll(
-                                        '/',
-                                        '',
+                                    gridArea: createGridAreaId(
+                                        session.route.path,
                                     ),
                                 }}
                             />
@@ -109,6 +107,10 @@ function sessionSort(a?: ParsedSession, b?: ParsedSession): number {
 }
 
 const HOUR_IN_MS = 1000 * 60 * 60;
+
+function createGridAreaId(id: string): string {
+    return `area${id.replaceAll('/', '')}`;
+}
 
 function createSessionGrid(
     schedule: ScheduleItem[],
