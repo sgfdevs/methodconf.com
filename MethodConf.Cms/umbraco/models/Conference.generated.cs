@@ -87,13 +87,5 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
 		[ImplementPropertyType("ticketUrl")]
 		public virtual string TicketUrl => this.Value<string>(_publishedValueFallback, "ticketUrl");
-
-		///<summary>
-		/// Path
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "14.2.0+1b21caa")]
-		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("umbracoUrlName")]
-		public virtual string UmbracoUrlName => this.Value<string>(_publishedValueFallback, "umbracoUrlName");
 	}
 }
