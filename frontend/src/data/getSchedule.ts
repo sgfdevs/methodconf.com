@@ -1,7 +1,7 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import type { ScheduleItem } from '@/data/types';
 import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
-import { parseSessionDates } from '@/data/parseSessionDates';
+import { parseSession } from '@/data/parseSession';
 import { getFirstChildNodeOfType } from '@/data/umbraco/getChildNodesOfType';
 
 const MAXIMUM_SCHEDULE_ITEMS = 100;
@@ -37,7 +37,7 @@ export async function getSchedule(
 
     const withParsedSessions = data.items.map((item) => {
         if (item.contentType === 'session') {
-            return parseSessionDates(item);
+            return parseSession(item);
         }
         return item;
     });

@@ -7,8 +7,12 @@ import { getConference } from '@/data/getConference';
 import { getSchedule } from '@/data/getSchedule';
 import { getSponsors } from '@/data/getSponsors';
 
-export default async function Home() {
-    const { schedule, sponsors } = await getHomePageData();
+export default async function Home({
+    params,
+}: {
+    params: { conference: string };
+}) {
+    const { schedule, sponsors } = await getHomePageData(params.conference);
 
     return (
         <>
@@ -23,8 +27,8 @@ export default async function Home() {
     );
 }
 
-async function getHomePageData() {
-    const conference = await getConference();
+async function getHomePageData(conferenceSlug: string) {
+    const conference = await getConference(conferenceSlug);
 
     if (!conference) {
         return {};
