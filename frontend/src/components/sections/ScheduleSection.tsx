@@ -36,8 +36,6 @@ export function ScheduleSection({
 
     cssGrid.unshift(tracks.map((track) => createGridAreaId(track.route.path)));
 
-    console.log(cssGrid);
-
     return (
         <section>
             <SectionTitleBar title="Schedule" />

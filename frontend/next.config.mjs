@@ -3,6 +3,7 @@ const url = new URL(process.env.NEXT_PUBLIC_UMBRACO_BASE_URL);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     output: 'standalone',
+    trailingSlash: true,
     images: {
         remotePatterns: [
             {
