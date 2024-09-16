@@ -5,8 +5,14 @@ import { NEXT_PUBLIC_UMBRACO_BASE_URL } from '@/config';
 export const umbracoClient = createClient<paths>({
     baseUrl: NEXT_PUBLIC_UMBRACO_BASE_URL.toString(),
     fetch: async (request) => {
+        let { next } = request as RequestInit;
+
+        if ((!request.cache || request.cache === 'default') && !next) {
+            next = { revalidate: 60 };
+        }
+
         try {
-            return await fetch(request, { next: { revalidate: 60 } });
+            return await fetch(request, { next });
         } catch (err) {
             console.log(err);
             throw err;

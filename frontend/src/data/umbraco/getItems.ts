@@ -1,8 +1,10 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import type { paths } from '@/data/umbraco/schema';
+import type { UmbracoClientOptions } from '@/data/umbraco/types';
 
 type GetItemsOptions = NonNullable<
-    paths['/umbraco/delivery/api/v2/content']['get']['parameters']['query']
+    paths['/umbraco/delivery/api/v2/content']['get']['parameters']['query'] &
+        UmbracoClientOptions
 >;
 
 export async function getItemsOrDefault(options: GetItemsOptions) {
@@ -15,10 +17,14 @@ export async function getItemsOrDefault(options: GetItemsOptions) {
     return data;
 }
 
-export async function getItems(options: GetItemsOptions) {
+export async function getItems({
+    requestOptions,
+    ...options
+}: GetItemsOptions) {
     return await umbracoClient.GET('/umbraco/delivery/api/v2/content', {
         params: {
             query: options,
         },
+        ...requestOptions,
     });
 }
