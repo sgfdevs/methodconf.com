@@ -1,5 +1,5 @@
-import { umbracoClient } from '@/data/umbraco/client';
 import type { ContentTypeKeys, ContentTypes } from '@/data/umbraco/types';
+import { getItemsOrDefault } from '@/data/umbraco/getItems';
 
 export type GetChildNodesOfTypeArgs<T> = {
     nodeId: string;
@@ -14,24 +14,13 @@ export async function getChildNodesOfType<T extends ContentTypeKeys>({
 }: GetChildNodesOfTypeArgs<T>): Promise<
     Extract<ContentTypes, { contentType: T }>[]
 > {
-    const { data, error } = await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content',
-        {
-            params: {
-                query: {
-                    filter: [`contentType:${type}`],
-                    fetch: `descendants:${nodeId}`,
-                    take,
-                },
-            },
-        },
-    );
+    const { items } = await getItemsOrDefault({
+        filter: [`contentType:${type}`],
+        fetch: `descendants:${nodeId}`,
+        take,
+    });
 
-    if (error) {
-        return [];
-    }
-
-    return data.items.filter(
+    return items.filter(
         (item): item is Extract<ContentTypes, { contentType: T }> =>
             item.contentType === type,
     );

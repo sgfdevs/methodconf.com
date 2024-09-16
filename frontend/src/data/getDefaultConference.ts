@@ -1,28 +1,17 @@
 import type { ParsedConference } from '@/data/types';
-import { umbracoClient } from '@/data/umbraco/client';
 import { parseConference } from '@/data/parseConference';
+import { getItemsOrDefault } from '@/data/umbraco/getItems';
 
 export async function getDefaultConference(): Promise<
     ParsedConference | undefined
 > {
-    const { data, error } = await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content',
-        {
-            params: {
-                query: {
-                    filter: [`contentType:conference`],
-                },
-            },
-        },
-    );
-
-    if (error) {
-        return;
-    }
+    const { items } = await getItemsOrDefault({
+        filter: [`contentType:conference`],
+    });
 
     let latestConference: ParsedConference | undefined;
 
-    for (const item of data.items) {
+    for (const item of items) {
         if (item.contentType !== 'conference') {
             continue;
         }

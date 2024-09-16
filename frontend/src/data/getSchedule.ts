@@ -1,8 +1,8 @@
-import { umbracoClient } from '@/data/umbraco/client';
 import type { ScheduleItem } from '@/data/types';
 import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
 import { parseSession } from '@/data/parseSession';
 import { getFirstChildNodeOfType } from '@/data/umbraco/getChildNodesOfType';
+import { getItemsOrDefault } from '@/data/umbraco/getItems';
 
 const MAXIMUM_SCHEDULE_ITEMS = 100;
 
@@ -18,24 +18,13 @@ export async function getSchedule(
         return [];
     }
 
-    const { data, error } = await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content',
-        {
-            params: {
-                query: {
-                    fetch: `descendants:${sessionsRootNode.id}`,
-                    expand: 'properties[$all]',
-                    take: MAXIMUM_SCHEDULE_ITEMS,
-                },
-            },
-        },
-    );
+    const { items } = await getItemsOrDefault({
+        fetch: `descendants:${sessionsRootNode.id}`,
+        expand: 'properties[$all]',
+        take: MAXIMUM_SCHEDULE_ITEMS,
+    });
 
-    if (error) {
-        return [];
-    }
-
-    const withParsedSessions = data.items.map((item) => {
+    const withParsedSessions = items.map((item) => {
         if (item.contentType === 'session') {
             return parseSession(item);
         }

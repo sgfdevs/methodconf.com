@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getConference } from '@/data/getConference';
-import { getItemByPath } from '@/data/umbraco/getItemByPath';
+import { getItemByPathOrDefault } from '@/data/umbraco/getItemByPath';
 import dynamic from 'next/dynamic';
 
 export interface PageProps {
@@ -17,7 +17,7 @@ export default async function Page({ params }: PageProps) {
         return notFound();
     }
 
-    const item = await getItemByPath(
+    const item = await getItemByPathOrDefault(
         `${params.conference}/${params.slug.join('/')}`,
     );
 
