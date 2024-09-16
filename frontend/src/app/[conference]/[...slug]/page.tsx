@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getConference } from '@/data/getConference';
 import { getItemByPathOrDefault } from '@/data/umbraco/getItemByPath';
-import dynamic from 'next/dynamic';
 
 export interface PageProps {
     params: {
@@ -27,11 +26,9 @@ export default async function Page({ params }: PageProps) {
 
     switch (item.contentType) {
         case 'speaker':
-            const SpeakerDetailPage = dynamic(() =>
-                import('@/components/pageTypes/SpeakerDetailPage').then(
-                    (mod) => mod.SpeakerDetailPage,
-                ),
-            );
+            const SpeakerDetailPage = await import(
+                '@/components/pageTypes/SpeakerDetailPage'
+            ).then((mod) => mod.SpeakerDetailPage);
             return <SpeakerDetailPage conference={conference} speaker={item} />;
         default:
             return notFound();

@@ -8,13 +8,19 @@ import { imageUrl } from '@/data/umbraco/imageUrl';
 import styles from './SessionCard.module.css';
 import { formatDate } from '@/util';
 import Link from 'next/link';
+import { RichText } from '@/components/RichText';
 
 export interface SpeakerCardProps {
     session: ParsedSession;
     style?: CSSProperties;
+    disableSpeakerLinks?: boolean;
 }
 
-export function SessionCard({ session, style }: SpeakerCardProps) {
+export function SessionCard({
+    session,
+    style,
+    disableSpeakerLinks = false,
+}: SpeakerCardProps) {
     const { start, description, speakers } = session.properties ?? {};
 
     const speakerContent = speakers?.find((s) => s.contentType === 'speaker');
@@ -43,12 +49,17 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
                 </p>
                 {speakerContent ? (
                     <p className="text-sm sm:text-base mt-2">
-                        <Link
-                            href={speakerContent.route.path}
-                            className="text-primary"
-                        >
-                            {speakerContent.name}
-                        </Link>
+                        {disableSpeakerLinks ? (
+                            speakerContent.name
+                        ) : (
+                            <Link
+                                href={speakerContent.route.path}
+                                className="text-primary"
+                            >
+                                {speakerContent.name}
+                            </Link>
+                        )}
+
                         {jobTitle ? `: ${jobTitle}` : ''}
                     </p>
                 ) : null}
@@ -84,12 +95,7 @@ export function SessionCard({ session, style }: SpeakerCardProps) {
                             );
                         }}
                     >
-                        <div
-                            className="mt-4 prose"
-                            dangerouslySetInnerHTML={{
-                                __html: markup,
-                            }}
-                        />
+                        <RichText className="mt-4" markup={markup} />
                     </AccordionItem>
                 </Accordion>
             ) : (
