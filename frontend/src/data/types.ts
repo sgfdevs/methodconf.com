@@ -44,3 +44,5 @@ export type Track = components['schemas']['TrackContentResponseModel'];
 export type TrackWithSessions = Track & { children: ParsedSession[] };
 
 export type ScheduleItem = ParsedSession | TrackWithSessions;
+
+export type Speaker = components['schemas']['SpeakerContentResponseModel'];

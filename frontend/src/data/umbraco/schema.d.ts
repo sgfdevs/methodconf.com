@@ -129,6 +129,14 @@ export interface components {
       tagline?: string | null;
       location?: string | null;
     };
+    ConferencesContentModel: {
+      contentType: "conferences";
+      properties?: components["schemas"]["ConferencesPropertiesModel"];
+    } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+    ConferencesContentResponseModel: {
+      contentType: "conferences";
+    } & Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & components["schemas"]["ConferencesContentModel"];
+    ConferencesPropertiesModel: Record<string, never>;
     HomeContentModel: {
       contentType: "home";
       properties?: components["schemas"]["HomePropertiesModel"];
@@ -145,7 +153,7 @@ export interface components {
       };
       [key: string]: unknown;
     };
-    IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["TrackContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["HomeContentModel"];
+    IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["TrackContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["HomeContentModel"] | components["schemas"]["ConferencesContentModel"];
     IApiContentModelBase: WithRequired<({
       contentType: "IApiContentModelBase";
       /** Format: uuid */
@@ -158,7 +166,7 @@ export interface components {
       updateDate: string;
       route: components["schemas"]["ApiContentRouteModel"];
     }) & Omit<components["schemas"]["IApiElementModelBase"], "contentType">, "contentType" | "createDate" | "id" | "properties" | "route" | "updateDate">;
-    IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["TrackContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["HomeContentResponseModel"];
+    IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["TrackContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["HomeContentResponseModel"] | components["schemas"]["ConferencesContentResponseModel"];
     IApiContentResponseModelBase: WithRequired<({
       contentType: "IApiContentResponseModelBase";
       /** Format: uuid */
@@ -297,7 +305,7 @@ export interface components {
       start?: string | null;
       /** Format: date-time */
       end?: string | null;
-      speaker?: components["schemas"]["IApiContentModel"][] | null;
+      speakers?: components["schemas"]["IApiContentModel"][] | null;
       description?: components["schemas"]["RichTextModel"];
     };
     SessionsContentModel: {
@@ -348,8 +356,8 @@ export interface components {
     } & Omit<components["schemas"]["IApiElementModelBase"], "contentType">;
     SponsorTierPropertiesModel: {
       title?: string | null;
-      sponsors?: components["schemas"]["ApiBlockListModel"];
       logoSizes?: string | null;
+      sponsors?: components["schemas"]["ApiBlockListModel"];
     };
     SponsorsBlockElementModel: {
       contentType: "sponsorsBlock";
