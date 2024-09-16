@@ -14,12 +14,14 @@ export interface SpeakerCardProps {
     session: ParsedSession;
     style?: CSSProperties;
     disableSpeakerLinks?: boolean;
+    className?: string;
 }
 
 export function SessionCard({
     session,
     style,
     disableSpeakerLinks = false,
+    className = '',
 }: SpeakerCardProps) {
     const { start, description, speakers } = session.properties ?? {};
 
@@ -71,7 +73,7 @@ export function SessionCard({
         <div
             key={session.id}
             style={style}
-            className={`bg-gray-100 p-4 xl:p-8 ${styles.accordionWrapper}`}
+            className={`bg-gray-100 p-4 xl:p-8 ${className} ${styles.accordionWrapper}`}
         >
             {start ? (
                 <time className="text-lg xl:text-2xl font-thin">

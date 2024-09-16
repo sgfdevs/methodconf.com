@@ -87,6 +87,7 @@ export async function SpeakerDetailPage({
                                 key={session.id}
                                 session={session}
                                 disableSpeakerLinks={true}
+                                className="mb-5 last:mb-0"
                             />
                         ))}
                     </div>
