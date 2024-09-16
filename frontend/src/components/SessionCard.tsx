@@ -2,13 +2,16 @@
 import type { CSSProperties } from 'react';
 import React from 'react';
 import Image from 'next/image';
-import { Accordion, AccordionItem } from '@szhsin/react-accordion';
+import { Accordion } from '@szhsin/react-accordion';
 import type { ParsedSession } from '@/data/types';
 import { imageUrl } from '@/data/umbraco/imageUrl';
 import styles from './SessionCard.module.css';
 import { formatDate } from '@/util';
 import Link from 'next/link';
 import { RichText } from '@/components/RichText';
+import { CustomAccordionItem } from '@/components/CustomAccordionItem';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export interface SpeakerCardProps {
     session: ParsedSession;
@@ -46,9 +49,9 @@ export function SessionCard({
                 />
             ) : null}
             <div>
-                <p className="text-base sm:text-lg xl:text-3xl font-bold">
+                <h3 className="text-base sm:text-lg xl:text-3xl font-bold">
                     {session.name}
-                </p>
+                </h3>
                 {speakerContent ? (
                     <p className="text-sm sm:text-base mt-2">
                         {disableSpeakerLinks ? (
@@ -82,23 +85,27 @@ export function SessionCard({
             ) : null}
             {markup ? (
                 <Accordion transition transitionTimeout={250}>
-                    <AccordionItem
-                        headingTag="h4"
-                        header={({ state }) => {
-                            return (
-                                <div className="flex justify-between items-center">
-                                    {header}
-                                    <p className="text-primary font-medium text-lg ml-8">
-                                        {state.status === 'entered'
-                                            ? 'Less'
-                                            : 'More'}
-                                    </p>
-                                </div>
-                            );
-                        }}
+                    <CustomAccordionItem
+                        header={({ state, buttonProps }) => (
+                            <div className="flex justify-between items-center">
+                                {header}
+                                <button
+                                    className="text-primary font-medium text-lg ml-8 flex items-center"
+                                    {...buttonProps}
+                                >
+                                    {state.isEnter ? 'Less' : 'More'}
+                                    <span className="text-black text-sm ml-1">
+                                        <FontAwesomeIcon
+                                            className={`transition-[transform] duration-300 ease-[cubic-bezier(0,0,0,1)] ${state.isEnter ? 'rotate-180' : ''}`}
+                                            icon={faChevronDown}
+                                        />
+                                    </span>
+                                </button>
+                            </div>
+                        )}
                     >
                         <RichText className="mt-4" markup={markup} />
-                    </AccordionItem>
+                    </CustomAccordionItem>
                 </Accordion>
             ) : (
                 <h4>{header}</h4>
