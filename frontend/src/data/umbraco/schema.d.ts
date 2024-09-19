@@ -124,7 +124,7 @@ export interface components {
     ConferencePropertiesModel: {
       /** Format: date-time */
       date?: string | null;
-      ticketUrl?: string | null;
+      registerUrl?: string | null;
       callForSpeakersUrl?: string | null;
       tagline?: string | null;
       location?: string | null;

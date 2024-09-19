@@ -11,16 +11,16 @@ export interface TicketsProps {
 export default async function Tickets({ params }: TicketsProps) {
     const conference = await getConference(params.conference);
 
-    const ticketUrl = conference?.properties.ticketUrl;
+    const registerUrl = conference?.properties.registerUrl;
 
-    if (!ticketUrl) {
+    if (!registerUrl) {
         return notFound();
     }
 
     return (
         <section className="py-14">
             <div className="content-container">
-                <OveItEmbed embedUrl={ticketUrl} />
+                <OveItEmbed embedUrl={registerUrl} />
             </div>
         </section>
     );
