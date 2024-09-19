@@ -1,4 +1,4 @@
-import { notFound, permanentRedirect, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { getDefaultConference } from '@/data/getDefaultConference';
 
 export async function GET() {
