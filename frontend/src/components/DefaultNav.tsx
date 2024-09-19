@@ -40,7 +40,10 @@ export function DefaultNav({ conference, params }: DefaultNavProps) {
             <Navigation
                 links={[
                     { url: `/${params.conference}/`, title: 'Event Details' },
-                    { url: `/${params.conference}/tickets`, title: 'Tickets' },
+                    {
+                        url: `/${params.conference}/register/`,
+                        title: 'Register',
+                    },
                 ]}
             />
         </header>

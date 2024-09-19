@@ -41,11 +41,11 @@ export function HomeNav({ params, conference }: HomeNavProps) {
                     </p>
                     <br />
                     <a
-                        href={`/${params.conference}/tickets`}
+                        href={`/${params.conference}/register/`}
                         target="_blank"
                         className="button secondary inline-block"
                     >
-                        Buy Tickets
+                        Register Now
                     </a>
                 </div>
 
@@ -68,7 +68,10 @@ export function HomeNav({ params, conference }: HomeNavProps) {
 
             <Navigation
                 links={[
-                    { url: `/${params.conference}/tickets`, title: 'Tickets' },
+                    {
+                        url: `/${params.conference}/register/`,
+                        title: 'Register',
+                    },
                     { url: '#location', title: 'Location' },
                     { url: '#sponsor', title: 'Sponsor' },
                 ]}
