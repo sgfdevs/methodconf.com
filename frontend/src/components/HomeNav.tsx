@@ -1,4 +1,5 @@
 import Image, { getImageProps } from 'next/image';
+import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { formatDate } from '@/util';
 import type { ParsedConference } from '@/data/types';
@@ -40,13 +41,12 @@ export function HomeNav({ params, conference }: HomeNavProps) {
                         An immersive day of code, content, and design
                     </p>
                     <br />
-                    <a
+                    <Link
                         href={`/${params.conference}/register/`}
-                        target="_blank"
                         className="button secondary inline-block"
                     >
                         Register Now
-                    </a>
+                    </Link>
                 </div>
 
                 <div

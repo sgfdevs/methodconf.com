@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import type { RootPageProps } from '@/app/[conference]/page';
 
@@ -20,13 +21,12 @@ export function HomeIntroSection({ params }: HomeIntroSectionProps) {
                             design, UX, content, code, and more.
                         </p>
                     </div>
-                    <a
+                    <Link
                         href={`/${params.conference}/register/`}
-                        target="_blank"
                         className="button inline-block ml-2"
                     >
                         Register Now
-                    </a>
+                    </Link>
                 </div>
             </div>
             <div className="lg:w-1/2 lg:px-5">
