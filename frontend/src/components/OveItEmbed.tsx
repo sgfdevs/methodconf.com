@@ -68,5 +68,11 @@ export function OveItEmbed({ embedUrl }: InlineScriptProps) {
         };
     }, [resizeIframe, sendInfo]);
 
-    return <iframe className="w-full" ref={iframeRef} src={embedUrl} />;
+    return (
+        <iframe
+            className="w-full overflow-hidden"
+            ref={iframeRef}
+            src={embedUrl}
+        />
+    );
 }
