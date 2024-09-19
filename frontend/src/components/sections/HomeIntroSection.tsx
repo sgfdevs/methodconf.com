@@ -21,11 +21,11 @@ export function HomeIntroSection({ params }: HomeIntroSectionProps) {
                         </p>
                     </div>
                     <a
-                        href={`/${params.conference}/tickets`}
+                        href={`/${params.conference}/register/`}
                         target="_blank"
                         className="button inline-block ml-2"
                     >
-                        Buy Tickets
+                        Register Now
                     </a>
                 </div>
             </div>

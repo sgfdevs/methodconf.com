@@ -1,18 +1,8 @@
-import { notFound, redirect } from 'next/navigation';
-import { parseUrl } from '@/util';
-import { getConference } from '@/data/getConference';
+import { permanentRedirect } from 'next/navigation';
 
-export async function GET(
+export function GET(
     request: Request,
     { params }: { params: { conference: string } },
 ) {
-    const conference = await getConference(params.conference);
-
-    const url = parseUrl(conference?.properties?.ticketUrl);
-
-    if (!url) {
-        return notFound();
-    }
-
-    redirect(url.toString());
+    permanentRedirect(`/${params.conference}/register/`);
 }

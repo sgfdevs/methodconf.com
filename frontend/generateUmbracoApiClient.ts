@@ -1,32 +1,22 @@
-import { exec } from 'child_process';
+import fs from 'node:fs';
 import path from 'path';
 import { loadEnvConfig } from '@next/env';
+import openapiTS from 'openapi-typescript';
 loadEnvConfig(process.cwd());
 
-const command = path.join(
-    __dirname,
-    'node_modules',
-    '.bin',
-    'openapi-typescript',
-);
+async function main() {
+    const baseUrl = new URL(process.env.NEXT_PUBLIC_UMBRACO_BASE_URL ?? '');
+    const swaggerUrl = new URL(
+        '/umbraco/swagger/delivery/swagger.json?urls.primaryName=Umbraco%20Delivery%20API',
+        baseUrl,
+    );
 
-const baseUrl = new URL(process.env.NEXT_PUBLIC_UMBRACO_BASE_URL ?? '');
-const swaggerUrl = new URL(
-    '/umbraco/swagger/delivery/swagger.json?urls.primaryName=Umbraco%20Delivery%20API',
-    baseUrl,
-);
+    const output = await openapiTS(swaggerUrl.toString());
 
-const args = [
-    swaggerUrl.toString(),
-    '-o',
-    path.join(__dirname, 'src', 'data', 'umbraco', 'schema.d.ts'),
-];
+    await fs.promises.writeFile(
+        path.join(__dirname, 'src', 'data', 'umbraco', 'schema.d.ts'),
+        output,
+    );
+}
 
-exec(`${command} ${args.join(' ')}`, (error, stdout, stderr) => {
-    if (error) {
-        console.error(`exec error: ${error}`);
-        return;
-    }
-    console.log(`stdout: ${stdout}`);
-    console.error(`stderr: ${stderr}`);
-});
+void main();
