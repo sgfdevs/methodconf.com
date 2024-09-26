@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { getConference } from '@/data/getConference';
 import { getItemByPathOrDefault } from '@/data/umbraco/getItemByPath';
+import { generateMetadata as generateSpeakerMetadata } from '@/components/pageTypes/SpeakerDetailPage';
 
 export interface PageProps {
     params: {
@@ -9,18 +11,27 @@ export interface PageProps {
     };
 }
 
-export default async function Page({ params }: PageProps) {
-    const conference = await getConference(params.conference);
+export async function generateMetadata({
+    params,
+}: PageProps): Promise<Metadata> {
+    const { conference, item } = await getData(params);
 
-    if (!conference) {
+    if (!conference || !item) {
         return notFound();
     }
 
-    const item = await getItemByPathOrDefault(
-        `${params.conference}/${params.slug.join('/')}`,
-    );
+    switch (item.contentType) {
+        case 'speaker':
+            return await generateSpeakerMetadata({ conference, speaker: item });
+    }
 
-    if (!item) {
+    return {};
+}
+
+export default async function Page({ params }: PageProps) {
+    const { conference, item } = await getData(params);
+
+    if (!conference || !item) {
         return notFound();
     }
 
@@ -29,8 +40,33 @@ export default async function Page({ params }: PageProps) {
             const SpeakerDetailPage = await import(
                 '@/components/pageTypes/SpeakerDetailPage'
             ).then((mod) => mod.SpeakerDetailPage);
+
             return <SpeakerDetailPage conference={conference} speaker={item} />;
+        case 'page':
+            const GenericPage = await import(
+                '@/components/pageTypes/GenericPage'
+            ).then((mod) => mod.GenericPage);
+
+            return <GenericPage params={params} />;
         default:
             return notFound();
     }
+}
+
+async function getData(params: PageProps['params']) {
+    const conference = await getConference(params.conference);
+
+    if (!conference) {
+        return {};
+    }
+
+    const item = await getItemByPathOrDefault(
+        `${params.conference}/${params.slug.join('/')}`,
+    );
+
+    if (!item) {
+        return { conference };
+    }
+
+    return { conference, item };
 }

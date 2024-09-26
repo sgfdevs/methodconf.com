@@ -14,7 +14,10 @@ config.autoAddCss = false;
 const sourceSans = Source_Sans_3({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-    title: 'Method Conference - October 12th 2024 - Springfield, MO',
+    title: {
+        template: 'Method Conference - %s',
+        default: 'Method Conference - October 12th 2024 - Springfield, MO',
+    },
     metadataBase: NEXT_PUBLIC_SITE_URL,
 };
 
