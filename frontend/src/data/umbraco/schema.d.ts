@@ -180,7 +180,7 @@ export interface components {
         [key: string]: components["schemas"]["ApiContentRouteModel"];
       };
     }) & Omit<components["schemas"]["IApiContentModelBase"], "contentType">, "contentType" | "createDate" | "cultures" | "id" | "properties" | "route" | "updateDate">;
-    IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["RichTextElementModel"];
+    IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["RichTextElementModel"] | components["schemas"]["LocationBlockElementModel"];
     IApiElementModelBase: {
       /** Format: uuid */
       id: string;
@@ -263,6 +263,11 @@ export interface components {
     };
     /** @enum {string} */
     LinkTypeModel: "Content" | "Media" | "External";
+    LocationBlockElementModel: {
+      contentType: "locationBlock";
+      properties?: components["schemas"]["LocationBlockPropertiesModel"];
+    } & Omit<components["schemas"]["IApiElementModelBase"], "contentType">;
+    LocationBlockPropertiesModel: Record<string, never>;
     PageContentModel: {
       contentType: "page";
       properties?: components["schemas"]["PagePropertiesModel"];

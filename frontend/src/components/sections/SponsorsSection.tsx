@@ -5,7 +5,7 @@ import logo from '../../../public/method-logo.svg';
 import { SponsorTierItem } from '@/components/SponsorTierItem';
 
 export interface SponsorsSectionProps {
-    sponsors: Sponsors;
+    sponsors?: Sponsors;
 }
 
 export function SponsorsSection({ sponsors }: SponsorsSectionProps) {

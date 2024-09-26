@@ -37,17 +37,23 @@ export default async function Page({ params }: PageProps) {
 
     switch (item.contentType) {
         case 'speaker':
-            const SpeakerDetailPage = await import(
+            const { SpeakerDetailPage } = await import(
                 '@/components/pageTypes/SpeakerDetailPage'
-            ).then((mod) => mod.SpeakerDetailPage);
+            );
 
             return <SpeakerDetailPage conference={conference} speaker={item} />;
         case 'page':
-            const GenericPage = await import(
+            const { GenericPage } = await import(
                 '@/components/pageTypes/GenericPage'
-            ).then((mod) => mod.GenericPage);
+            );
 
-            return <GenericPage params={params} />;
+            return (
+                <GenericPage
+                    params={params}
+                    conference={conference}
+                    page={item}
+                />
+            );
         default:
             return notFound();
     }

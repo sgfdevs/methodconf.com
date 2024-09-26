@@ -11,7 +11,7 @@ import { SessionCard } from '@/components/SessionCard';
 
 export interface ScheduleSectionProps {
     conference: ParsedConference;
-    schedule: ScheduleItem[];
+    schedule?: ScheduleItem[];
 }
 
 export function ScheduleSection({
