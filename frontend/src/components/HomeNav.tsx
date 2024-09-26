@@ -72,8 +72,8 @@ export function HomeNav({ params, conference }: HomeNavProps) {
                         url: `/${params.conference}/register/`,
                         title: 'Register',
                     },
+                    { url: '#schedule', title: 'Schedule' },
                     { url: '#location', title: 'Location' },
-                    { url: '#sponsor', title: 'Sponsor' },
                 ]}
             />
         </header>

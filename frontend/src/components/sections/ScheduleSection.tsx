@@ -37,7 +37,7 @@ export function ScheduleSection({
     cssGrid.unshift(tracks.map((track) => createGridAreaId(track.route.path)));
 
     return (
-        <section>
+        <section id="schedule">
             <SectionTitleBar title="Schedule" />
             <div className="large-content-container">
                 <div className="py-20">
