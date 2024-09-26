@@ -30,16 +30,20 @@ export function HomeNav({ params, conference }: HomeNavProps) {
                         src={logo}
                         alt="Method Logo"
                     />
-                    <h1 className="text-2xl lg:text-5xl lg:font-thin mt-9">
+                    <h1 className="text-2xl md:text-4xl lg:text-5xl lg:font-thin mt-9">
                         <span className="sr-only">Method Conference </span>
                         {date
                             ? `${formatDate(date, 'EEEE, MMMM do, yyyy')} in `
                             : ''}
                         Springfield, MO
                     </h1>
-                    <p className="text-lg mt-5">
-                        An immersive day of code, content, and design
+                    <p className="text-xl md:text-2xl font-medium mt-5">
+                        An immersive day of{' '}
+                        <span className="text-primary">code</span>,{' '}
+                        <span className="text-primary">content</span>, and{' '}
+                        <span className="text-primary">more</span>
                     </p>
+                    <br />
                     <br />
                     <Link
                         href={`/${params.conference}/register/`}

@@ -57,6 +57,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Environment variables must be redefined at run time
 ARG NEXT_PUBLIC_UMBRACO_BASE_URL
 ENV NEXT_PUBLIC_UMBRACO_BASE_URL=${NEXT_PUBLIC_UMBRACO_BASE_URL}
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
 # Uncomment the following line to disable telemetry at run time
 # ENV NEXT_TELEMETRY_DISABLED 1
