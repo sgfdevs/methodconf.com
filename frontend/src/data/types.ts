@@ -57,3 +57,5 @@ export type RichTextBlock = components['schemas']['RichTextElementModel'];
 
 export type TextWithButtonsBlock =
     components['schemas']['TextWithButtonsElementModel'];
+
+export type CmsLink = components['schemas']['ApiLinkModel'];
