@@ -15,10 +15,10 @@ export function SponsorsBlock({ sponsors }: SponsorBlockProps) {
             .filter((content) => content.contentType === 'sponsorTier') ?? [];
 
     return (
-        <section id="sponsor">
+        <section id="sponsor" className="mb-12 sm:mb-20">
             <SectionTitleBar title="Sponsors" />
 
-            <div className="py-12 sm:py-20">
+            <div className="pt-12 sm:pt-20">
                 {tiers.length > 0 ? (
                     <div className="content-container mb-12 sm:mb-14">
                         <p className="text-xl xl:text-4xl font-thin mb-8 text-center">

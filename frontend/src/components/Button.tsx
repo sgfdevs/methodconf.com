@@ -38,12 +38,7 @@ export function CmsButton({ cmsLink, children, className }: CmsButtonProps) {
         const path = queryString ? route.path + queryString : route.path;
 
         return (
-            <Link
-                className={className}
-                href={path}
-                target={target}
-                scroll={queryString?.startsWith('#') ?? false}
-            >
+            <Link className={className} href={path} target={target}>
                 {children ?? title}
             </Link>
         );
@@ -87,7 +82,7 @@ export function UrlButton({ className, url, children }: UrlButtonProps) {
     }
 
     return (
-        <Link className={className} href={url} scroll={url.startsWith('#')}>
+        <Link className={className} href={url}>
             {children}
         </Link>
     );

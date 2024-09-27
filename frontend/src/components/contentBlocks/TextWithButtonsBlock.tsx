@@ -13,8 +13,8 @@ export function TextWithButtonsBlock({ block }: TextWithButtonsBlockProps) {
     console.log(buttons);
 
     return (
-        <section>
-            <div className="small-content-container py-12 sm:py-20">
+        <section className="my-12 sm:my-20">
+            <div className="small-content-container">
                 {text ? <RichText className="mb-5" markup={text} /> : null}
                 <div className="flex space-x-3">
                     {buttons.map((button, index) => (

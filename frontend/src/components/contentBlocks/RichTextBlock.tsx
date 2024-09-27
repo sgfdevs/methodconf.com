@@ -9,12 +9,10 @@ export function RichTextBlock({ block }: RichTextBlockProps) {
     const { markup } = block.properties?.text ?? {};
 
     return (
-        <section>
-            {markup ? (
-                <div className="small-content-container py-12 sm:py-20">
-                    <RichText markup={markup} />
-                </div>
-            ) : null}
+        <section className="my-12 sm:my-20">
+            <div className="small-content-container">
+                {markup ? <RichText markup={markup} /> : null}
+            </div>
         </section>
     );
 }
