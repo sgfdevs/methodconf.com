@@ -155,7 +155,7 @@ export async function getPageDataForBlocks(
         );
     }
 
-    if (blocks.find((block) => block.contentType === 'sponsor')) {
+    if (blocks.find((block) => block.contentType === 'sponsorsBlock')) {
         tasks.push(
             getSponsors(conference.id).then((sponsors) => {
                 pageData.sponsors = sponsors;

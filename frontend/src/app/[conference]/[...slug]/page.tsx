@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getConference } from '@/data/getConference';
 import { getItemByPathOrDefault } from '@/data/umbraco/getItemByPath';
 import { generateMetadata as generateSpeakerMetadata } from '@/components/pageTypes/SpeakerDetailPage';
+import { generateMetadata as generateGenericMetadata } from '@/components/pageTypes/GenericPage';
 
 export interface PageProps {
     params: {
@@ -24,6 +25,12 @@ export async function generateMetadata({
     switch (item.contentType) {
         case 'speaker':
             return await generateSpeakerMetadata({ conference, speaker: item });
+        case 'page':
+            return await generateGenericMetadata({
+                params,
+                conference,
+                page: item,
+            });
     }
 
     return {};

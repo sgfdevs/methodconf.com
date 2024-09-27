@@ -1,23 +1,44 @@
 import { HomeNav } from '@/components/HomeNav';
-import { IntroAndEmailSignupBlock } from '@/components/contentBlocks/IntroAndEmailSignupBlock';
-import { SponsorsBlock } from '@/components/contentBlocks/SponsorsBlock';
-import { LocationBlock } from '@/components/contentBlocks/LocationBlock';
-import { ScheduleBlock } from '@/components/contentBlocks/ScheduleBlock';
 import { getConference } from '@/data/getConference';
-import { getSchedule } from '@/data/getSchedule';
-import { getSponsors } from '@/data/getSponsors';
 import { notFound } from 'next/navigation';
+import {
+    generateMetadata as generateGenericMetadata,
+    GenericPage,
+} from '@/components/pageTypes/GenericPage';
+import { getItemByPathOrDefault } from '@/data/umbraco/getItemByPath';
+import type { Metadata } from 'next';
 
 export interface RootPageProps {
     params: { conference: string };
 }
 
-export default async function Home({ params }: RootPageProps) {
-    const { conference, schedule, sponsors } = await getHomePageData(
+export async function generateMetadata({
+    params,
+}: RootPageProps): Promise<Metadata> {
+    const { conference, homeContent } = await getHomePageData(
         params.conference,
     );
 
-    if (!conference) {
+    if (!conference || !homeContent) {
+        return notFound();
+    }
+
+    return await generateGenericMetadata({
+        params: {
+            conference: params.conference,
+            slug: [],
+        },
+        conference,
+        page: homeContent,
+    });
+}
+
+export default async function Home({ params }: RootPageProps) {
+    const { conference, homeContent } = await getHomePageData(
+        params.conference,
+    );
+
+    if (!conference || !homeContent) {
         return notFound();
     }
 
@@ -25,15 +46,14 @@ export default async function Home({ params }: RootPageProps) {
         <>
             <HomeNav params={params} conference={conference} />
             <main>
-                <IntroAndEmailSignupBlock params={params} />
-                {schedule ? (
-                    <ScheduleBlock
-                        conference={conference}
-                        schedule={schedule}
-                    />
-                ) : null}
-                <LocationBlock />
-                {sponsors ? <SponsorsBlock sponsors={sponsors} /> : null}
+                <GenericPage
+                    params={{
+                        conference: params.conference,
+                        slug: [],
+                    }}
+                    conference={conference}
+                    page={homeContent}
+                />
             </main>
         </>
     );
@@ -46,10 +66,11 @@ async function getHomePageData(conferenceSlug: string) {
         return {};
     }
 
-    const [schedule, sponsors] = await Promise.all([
-        getSchedule(conference.id),
-        getSponsors(conference.id),
-    ]);
+    const homeContent = await getItemByPathOrDefault(`${conferenceSlug}/home`);
 
-    return { conference, schedule, sponsors };
+    if (homeContent?.contentType !== 'home') {
+        return { conference };
+    }
+
+    return { conference, homeContent };
 }

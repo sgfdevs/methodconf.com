@@ -47,7 +47,9 @@ export type ScheduleItem = ParsedSession | TrackWithSessions;
 
 export type Speaker = components['schemas']['SpeakerContentResponseModel'];
 
-export type Page = components['schemas']['PageContentResponseModel'];
+export type Page =
+    | components['schemas']['PageContentResponseModel']
+    | components['schemas']['HomeContentResponseModel'];
 
 export type ContentBlock = components['schemas']['IApiElementModel'];
 
