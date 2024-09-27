@@ -59,24 +59,24 @@ export async function generateMetadata({
 
     return metadata;
 }
-const HomeIntroSection = dynamic(() =>
-    import('@/components/sections/HomeIntroSection').then(
-        (mod) => mod.HomeIntroSection,
+const IntroAndEmailSignupBlock = dynamic(() =>
+    import('@/components/contentBlocks/IntroAndEmailSignupBlock').then(
+        (mod) => mod.IntroAndEmailSignupBlock,
     ),
 );
-const ScheduleSection = dynamic(() =>
-    import('@/components/sections/ScheduleSection').then(
-        (mod) => mod.ScheduleSection,
+const ScheduleBlock = dynamic(() =>
+    import('@/components/contentBlocks/ScheduleBlock').then(
+        (mod) => mod.ScheduleBlock,
     ),
 );
-const LocationSection = dynamic(() =>
-    import('@/components/sections/LocationSection').then(
-        (mod) => mod.LocationSection,
+const LocationBlock = dynamic(() =>
+    import('@/components/contentBlocks/LocationBlock').then(
+        (mod) => mod.LocationBlock,
     ),
 );
-const SponsorsSection = dynamic(() =>
-    import('@/components/sections/SponsorsSection').then(
-        (mod) => mod.SponsorsSection,
+const SponsorsBlock = dynamic(() =>
+    import('@/components/contentBlocks/SponsorsBlock').then(
+        (mod) => mod.SponsorsBlock,
     ),
 );
 
@@ -100,22 +100,22 @@ export async function GenericPage({
                     switch (block.contentType) {
                         case 'introAndEmailSignupBlock':
                             return (
-                                <HomeIntroSection
+                                <IntroAndEmailSignupBlock
                                     key={block.id}
                                     params={params}
                                 />
                             );
                         case 'scheduleBlock':
                             return (
-                                <ScheduleSection
+                                <ScheduleBlock
                                     conference={conference}
                                     schedule={schedule}
                                 />
                             );
                         case 'locationBlock':
-                            return <LocationSection />;
+                            return <LocationBlock />;
                         case 'sponsorsBlock':
-                            return <SponsorsSection sponsors={sponsors} />;
+                            return <SponsorsBlock sponsors={sponsors} />;
                     }
                 }),
             )}

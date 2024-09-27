@@ -6,18 +6,18 @@ import type {
     ParsedConference,
 } from '@/data/types';
 import { formatDate, splitBy } from '@/util';
-import styles from '@/components/sections/ScheduleSection.module.css';
+import styles from '@/components/contentBlocks/ScheduleBlock.module.css';
 import { SessionCard } from '@/components/SessionCard';
 
-export interface ScheduleSectionProps {
+export interface ScheduleBlockProps {
     conference: ParsedConference;
     schedule?: ScheduleItem[];
 }
 
-export function ScheduleSection({
+export function ScheduleBlock({
     conference,
     schedule = [],
-}: ScheduleSectionProps) {
+}: ScheduleBlockProps) {
     const { date } = conference.properties;
 
     const tracks = schedule.filter((item) => item.contentType === 'track');

@@ -4,11 +4,11 @@ import type { Sponsors } from '@/data/types';
 import logo from '../../../public/method-logo.svg';
 import { SponsorTierItem } from '@/components/SponsorTierItem';
 
-export interface SponsorsSectionProps {
+export interface SponsorBlockProps {
     sponsors?: Sponsors;
 }
 
-export function SponsorsSection({ sponsors }: SponsorsSectionProps) {
+export function SponsorsBlock({ sponsors }: SponsorBlockProps) {
     const tiers =
         sponsors?.properties?.tiers?.items
             .map((item) => item.content)

@@ -2,9 +2,11 @@ import Link from 'next/link';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import type { RootPageProps } from '@/app/[conference]/page';
 
-export interface HomeIntroSectionProps extends RootPageProps {}
+export interface IntroAndEmailSignupBlockProps extends RootPageProps {}
 
-export function HomeIntroSection({ params }: HomeIntroSectionProps) {
+export function IntroAndEmailSignupBlock({
+    params,
+}: IntroAndEmailSignupBlockProps) {
     return (
         <section className="flex flex-col lg:flex-row">
             <div className="bg-gray-100 py-16 lg:w-1/2 lg:px-5">
