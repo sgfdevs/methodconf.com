@@ -1,5 +1,5 @@
-import type { PageProps } from '@/app/[conference]/[...slug]/page';
 import type { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import type {
     ContentBlock,
     Page,
@@ -7,6 +7,7 @@ import type {
     ScheduleItem,
     Sponsors,
 } from '@/data/types';
+import type { PageProps } from '@/app/[conference]/[...slug]/page';
 import { imageUrl } from '@/data/umbraco/imageUrl';
 import { getSchedule } from '@/data/getSchedule';
 import { getSponsors } from '@/data/getSponsors';
@@ -58,6 +59,26 @@ export async function generateMetadata({
 
     return metadata;
 }
+const HomeIntroSection = dynamic(() =>
+    import('@/components/sections/HomeIntroSection').then(
+        (mod) => mod.HomeIntroSection,
+    ),
+);
+const ScheduleSection = dynamic(() =>
+    import('@/components/sections/ScheduleSection').then(
+        (mod) => mod.ScheduleSection,
+    ),
+);
+const LocationSection = dynamic(() =>
+    import('@/components/sections/LocationSection').then(
+        (mod) => mod.LocationSection,
+    ),
+);
+const SponsorsSection = dynamic(() =>
+    import('@/components/sections/SponsorsSection').then(
+        (mod) => mod.SponsorsSection,
+    ),
+);
 
 export async function GenericPage({
     params,
@@ -78,9 +99,6 @@ export async function GenericPage({
                 blocks.map(async (block) => {
                     switch (block.contentType) {
                         case 'introAndEmailSignupBlock':
-                            const { HomeIntroSection } = await import(
-                                '@/components/sections/HomeIntroSection'
-                            );
                             return (
                                 <HomeIntroSection
                                     key={block.id}
@@ -88,10 +106,6 @@ export async function GenericPage({
                                 />
                             );
                         case 'scheduleBlock':
-                            const { ScheduleSection } = await import(
-                                '@/components/sections/ScheduleSection'
-                            );
-
                             return (
                                 <ScheduleSection
                                     conference={conference}
@@ -99,15 +113,8 @@ export async function GenericPage({
                                 />
                             );
                         case 'locationBlock':
-                            const { LocationSection } = await import(
-                                '@/components/sections/LocationSection'
-                            );
                             return <LocationSection />;
                         case 'sponsorsBlock':
-                            const { SponsorsSection } = await import(
-                                '@/components/sections/SponsorsSection'
-                            );
-
                             return <SponsorsSection sponsors={sponsors} />;
                     }
                 }),
