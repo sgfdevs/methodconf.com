@@ -10,8 +10,6 @@ export function TextWithButtonsBlock({ block }: TextWithButtonsBlockProps) {
     const text = block.properties?.text?.markup;
     const buttons = block.properties?.buttons ?? [];
 
-    console.log(buttons);
-
     return (
         <section className="my-12 sm:my-20">
             <div className="small-content-container">
