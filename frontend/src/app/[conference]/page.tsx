@@ -1,8 +1,8 @@
 import { HomeNav } from '@/components/HomeNav';
-import { HomeIntroSection } from '@/components/sections/HomeIntroSection';
-import { SponsorsSection } from '@/components/sections/SponsorsSection';
-import { LocationSection } from '@/components/sections/LocationSection';
-import { ScheduleSection } from '@/components/sections/ScheduleSection';
+import { IntroAndEmailSignupBlock } from '@/components/contentBlocks/IntroAndEmailSignupBlock';
+import { SponsorsBlock } from '@/components/contentBlocks/SponsorsBlock';
+import { LocationBlock } from '@/components/contentBlocks/LocationBlock';
+import { ScheduleBlock } from '@/components/contentBlocks/ScheduleBlock';
 import { getConference } from '@/data/getConference';
 import { getSchedule } from '@/data/getSchedule';
 import { getSponsors } from '@/data/getSponsors';
@@ -25,15 +25,15 @@ export default async function Home({ params }: RootPageProps) {
         <>
             <HomeNav params={params} conference={conference} />
             <main>
-                <HomeIntroSection params={params} />
+                <IntroAndEmailSignupBlock params={params} />
                 {schedule ? (
-                    <ScheduleSection
+                    <ScheduleBlock
                         conference={conference}
                         schedule={schedule}
                     />
                 ) : null}
-                <LocationSection />
-                {sponsors ? <SponsorsSection sponsors={sponsors} /> : null}
+                <LocationBlock />
+                {sponsors ? <SponsorsBlock sponsors={sponsors} /> : null}
             </main>
         </>
     );

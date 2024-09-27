@@ -3,7 +3,7 @@ import { DefaultNav } from '@/components/DefaultNav';
 import { getConference } from '@/data/getConference';
 import { notFound } from 'next/navigation';
 import { getSponsors } from '@/data/getSponsors';
-import { SponsorsSection } from '@/components/sections/SponsorsSection';
+import { SponsorsBlock } from '@/components/contentBlocks/SponsorsBlock';
 
 export interface PageLayoutProps {
     children: ReactNode;
@@ -29,7 +29,7 @@ export default async function PageLayout({
             <DefaultNav conference={conference} params={params} />
             <main>
                 {children}
-                {sponsors ? <SponsorsSection sponsors={sponsors} /> : null}
+                {sponsors ? <SponsorsBlock sponsors={sponsors} /> : null}
             </main>
         </>
     );

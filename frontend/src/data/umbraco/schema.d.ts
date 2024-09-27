@@ -144,16 +144,14 @@ export interface components {
     HomeContentResponseModel: {
       contentType: "home";
     } & Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & components["schemas"]["HomeContentModel"];
-    HomePropertiesModel: {
-      blocks?: components["schemas"]["ApiBlockListModel"];
-    };
+    HomePropertiesModel: components["schemas"]["PagePropertiesModel"];
     HttpValidationProblemDetails: components["schemas"]["ProblemDetails"] & {
       errors?: {
         [key: string]: string[];
       };
       [key: string]: unknown;
     };
-    IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["TrackContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["HomeContentModel"] | components["schemas"]["ConferencesContentModel"];
+    IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["TrackContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["HomeContentModel"] | components["schemas"]["ConferencesContentModel"] | components["schemas"]["PageContentModel"];
     IApiContentModelBase: WithRequired<({
       contentType: "IApiContentModelBase";
       /** Format: uuid */
@@ -166,7 +164,7 @@ export interface components {
       updateDate: string;
       route: components["schemas"]["ApiContentRouteModel"];
     }) & Omit<components["schemas"]["IApiElementModelBase"], "contentType">, "contentType" | "createDate" | "id" | "properties" | "route" | "updateDate">;
-    IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["TrackContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["HomeContentResponseModel"] | components["schemas"]["ConferencesContentResponseModel"];
+    IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["TrackContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["HomeContentResponseModel"] | components["schemas"]["ConferencesContentResponseModel"] | components["schemas"]["PageContentResponseModel"];
     IApiContentResponseModelBase: WithRequired<({
       contentType: "IApiContentResponseModelBase";
       /** Format: uuid */
@@ -182,7 +180,7 @@ export interface components {
         [key: string]: components["schemas"]["ApiContentRouteModel"];
       };
     }) & Omit<components["schemas"]["IApiContentModelBase"], "contentType">, "contentType" | "createDate" | "cultures" | "id" | "properties" | "route" | "updateDate">;
-    IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"];
+    IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["RichTextElementModel"] | components["schemas"]["LocationBlockElementModel"];
     IApiElementModelBase: {
       /** Format: uuid */
       id: string;
@@ -265,6 +263,24 @@ export interface components {
     };
     /** @enum {string} */
     LinkTypeModel: "Content" | "Media" | "External";
+    LocationBlockElementModel: {
+      contentType: "locationBlock";
+      properties?: components["schemas"]["LocationBlockPropertiesModel"];
+    } & Omit<components["schemas"]["IApiElementModelBase"], "contentType">;
+    LocationBlockPropertiesModel: Record<string, never>;
+    PageContentModel: {
+      contentType: "page";
+      properties?: components["schemas"]["PagePropertiesModel"];
+    } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
+    PageContentResponseModel: {
+      contentType: "page";
+    } & Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & components["schemas"]["PageContentModel"];
+    PagePropertiesModel: {
+      blocks?: components["schemas"]["ApiBlockListModel"];
+      title?: string | null;
+      metaDescription?: string | null;
+      openGraphImage?: components["schemas"]["IApiMediaWithCropsModel"][] | null;
+    };
     PagedIApiContentResponseModel: {
       /** Format: int64 */
       total: number;
@@ -284,9 +300,16 @@ export interface components {
       instance?: string | null;
       [key: string]: unknown;
     };
+    RichTextElementModel: {
+      contentType: "richText";
+      properties?: components["schemas"]["RichTextPropertiesModel"];
+    } & Omit<components["schemas"]["IApiElementModelBase"], "contentType">;
     RichTextModel: {
       markup: string;
       blocks: (components["schemas"]["ApiBlockItemModel"] | components["schemas"]["ApiBlockGridItemModel"])[];
+    };
+    RichTextPropertiesModel: {
+      text?: components["schemas"]["RichTextModel"];
     };
     ScheduleBlockElementModel: {
       contentType: "scheduleBlock";

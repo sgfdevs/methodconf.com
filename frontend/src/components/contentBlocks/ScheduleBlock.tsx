@@ -6,18 +6,18 @@ import type {
     ParsedConference,
 } from '@/data/types';
 import { formatDate, splitBy } from '@/util';
-import styles from '@/components/sections/ScheduleSection.module.css';
+import styles from '@/components/contentBlocks/ScheduleBlock.module.css';
 import { SessionCard } from '@/components/SessionCard';
 
-export interface ScheduleSectionProps {
+export interface ScheduleBlockProps {
     conference: ParsedConference;
-    schedule: ScheduleItem[];
+    schedule?: ScheduleItem[];
 }
 
-export function ScheduleSection({
+export function ScheduleBlock({
     conference,
     schedule = [],
-}: ScheduleSectionProps) {
+}: ScheduleBlockProps) {
     const { date } = conference.properties;
 
     const tracks = schedule.filter((item) => item.contentType === 'track');
@@ -40,7 +40,7 @@ export function ScheduleSection({
         <section id="schedule">
             <SectionTitleBar title="Schedule" />
             <div className="large-content-container">
-                <div className="py-20">
+                <div className="py-12 sm:py-20">
                     {date ? (
                         <h3 className="text-xl xl:text-4xl font-thin mb-8">
                             {formatDate(date, 'EEEE, MMMM do, yyyy')}

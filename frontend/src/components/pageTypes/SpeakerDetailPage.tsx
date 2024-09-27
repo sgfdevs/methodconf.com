@@ -12,10 +12,19 @@ import { getSessionsForSpeaker } from '@/data/getSessionsForSpeaker';
 import { imageUrl } from '@/data/umbraco/imageUrl';
 import { SessionCard } from '@/components/SessionCard';
 import { RichText } from '@/components/RichText';
+import type { Metadata } from 'next';
 
 export interface SpeakerDetailPageProps {
     conference: ParsedConference;
     speaker: Speaker;
+}
+
+export async function generateMetadata({
+    speaker,
+}: SpeakerDetailPageProps): Promise<Metadata> {
+    return {
+        title: speaker.name,
+    };
 }
 
 export async function SpeakerDetailPage({
