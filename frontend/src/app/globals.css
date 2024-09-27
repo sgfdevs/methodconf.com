@@ -10,18 +10,6 @@
     @apply bg-primary
 }
 
-.content-container,
-.large-content-container,
-.small-content-container {
-    @apply mx-auto;
-    max-width: 1900px;
-    width: calc(100% - theme('spacing.8'));
-
-    @media screen(md) {
-        width: calc(100% - theme('spacing.20'));
-    }
-}
-
 .content-container {
     @apply container;
 }
@@ -32,6 +20,17 @@
 
 .small-content-container {
     max-width: 800px;
+}
+
+.content-container,
+.large-content-container,
+.small-content-container {
+    @apply mx-auto;
+    width: calc(100% - theme('spacing.8'));
+
+    @media screen(md) {
+        width: calc(100% - theme('spacing.20'));
+    }
 }
 
 .links a {
