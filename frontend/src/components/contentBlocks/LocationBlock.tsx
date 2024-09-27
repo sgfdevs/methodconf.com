@@ -44,10 +44,10 @@ export function LocationBlock() {
     ];
 
     return (
-        <section id="location">
+        <section id="location" className="mb-12 sm:mb-20">
             <SectionTitleBar title="Location Info" />
 
-            <div className="content-container py-20">
+            <div className="content-container pt-12 sm:pt-20">
                 <div className="flex flex-col lg:flex-row">
                     <div className="w-full lg:w-3/5 pb-8 lg:pb-0 lg:pr-8">
                         <iframe

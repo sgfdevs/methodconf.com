@@ -89,6 +89,12 @@ const RichTextBlock = dynamic(() =>
     ),
 );
 
+const TextWithButtonsBlock = dynamic(() =>
+    import('@/components/contentBlocks/TextWithButtonsBlock').then(
+        (mod) => mod.TextWithButtonsBlock,
+    ),
+);
+
 export async function GenericPage({
     params,
     conference,
@@ -129,6 +135,13 @@ export async function GenericPage({
                         );
                     case 'richText':
                         return <RichTextBlock key={block.id} block={block} />;
+                    case 'textWithButtons':
+                        return (
+                            <TextWithButtonsBlock
+                                key={block.id}
+                                block={block}
+                            />
+                        );
                 }
             })}
         </>
@@ -155,7 +168,7 @@ export async function getPageDataForBlocks(
         );
     }
 
-    if (blocks.find((block) => block.contentType === 'sponsor')) {
+    if (blocks.find((block) => block.contentType === 'sponsorsBlock')) {
         tasks.push(
             getSponsors(conference.id).then((sponsors) => {
                 pageData.sponsors = sponsors;

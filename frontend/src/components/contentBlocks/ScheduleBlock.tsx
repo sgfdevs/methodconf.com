@@ -37,10 +37,10 @@ export function ScheduleBlock({
     cssGrid.unshift(tracks.map((track) => createGridAreaId(track.route.path)));
 
     return (
-        <section id="schedule">
+        <section id="schedule" className="mb-12 sm:mb-20">
             <SectionTitleBar title="Schedule" />
             <div className="large-content-container">
-                <div className="py-12 sm:py-20">
+                <div className="pt-12 sm:pt-20">
                     {date ? (
                         <h3 className="text-xl xl:text-4xl font-thin mb-8">
                             {formatDate(date, 'EEEE, MMMM do, yyyy')}
