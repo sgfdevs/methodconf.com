@@ -40,7 +40,7 @@ export function ScheduleBlock({
         <section id="schedule">
             <SectionTitleBar title="Schedule" />
             <div className="large-content-container">
-                <div className="py-20">
+                <div className="py-12 sm:py-20">
                     {date ? (
                         <h3 className="text-xl xl:text-4xl font-thin mb-8">
                             {formatDate(date, 'EEEE, MMMM do, yyyy')}

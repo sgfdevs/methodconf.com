@@ -64,19 +64,28 @@ const IntroAndEmailSignupBlock = dynamic(() =>
         (mod) => mod.IntroAndEmailSignupBlock,
     ),
 );
+
 const ScheduleBlock = dynamic(() =>
     import('@/components/contentBlocks/ScheduleBlock').then(
         (mod) => mod.ScheduleBlock,
     ),
 );
+
 const LocationBlock = dynamic(() =>
     import('@/components/contentBlocks/LocationBlock').then(
         (mod) => mod.LocationBlock,
     ),
 );
+
 const SponsorsBlock = dynamic(() =>
     import('@/components/contentBlocks/SponsorsBlock').then(
         (mod) => mod.SponsorsBlock,
+    ),
+);
+
+const RichTextBlock = dynamic(() =>
+    import('@/components/contentBlocks/RichTextBlock').then(
+        (mod) => mod.RichTextBlock,
     ),
 );
 
@@ -95,30 +104,33 @@ export async function GenericPage({
 
     return (
         <>
-            {await Promise.all(
-                blocks.map(async (block) => {
-                    switch (block.contentType) {
-                        case 'introAndEmailSignupBlock':
-                            return (
-                                <IntroAndEmailSignupBlock
-                                    key={block.id}
-                                    params={params}
-                                />
-                            );
-                        case 'scheduleBlock':
-                            return (
-                                <ScheduleBlock
-                                    conference={conference}
-                                    schedule={schedule}
-                                />
-                            );
-                        case 'locationBlock':
-                            return <LocationBlock />;
-                        case 'sponsorsBlock':
-                            return <SponsorsBlock sponsors={sponsors} />;
-                    }
-                }),
-            )}
+            {blocks.map((block) => {
+                switch (block.contentType) {
+                    case 'introAndEmailSignupBlock':
+                        return (
+                            <IntroAndEmailSignupBlock
+                                key={block.id}
+                                params={params}
+                            />
+                        );
+                    case 'scheduleBlock':
+                        return (
+                            <ScheduleBlock
+                                key={block.id}
+                                conference={conference}
+                                schedule={schedule}
+                            />
+                        );
+                    case 'locationBlock':
+                        return <LocationBlock key={block.id} />;
+                    case 'sponsorsBlock':
+                        return (
+                            <SponsorsBlock key={block.id} sponsors={sponsors} />
+                        );
+                    case 'richText':
+                        return <RichTextBlock key={block.id} block={block} />;
+                }
+            })}
         </>
     );
 }

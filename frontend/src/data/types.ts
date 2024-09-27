@@ -50,3 +50,5 @@ export type Speaker = components['schemas']['SpeakerContentResponseModel'];
 export type Page = components['schemas']['PageContentResponseModel'];
 
 export type ContentBlock = components['schemas']['IApiElementModel'];
+
+export type RichTextBlock = components['schemas']['RichTextElementModel'];
