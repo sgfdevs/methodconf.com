@@ -89,6 +89,12 @@ const RichTextBlock = dynamic(() =>
     ),
 );
 
+const TextWithButtonsBlock = dynamic(() =>
+    import('@/components/contentBlocks/TextWithButtonsBlock').then(
+        (mod) => mod.TextWithButtonsBlock,
+    ),
+);
+
 export async function GenericPage({
     params,
     conference,
@@ -129,6 +135,13 @@ export async function GenericPage({
                         );
                     case 'richText':
                         return <RichTextBlock key={block.id} block={block} />;
+                    case 'textWithButtons':
+                        return (
+                            <TextWithButtonsBlock
+                                key={block.id}
+                                block={block}
+                            />
+                        );
                 }
             })}
         </>

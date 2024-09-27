@@ -54,3 +54,6 @@ export type Page =
 export type ContentBlock = components['schemas']['IApiElementModel'];
 
 export type RichTextBlock = components['schemas']['RichTextElementModel'];
+
+export type TextWithButtonsBlock =
+    components['schemas']['TextWithButtonsElementModel'];
