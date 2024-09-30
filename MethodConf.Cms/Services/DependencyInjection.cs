@@ -9,6 +9,7 @@ public static class DependencyInjection
     {
         builder.Services.AddScoped<IScheduleGridGenerator, ScheduleGridGenerator>();
         builder.Services.AddScoped<IConferenceScheduleService, ConferenceScheduleService>();
+        builder.Services.AddScoped<ISessionFeedbackService, SessionFeedbackService>();
         builder.Services.AddAutoMapper(typeof(DefaultProfile));
 
         return builder;
