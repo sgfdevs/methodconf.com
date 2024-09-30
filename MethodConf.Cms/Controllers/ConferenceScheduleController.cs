@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using AutoMapper;
 using MethodConf.Cms.Dtos;
 using MethodConf.Cms.Services.Interfaces;
@@ -6,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace MethodConf.Cms.Controllers;
 
 [ApiController]
-[Route("api/conference/{conferenceId:guid}/schedule")]
+[ApiVersion("1.0")]
+[Route(RouteTemplates.ConferenceSchedule)]
 public class ConferenceScheduleController(IConferenceScheduleService conferenceScheduleService, IMapper mapper) : Controller
 {
     [HttpGet]
