@@ -9,6 +9,9 @@ jobs:
     defaults:
       run:
         working-directory: './frontend'
+    env:
+      NEXT_PUBLIC_UMBRACO_BASE_URL: ${{ secrets.NEXT_PUBLIC_UMBRACO_BASE_URL }}
+      NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
       - run: dotnet restore
