@@ -48,7 +48,7 @@ export async function getScheduleGrid(
     conferenceId: string,
 ): Promise<string[][]> {
     const { data, error } = await umbracoClient.GET(
-        '/api/conference/{conferenceId}/schedule',
+        '/api/v1/conference/{conferenceId}/schedule',
         { params: { path: { conferenceId } } },
     );
 

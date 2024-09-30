@@ -328,6 +328,7 @@ export interface components {
       start?: string | null;
       /** Format: date-time */
       end?: string | null;
+      isEligibleForFeedback?: boolean | null;
       speakers?: components["schemas"]["IApiContentModel"][] | null;
       description?: components["schemas"]["RichTextModel"];
     };

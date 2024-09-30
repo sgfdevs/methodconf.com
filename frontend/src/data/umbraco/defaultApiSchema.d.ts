@@ -5,7 +5,7 @@
 
 
 export interface paths {
-  "/api/conference/{conferenceId}/schedule": {
+  "/api/v1/conference/{conferenceId}/schedule": {
     get: {
       parameters: {
         path: {
@@ -24,6 +24,36 @@ export interface paths {
       };
     };
   };
+  "/api/v1/session/{sessionId}/feedback": {
+    post: {
+      parameters: {
+        path: {
+          sessionId: string;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["CreateSessionFeedbackRequestDto"];
+          "text/json": components["schemas"]["CreateSessionFeedbackRequestDto"];
+          "application/*+json": components["schemas"]["CreateSessionFeedbackRequestDto"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            /** @description The list of notifications produced during the request. */
+            "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+          };
+          content: {
+            "application/json": components["schemas"]["SessionFeedbackResponseDto"];
+            "text/json": components["schemas"]["SessionFeedbackResponseDto"];
+            "text/plain": components["schemas"]["SessionFeedbackResponseDto"];
+          };
+        };
+      };
+    };
+  };
 }
 
 export type webhooks = Record<string, never>;
@@ -32,6 +62,33 @@ export interface components {
   schemas: {
     ConferenceScheduleResponseDto: {
       scheduleGrid: string[][];
+    };
+    CreateSessionFeedbackRequestDto: {
+      /** Format: int32 */
+      speakerRating: number;
+      /** Format: int32 */
+      contentRating: number;
+      /** Format: int32 */
+      venueRating: number;
+      comments: string;
+    };
+    /** @enum {string} */
+    EventMessageTypeModel: "Default" | "Info" | "Error" | "Success" | "Warning";
+    NotificationHeaderModel: {
+      message: string;
+      category: string;
+      type: components["schemas"]["EventMessageTypeModel"];
+    };
+    SessionFeedbackResponseDto: {
+      /** Format: uuid */
+      id: string;
+      /** Format: int32 */
+      speakerRating: number;
+      /** Format: int32 */
+      contentRating: number;
+      /** Format: int32 */
+      venueRating: number;
+      comments: string;
     };
   };
   responses: never;
