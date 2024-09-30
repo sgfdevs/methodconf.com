@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace MethodConf.Cms.Controllers;
 
 [ApiController]
-[Route("api/conference/{conferenceSlug}/schedule")]
+[Route("api/conference/{conferenceId:guid}/schedule")]
 public class ConferenceScheduleController(IConferenceScheduleService conferenceScheduleService, IMapper mapper) : Controller
 {
     [HttpGet]
-    public ActionResult<ConferenceScheduleResponseDto> GetSchedule(string conferenceSlug)
+    public ActionResult<ConferenceScheduleResponseDto> GetSchedule(Guid conferenceId)
     {
-        var conferenceSchedule = conferenceScheduleService.GetSchedule(conferenceSlug);
+        var conferenceSchedule = conferenceScheduleService.GetSchedule(conferenceId);
 
         if (conferenceSchedule is null)
         {

@@ -8,12 +8,12 @@ namespace MethodConf.Cms.Services;
 
 public class ConferenceScheduleService(IUmbracoContextFactory umbracoContextFactory, IScheduleGridGenerator scheduleGridGenerator, IMapper mapper) : IConferenceScheduleService
 {
-    public ConferenceSchedule? GetSchedule(string conferenceSlug)
+    public ConferenceSchedule? GetSchedule(Guid conferenceId)
     {
         using var contextReference = umbracoContextFactory.EnsureUmbracoContext();
         var content = contextReference.UmbracoContext.Content ?? throw new InvalidOperationException();
 
-        var conference = content.GetByRoute($"/{conferenceSlug}");
+        var conference = content.GetById(conferenceId);
 
         if (conference is null)
         {
