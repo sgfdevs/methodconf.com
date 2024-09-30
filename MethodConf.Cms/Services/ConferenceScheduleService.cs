@@ -20,7 +20,7 @@ public class ConferenceScheduleService(IUmbracoContextFactory umbracoContextFact
             return null;
         }
 
-        var sessions = conference.FirstChild<Sessions>()?.Children ?? [];
+        var sessions = conference.FirstChild<Sessions>()?.Children.ToArray() ?? [];
 
         var scheduleItems = new List<ScheduleItem>();
 
@@ -41,7 +41,7 @@ public class ConferenceScheduleService(IUmbracoContextFactory umbracoContextFact
 
         return new ConferenceSchedule
         {
-            ScheduleGrid = scheduleGrid
+            ScheduleGrid = scheduleGrid,
         };
     }
 }

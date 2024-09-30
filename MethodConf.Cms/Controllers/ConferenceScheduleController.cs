@@ -10,7 +10,7 @@ namespace MethodConf.Cms.Controllers;
 public class ConferenceScheduleController(IConferenceScheduleService conferenceScheduleService, IMapper mapper) : Controller
 {
     [HttpGet]
-    public async Task<ActionResult<ConferenceScheduleResponseDto>> GetSchedule(string conferenceSlug)
+    public ActionResult<ConferenceScheduleResponseDto> GetSchedule(string conferenceSlug)
     {
         var conferenceSchedule = conferenceScheduleService.GetSchedule(conferenceSlug);
 
