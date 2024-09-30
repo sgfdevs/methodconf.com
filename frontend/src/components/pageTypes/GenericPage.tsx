@@ -4,7 +4,7 @@ import type {
     ContentBlock,
     Page,
     ParsedConference,
-    ScheduleItem,
+    Schedule,
     Sponsors,
 } from '@/data/types';
 import type { PageProps } from '@/app/[conference]/[...slug]/page';
@@ -149,7 +149,7 @@ export async function GenericPage({
 }
 
 export interface AdditionalPageData {
-    schedule?: ScheduleItem[];
+    schedule?: Schedule;
     sponsors?: Sponsors;
 }
 

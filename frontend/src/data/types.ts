@@ -1,4 +1,4 @@
-import type { components } from '@/data/umbraco/schema';
+import type { components } from '@/data/umbraco/deliveryApiSchema';
 import type { Overwrite } from '@/util';
 
 export type Conference =
@@ -44,6 +44,8 @@ export type Track = components['schemas']['TrackContentResponseModel'];
 export type TrackWithSessions = Track & { children: ParsedSession[] };
 
 export type ScheduleItem = ParsedSession | TrackWithSessions;
+
+export type Schedule = { items: ScheduleItem[]; grid: string[][] };
 
 export type Speaker = components['schemas']['SpeakerContentResponseModel'];
 

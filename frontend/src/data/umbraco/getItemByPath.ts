@@ -1,5 +1,5 @@
 import { umbracoClient } from '@/data/umbraco/client';
-import type { paths } from '@/data/umbraco/schema';
+import type { paths } from '@/data/umbraco/deliveryApiSchema';
 import type { UmbracoClientOptions } from '@/data/umbraco/types';
 
 type GetItemByPathOptions =
