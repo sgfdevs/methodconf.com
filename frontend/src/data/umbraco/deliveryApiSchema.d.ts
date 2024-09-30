@@ -180,7 +180,7 @@ export interface components {
         [key: string]: components["schemas"]["ApiContentRouteModel"];
       };
     }) & Omit<components["schemas"]["IApiContentModelBase"], "contentType">, "contentType" | "createDate" | "cultures" | "id" | "properties" | "route" | "updateDate">;
-    IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["RichTextElementModel"] | components["schemas"]["LocationBlockElementModel"];
+    IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["LocationBlockElementModel"] | components["schemas"]["RichTextElementModel"];
     IApiElementModelBase: {
       /** Format: uuid */
       id: string;

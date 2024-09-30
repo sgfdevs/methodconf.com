@@ -1,4 +1,4 @@
-import type { components } from '@/data/umbraco/schema';
+import type { components } from '@/data/umbraco/deliveryApiSchema';
 import type { Overwrite } from '@/util';
 
 export type Conference =
