@@ -16,12 +16,12 @@ public static class GridAssert
         if (actual is null || expected is null)
         {
             Assert.Fail("One of the grids is null while the other is not.");
+            return;
         }
 
-        // Compare dimensions
-        var actualRows = actual!.GetLength(0);
+        var actualRows = actual.GetLength(0);
         var actualCols = actual.GetLength(1);
-        var expectedRows = expected!.GetLength(0);
+        var expectedRows = expected.GetLength(0);
         var expectedCols = expected.GetLength(1);
 
         if (actualRows != expectedRows || actualCols != expectedCols)
@@ -47,8 +47,7 @@ public static class GridAssert
 
         if (!areEqual)
         {
-            // Build the failure message
-            var message = new System.Text.StringBuilder();
+            var message = new StringBuilder();
             message.AppendLine("Grids are not equal.");
             message.AppendLine("Expected Grid:");
             message.AppendLine(GridToString(expected));
@@ -88,7 +87,7 @@ public static class GridAssert
         {
             for (var j = 0; j < cols; j++)
             {
-                string cellValue = grid[i, j]?.ToString() ?? string.Empty;
+                var cellValue = grid[i, j]?.ToString() ?? string.Empty;
                 sb.Append(cellValue.PadRight(maxColWidths[j] + 1)); // Add 1 space for separation
             }
             sb.AppendLine();
