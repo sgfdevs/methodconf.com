@@ -5,7 +5,7 @@ public abstract class ScheduleItem;
 
 public class TrackItem : ScheduleItem
 {
-    public required IEnumerable<SessionItem> Sessions { get; set; }
+    public required SessionItem[] Sessions { get; set; }
 }
 
 public class SessionItem : ScheduleItem
