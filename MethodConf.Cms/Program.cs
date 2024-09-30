@@ -1,4 +1,4 @@
-using MethodConf.Cms.Dtos;
+using MethodConf.Cms.Converters;
 using MethodConf.Cms.Mapping;
 using MethodConf.Cms.Services;
 using MethodConf.Cms.Services.Interfaces;
@@ -7,7 +7,13 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.CreateUmbracoBuilder()
-    .AddBackOffice()
+    .AddBackOffice(mvc =>
+    {
+        mvc.AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new TwoDimensionalArrayConverterFactory());
+        });
+    })
     .AddWebsite()
     .AddDeliveryApi()
     .AddComposers()
