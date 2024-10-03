@@ -1,4 +1,5 @@
 'use client';
+import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { throttle } from 'throttle-debounce';
 import styles from '@/components/ScheduleGrid.module.css';
@@ -21,6 +22,8 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
     const [columnWidth, setColumnWidth] = useState(0);
     const [elementWidth, setElementWidth] = useState(0);
     const [scrollableWidth, setScrollableWidth] = useState(0);
+
+    console.log({ columns, columnWidth, elementWidth, scrollableWidth });
 
     useEffect(() => {
         const onResize = throttle(200, () => {
@@ -45,39 +48,48 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
     return (
         <div
             ref={containerRef}
-            className={`${styles.scheduleGrid} overflow-x-scroll`}
+            className="overflow-x-scroll"
             style={
                 {
-                    '--grid-template-areas': grid
-                        .map((row) => `"${row.join(' ')}"`)
-                        .join('\n'),
                     '--grid-template-columns': tracks.length,
-                } as React.CSSProperties
+                } as CSSProperties
             }
         >
-            {tracks.map((track) => (
-                <div
-                    key={track.id}
-                    style={{
-                        gridArea: createGridAreaId(track.route.path),
-                    }}
-                >
-                    <h3 className="text-xl xl:text-4xl font-thin">
-                        {track.name}
-                    </h3>
+            <div className="inline-block w-max bg-primary">
+                <div className={`${styles.track}`}>
+                    {tracks.map((track) => (
+                        <div className={'p-2'} key={track.id}>
+                            <div className="text-center text-white">
+                                <h3 className="text-xl xl:text-4xl font-thin">
+                                    {track.name}
+                                </h3>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            ))}
-            {sessions.map((session) => (
-                <SessionCard
-                    key={session.id}
-                    session={session}
-                    style={{
-                        gridArea: createGridAreaId(
-                            getEndPath(session.route.path),
-                        ),
-                    }}
-                />
-            ))}
+            </div>
+            <div
+                className={`${styles.scheduleGrid} `}
+                style={
+                    {
+                        '--grid-template-areas': grid
+                            .map((row) => `"${row.join(' ')}"`)
+                            .join('\n'),
+                    } as CSSProperties
+                }
+            >
+                {sessions.map((session) => (
+                    <SessionCard
+                        key={session.id}
+                        session={session}
+                        style={{
+                            gridArea: createGridAreaId(
+                                getEndPath(session.route.path),
+                            ),
+                        }}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

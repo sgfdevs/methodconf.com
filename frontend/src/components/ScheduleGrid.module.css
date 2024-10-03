@@ -1,6 +1,9 @@
+.scheduleWrapper {
+    --grid-template-columns: 0;
+}
+
 .scheduleGrid {
     --grid-template-areas: '';
-    --grid-template-columns: 0;
 
     display: grid;
     grid-template-areas: var(--grid-template-areas);
@@ -8,15 +11,34 @@
     gap: 1rem;
 
     @media screen(lg) {
-        grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(50% - 0.5rem), 1fr));
+        grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(50% - 1rem), 1fr));
     }
 
     @media screen(xl) {
-        grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(33.3333333% - 0.5rem), 1fr));
+        grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(33.3333333% - 1rem), 1fr));
     }
 
     @media screen('2xl') {
         gap: 2rem;
+        grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(33.3333333% - 2rem), 1fr));
+    }
+}
+
+.track {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-template-columns), minmax(100%, 1fr));
+    gap: 1rem;
+
+    @media screen(lg) {
+        grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(50% - 1rem), 1fr));
+    }
+
+    @media screen(xl) {
         grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(33.3333333% - 1rem), 1fr));
+    }
+
+    @media screen('2xl') {
+        gap: 2rem;
+        grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(33.3333333% - 2rem), 1fr));
     }
 }
