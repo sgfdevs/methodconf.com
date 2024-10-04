@@ -5,6 +5,8 @@ import { throttle } from 'throttle-debounce';
 import styles from '@/components/ScheduleGrid.module.css';
 import { SessionCard } from '@/components/SessionCard';
 import type { ParsedSession, TrackWithSessions } from '@/data/types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 
 export interface ScheduleGridProps {
     grid: string[][];
@@ -12,27 +14,47 @@ export interface ScheduleGridProps {
     tracks: TrackWithSessions[];
 }
 
+const columnStyles: { [key: number]: string | undefined } = {
+    1: styles.hasOneCol,
+    2: styles.hasTwoCol,
+    3: styles.hasThreeCol,
+};
+
 export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
     grid = updateGridIds(grid);
 
     const containerRef = useRef<HTMLDivElement>(null);
+    const headerRef = useRef<HTMLDivElement>(null);
 
     const columns = grid[0]?.length ?? 1;
 
     const [columnWidth, setColumnWidth] = useState(0);
-    const [elementWidth, setElementWidth] = useState(0);
+    const [containerDimensions, setContainerDimensions] = useState({
+        width: 0,
+        height: 0,
+        scrollOffset: 0,
+    });
+    const [headerHeight, setHeaderHeight] = useState(0);
     const [scrollableWidth, setScrollableWidth] = useState(0);
-
-    console.log({ columns, columnWidth, elementWidth, scrollableWidth });
 
     useEffect(() => {
         const onResize = throttle(200, () => {
-            if (!containerRef.current) {
+            if (!containerRef.current || !headerRef.current) {
                 return;
             }
 
+            const containerBoundingClient =
+                containerRef.current.getBoundingClientRect();
+            const headerBoundingClient =
+                headerRef.current.getBoundingClientRect();
+
             setColumnWidth(getSingleGridColumnWidth(containerRef.current));
-            setElementWidth(containerRef.current.offsetWidth);
+            setContainerDimensions({
+                width: containerBoundingClient.width,
+                height: containerBoundingClient.height,
+                scrollOffset: containerBoundingClient.top + window.scrollY,
+            });
+            setHeaderHeight(headerBoundingClient.height);
             setScrollableWidth(containerRef.current.scrollWidth);
         });
 
@@ -45,20 +67,78 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
         };
     }, []);
 
+    useEffect(() => {
+        let isAnimating = false;
+        let lastKnownScroll = 0;
+
+        const onPageScroll = () => {
+            if (!headerRef.current) {
+                return;
+            }
+
+            const headerEl = headerRef.current;
+            lastKnownScroll = window.scrollY;
+
+            if (!isAnimating) {
+                requestAnimationFrame(() => {
+                    const offset = Math.min(
+                        Math.max(
+                            lastKnownScroll - containerDimensions.scrollOffset,
+                            0,
+                        ),
+                        containerDimensions.height - headerHeight - 10,
+                    );
+
+                    headerEl.style.transform = `translateY(${offset === 0 ? 0 : offset - 1}px) translateZ(0)`;
+
+                    isAnimating = false;
+                });
+
+                isAnimating = true;
+            }
+        };
+
+        onPageScroll();
+
+        window.addEventListener('scroll', onPageScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', onPageScroll);
+        };
+    }, [
+        containerDimensions.height,
+        containerDimensions.scrollOffset,
+        headerHeight,
+    ]);
+
+    const specialColumnSizing = columnStyles[columns] ?? '';
+
     return (
         <div
             ref={containerRef}
-            className="overflow-x-scroll"
+            className={`${styles.scheduleGrid} ${specialColumnSizing} overflow-x-scroll overflow-y-hidden`}
             style={
                 {
                     '--grid-template-columns': tracks.length,
+                    '--grid-template-areas': grid
+                        .map((row) => `"${row.join(' ')}"`)
+                        .join('\n'),
                 } as CSSProperties
             }
         >
-            <div className="inline-block w-max bg-primary">
-                <div className={`${styles.track}`}>
+            {/*<div className="absolute top-0 left-0">*/}
+            {/*    <FontAwesomeIcon icon={faChevronLeft} />*/}
+            {/*</div>*/}
+            <div
+                ref={headerRef}
+                className="bg-primary relative origin-top will-change-transform overflow-hidden"
+                style={{
+                    gridArea: createGridAreaId('track-header'),
+                }}
+            >
+                <div className="flex w-full">
                     {tracks.map((track) => (
-                        <div className={'p-2'} key={track.id}>
+                        <div className="p-2 flex-1" key={track.id}>
                             <div className="text-center text-white">
                                 <h3 className="text-xl xl:text-4xl font-thin">
                                     {track.name}
@@ -68,28 +148,17 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
                     ))}
                 </div>
             </div>
-            <div
-                className={`${styles.scheduleGrid} `}
-                style={
-                    {
-                        '--grid-template-areas': grid
-                            .map((row) => `"${row.join(' ')}"`)
-                            .join('\n'),
-                    } as CSSProperties
-                }
-            >
-                {sessions.map((session) => (
-                    <SessionCard
-                        key={session.id}
-                        session={session}
-                        style={{
-                            gridArea: createGridAreaId(
-                                getEndPath(session.route.path),
-                            ),
-                        }}
-                    />
-                ))}
-            </div>
+            {sessions.map((session) => (
+                <SessionCard
+                    key={session.id}
+                    session={session}
+                    style={{
+                        gridArea: createGridAreaId(
+                            getEndPath(session.route.path),
+                        ),
+                    }}
+                />
+            ))}
         </div>
     );
 }
@@ -103,7 +172,7 @@ function updateGridIds(grid: string[][]): string[][] {
 }
 
 function createGridAreaId(id: string): string {
-    return `area${id.replaceAll('/', '')}`;
+    return `area-${id.replaceAll('/', '')}`;
 }
 
 function getEndPath(path: string) {
