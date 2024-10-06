@@ -34,7 +34,10 @@ export default function RootLayout({
                     customDomain="https://plausible.sgf.dev"
                 />
             </head>
-            <body className={`${sourceSans.className} font-light`}>
+            <body
+                className={`${sourceSans.className} font-light`}
+                suppressHydrationWarning
+            >
                 {children}
                 <Footer />
                 <LinkedInInsightTag partnerId="6595308" />

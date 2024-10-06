@@ -45,11 +45,11 @@ export function SessionCard({
                     width={100}
                     height={100}
                     alt={`${speakerContent.name} profile image`}
-                    className="w-[50px] h-[50px] sm:w-[70px] sm:h-[70px] xl:w-[80px] xl:h-[80px] rounded-full mr-3"
+                    className="w-[50px] h-[50px] md:w-[70px] md:h-[70px] lg:w-[75px] lg:h-[75px] 2xl:w-[80px] 2xl:h-[80px] rounded-full mr-3"
                 />
             ) : null}
             <div>
-                <h3 className="text-base sm:text-lg xl:text-3xl font-bold">
+                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl 2xl:text-3xl font-bold">
                     {session.name}
                 </h3>
                 {speakerContent ? (
@@ -76,7 +76,7 @@ export function SessionCard({
         <div
             key={session.id}
             style={style}
-            className={`bg-gray-100 p-4 xl:p-8 ${className} ${styles.accordionWrapper}`}
+            className={`bg-gray-100 p-4 2xl:p-8 ${className} ${styles.accordionWrapper}`}
         >
             {start ? (
                 <time className="text-lg xl:text-2xl font-thin">
@@ -90,7 +90,7 @@ export function SessionCard({
                             <div className="flex justify-between items-center">
                                 {header}
                                 <button
-                                    className="text-primary font-medium text-lg ml-8 flex items-center"
+                                    className="text-primary font-medium text-lg ml-4 lg:ml-8 flex items-center"
                                     {...buttonProps}
                                 >
                                     {state.isEnter ? 'Less' : 'More'}
