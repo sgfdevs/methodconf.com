@@ -8,8 +8,7 @@ import {
 import styles from '@/components/ScheduleGrid/ScheduleGrid.module.css';
 import { SessionCard } from '@/components/SessionCard';
 import type { ParsedSession, TrackWithSessions } from '@/data/types';
-import { useStickyTrackHeader } from '@/components/ScheduleGrid/useStickyTrackHeader';
-import { useTrackHeaderControls } from '@/components/ScheduleGrid/useTrackHeaderControls';
+import { usePartialGridView } from '@/components/ScheduleGrid/usePartialGridView';
 
 export interface ScheduleGridProps {
     grid: string[][];
@@ -17,105 +16,104 @@ export interface ScheduleGridProps {
     tracks: TrackWithSessions[];
 }
 
-const columnStyles = [styles.hasOneCol, styles.hasTwoCol, styles.hasThreeCol];
-
 const trackHeaderId = 'track-header';
-const snapPointId = 'snap-point';
+
+const breakpoints = [
+    { query: '(max-width: 1023px)', columns: 1 },
+    { query: '(min-width: 1024px) and (max-width: 1279px)', columns: 2 },
+    { query: '(min-width: 1280px)', columns: 3 },
+];
 
 export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
-    grid = [
-        tracks.map(() => trackHeaderId),
-        ...grid,
-        tracks.map((_, index) => `${snapPointId}-${index}`),
-    ];
+    grid = [tracks.map(() => trackHeaderId), ...grid];
     grid = updateGridIds(grid);
 
-    const columns = grid[0]?.length ?? 1;
-    const { scrollAreaRef, headerRef, headerControlsRef } =
-        useStickyTrackHeader();
-    const { gridAreaRef, controlState, onControlClick } =
-        useTrackHeaderControls();
+    const {
+        startColumnIndex,
+        visibleColumns,
+        onControlClick,
+        isPrevEnabled,
+        isNextEnabled,
+    } = usePartialGridView({
+        grid,
+        breakpoints,
+    });
 
-    const specialColumnSizing = columnStyles[columns] ?? '';
+    const visibleGrid = grid.map((row) =>
+        row.slice(startColumnIndex, startColumnIndex + visibleColumns),
+    );
+
+    const uniqueVisibleGridIds = new Set(visibleGrid.flatMap((row) => row));
+
+    const visibleTracks = tracks.slice(
+        startColumnIndex,
+        startColumnIndex + visibleColumns,
+    );
 
     return (
-        <div className="relative">
+        <div
+            className={`${styles.scheduleGrid}`}
+            style={
+                {
+                    '--grid-template-columns': visibleColumns,
+                    '--grid-template-areas': visibleGrid
+                        .map((row) => `"${row.join(' ')}"`)
+                        .join('\n'),
+                } as CSSProperties
+            }
+        >
             <div
-                ref={headerControlsRef}
-                className="absolute top-0 left-0 right-0 w-full z-20 flex justify-between text-white text-2xl p-2"
-            >
-                <button
-                    disabled={!controlState.isPrevEnabled}
-                    onClick={() => onControlClick('prev')}
-                    className={`transition-opacity duration-200 ${!controlState.isPrevEnabled ? 'opacity-0' : 'opacity-100'}`}
-                >
-                    <FontAwesomeIcon icon={faChevronLeft} />
-                </button>
-                <button
-                    disabled={!controlState.isNextEnabled}
-                    onClick={() => onControlClick('next')}
-                    className={`transition-opacity duration-200 ${!controlState.isNextEnabled ? 'opacity-0' : 'opacity-100'}`}
-                >
-                    <FontAwesomeIcon icon={faChevronRight} />
-                </button>
-            </div>
-            <div
-                ref={(el) => {
-                    scrollAreaRef.current = el;
-                    gridAreaRef.current = el;
+                className="bg-primary sticky top-0"
+                style={{
+                    gridArea: createGridAreaId(trackHeaderId),
                 }}
-                className={`${styles.scheduleGrid} ${specialColumnSizing} overflow-x-scroll snap-x snap-mandatory overflow-y-hidden relative`}
-                style={
-                    {
-                        '--grid-template-columns': tracks.length,
-                        '--grid-template-areas': grid
-                            .map((row) => `"${row.join(' ')}"`)
-                            .join('\n'),
-                    } as CSSProperties
-                }
             >
-                <div
-                    ref={headerRef}
-                    className="bg-primary relative origin-top will-change-transform overflow-hidden"
-                    style={{
-                        gridArea: createGridAreaId(trackHeaderId),
-                    }}
-                >
+                <div className="flex text-white text-2xl">
+                    <button
+                        className={`p-2 transition-opacity duration-300 ${isPrevEnabled ? 'opacity-100' : 'opacity-0'}`}
+                        onClick={() => onControlClick('prev')}
+                    >
+                        <FontAwesomeIcon icon={faChevronLeft} />
+                    </button>
                     <div className="flex w-full">
-                        {tracks.map((track) => (
+                        {visibleTracks.map((track) => (
                             <div className="p-2 flex-1" key={track.id}>
                                 <div className="text-center text-white">
-                                    <h3 className="text-xl xl:text-4xl font-thin">
+                                    <h3 className="text-xl xl:text-4xl font-bold">
                                         {track.name}
                                     </h3>
                                 </div>
                             </div>
                         ))}
                     </div>
+                    <button
+                        className={`p-2 transition-opacity duration-300 ${isNextEnabled ? 'opacity-100' : 'opacity-0'}`}
+                        onClick={() => onControlClick('next')}
+                    >
+                        <FontAwesomeIcon icon={faChevronRight} />
+                    </button>
                 </div>
-                {sessions.map((session) => (
+            </div>
+            {sessions.map((session) => {
+                const gridAreaId = createGridAreaId(
+                    getEndPath(session.route.path),
+                );
+
+                return (
                     <SessionCard
                         key={session.id}
                         session={session}
                         style={{
-                            gridArea: createGridAreaId(
-                                getEndPath(session.route.path),
-                            ),
+                            gridArea: gridAreaId,
                         }}
+                        className={
+                            !uniqueVisibleGridIds.has(gridAreaId)
+                                ? 'hidden'
+                                : ''
+                        }
                     />
-                ))}
-                {tracks.map((track, index) => (
-                    <div
-                        key={`${snapPointId}-${track.id}`}
-                        style={{
-                            gridArea: createGridAreaId(
-                                `${snapPointId}-${index}`,
-                            ),
-                        }}
-                        className="snap-start w-0 pointer-events-none h-full"
-                    ></div>
-                ))}
-            </div>
+                );
+            })}
         </div>
     );
 }
