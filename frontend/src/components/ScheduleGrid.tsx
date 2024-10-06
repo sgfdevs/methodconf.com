@@ -14,13 +14,17 @@ export interface ScheduleGridProps {
     tracks: TrackWithSessions[];
 }
 
-const columnStyles: { [key: number]: string | undefined } = {
-    1: styles.hasOneCol,
-    2: styles.hasTwoCol,
-    3: styles.hasThreeCol,
-};
+const columnStyles = [styles.hasOneCol, styles.hasTwoCol, styles.hasThreeCol];
+
+const trackHeaderId = 'track-header';
+const snapPointId = 'snap-point';
 
 export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
+    grid = [
+        tracks.map((_) => trackHeaderId),
+        ...grid,
+        tracks.map((_, index) => `${snapPointId}-${index}`),
+    ];
     grid = updateGridIds(grid);
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -70,6 +74,7 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
     useEffect(() => {
         let isAnimating = false;
         let lastKnownScroll = 0;
+        let previousOffset = 0;
 
         const onPageScroll = () => {
             if (!headerRef.current) {
@@ -89,9 +94,12 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
                         containerDimensions.height - headerHeight - 10,
                     );
 
-                    headerEl.style.transform = `translateY(${offset === 0 ? 0 : offset - 1}px) translateZ(0)`;
+                    if (offset !== previousOffset) {
+                        headerEl.style.transform = `translateY(${offset === 0 ? 0 : offset - 1}px) translateZ(0)`;
+                    }
 
                     isAnimating = false;
+                    previousOffset = offset;
                 });
 
                 isAnimating = true;
@@ -116,7 +124,7 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
     return (
         <div
             ref={containerRef}
-            className={`${styles.scheduleGrid} ${specialColumnSizing} overflow-x-scroll overflow-y-hidden`}
+            className={`${styles.scheduleGrid} ${specialColumnSizing} overflow-x-scroll snap-x snap-mandatory overflow-y-hidden relative`}
             style={
                 {
                     '--grid-template-columns': tracks.length,
@@ -133,7 +141,7 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
                 ref={headerRef}
                 className="bg-primary relative origin-top will-change-transform overflow-hidden"
                 style={{
-                    gridArea: createGridAreaId('track-header'),
+                    gridArea: createGridAreaId(trackHeaderId),
                 }}
             >
                 <div className="flex w-full">
@@ -158,6 +166,15 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
                         ),
                     }}
                 />
+            ))}
+            {tracks.map((track, index) => (
+                <div
+                    key={`${snapPointId}-${track.id}`}
+                    style={{
+                        gridArea: createGridAreaId(`${snapPointId}-${index}`),
+                    }}
+                    className="snap-start w-0 pointer-events-none h-full"
+                ></div>
             ))}
         </div>
     );

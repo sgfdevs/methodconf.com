@@ -23,7 +23,6 @@ export function ScheduleBlock({ conference, schedule }: ScheduleBlockProps) {
             .sort(sessionSort) ?? [];
 
     const grid = schedule?.grid ?? [];
-    grid.unshift(tracks.map((_) => 'track-header'));
 
     return (
         <section id="schedule" className="mb-12 sm:mb-20">
