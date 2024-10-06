@@ -24,7 +24,7 @@ const snapPointId = 'snap-point';
 
 export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
     grid = [
-        tracks.map((_) => trackHeaderId),
+        tracks.map(() => trackHeaderId),
         ...grid,
         tracks.map((_, index) => `${snapPointId}-${index}`),
     ];
