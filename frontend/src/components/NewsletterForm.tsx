@@ -24,7 +24,7 @@ export function NewsletterForm() {
             }).then((res) => res.json());
 
             success = res['success'];
-        } catch (err) {}
+        } catch {}
 
         if (!success) {
             await Swal.fire({

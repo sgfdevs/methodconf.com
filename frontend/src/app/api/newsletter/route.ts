@@ -18,7 +18,7 @@ export async function POST(request: Request): Promise<Response> {
                     list_uuids: [NEWSLETTER_LIST_ID],
                 }),
             }).then((res) => res.json());
-        } catch (err) {
+        } catch {
             return Response.json({ success: false }, { status: 500 });
         }
     }

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import type { RootPageProps } from '@/app/[conference]/page';
 
-export interface IntroAndEmailSignupBlockProps extends RootPageProps {}
+export type IntroAndEmailSignupBlockProps = RootPageProps;
 
 export function IntroAndEmailSignupBlock({
     params,
