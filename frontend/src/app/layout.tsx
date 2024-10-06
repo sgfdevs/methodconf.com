@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Source_Sans_3 } from 'next/font/google';
 import PlausibleProvider from 'next-plausible';
-import { LinkedInInsightTag } from 'nextjs-linkedin-insight-tag';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import './globals.css';
@@ -40,7 +39,6 @@ export default function RootLayout({
             >
                 {children}
                 <Footer />
-                <LinkedInInsightTag partnerId="6595308" />
             </body>
         </html>
     );

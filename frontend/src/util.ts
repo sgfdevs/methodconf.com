@@ -1,5 +1,6 @@
-import { formatInTimeZone } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { CST_TZ } from '@/config';
+import { tz } from '@date-fns/tz';
 
 export function _throw(msg: string): never {
     throw msg;
@@ -12,7 +13,7 @@ export function parseUrl(urlStr?: string | null): URL | undefined {
 
     try {
         return new URL(urlStr);
-    } catch (e) {
+    } catch {
         return;
     }
 }
@@ -44,7 +45,7 @@ export function splitBy<ItemType>(
 }
 
 export function formatDate(date: Date, formatStr: string): string {
-    return formatInTimeZone(date, CST_TZ, formatStr);
+    return format(date, formatStr, { in: tz(CST_TZ) });
 }
 
 export type Overwrite<T, U> = Omit<T, keyof U> & U;

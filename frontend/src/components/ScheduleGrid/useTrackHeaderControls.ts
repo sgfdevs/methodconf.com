@@ -84,8 +84,6 @@ function getSingleGridColumnWidth(gridElement: HTMLElement) {
 
     gridElement.appendChild(tempDiv);
 
-    gridElement.offsetHeight;
-
     const width = tempDiv.getBoundingClientRect().width;
 
     gridElement.removeChild(tempDiv);
