@@ -9,6 +9,7 @@ import styles from '@/components/ScheduleGrid/ScheduleGrid.module.css';
 import { SessionCard } from '@/components/SessionCard';
 import type { ParsedSession, TrackWithSessions } from '@/data/types';
 import { usePartialGridView } from '@/components/ScheduleGrid/usePartialGridView';
+import { useSwipeable } from 'react-swipeable';
 
 export interface ScheduleGridProps {
     grid: string[][];
@@ -31,7 +32,7 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
     const {
         startColumnIndex,
         visibleColumns,
-        onControlClick,
+        handleControl,
         isPrevEnabled,
         isNextEnabled,
     } = usePartialGridView({
@@ -50,9 +51,17 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
         startColumnIndex + visibleColumns,
     );
 
+    const handlers = useSwipeable({
+        onSwipedLeft: () => handleControl('next'),
+        onSwipedRight: () => handleControl('prev'),
+        trackMouse: true,
+        preventScrollOnSwipe: true,
+    });
+
     return (
         <div
-            className={`${styles.scheduleGrid}`}
+            {...handlers}
+            className={`${styles.scheduleGrid} touch-pan-y`}
             style={
                 {
                     '--grid-template-columns': visibleColumns,
@@ -71,7 +80,7 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
                 <div className="flex text-white text-2xl">
                     <button
                         className={`p-2 transition-opacity duration-300 ${isPrevEnabled ? 'opacity-100' : 'opacity-0'}`}
-                        onClick={() => onControlClick('prev')}
+                        onClick={() => handleControl('prev')}
                     >
                         <FontAwesomeIcon icon={faChevronLeft} />
                     </button>
@@ -88,7 +97,7 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
                     </div>
                     <button
                         className={`p-2 transition-opacity duration-300 ${isNextEnabled ? 'opacity-100' : 'opacity-0'}`}
-                        onClick={() => onControlClick('next')}
+                        onClick={() => handleControl('next')}
                     >
                         <FontAwesomeIcon icon={faChevronRight} />
                     </button>

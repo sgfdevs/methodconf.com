@@ -16,7 +16,7 @@ export function usePartialGridView({
     const [startColumnIndex, setStartColumnIndex] = useState(0);
     const maxStartIndex = Math.max(totalColumns - visibleColumns, 0);
 
-    const onControlClick = useCallback(
+    const handleControl = useCallback(
         (direction: 'next' | 'prev') => {
             if (direction === 'next') {
                 setStartColumnIndex((prevIndex) =>
@@ -71,7 +71,7 @@ export function usePartialGridView({
     return {
         startColumnIndex,
         visibleColumns,
-        onControlClick,
+        handleControl,
         isPrevEnabled: startColumnIndex !== 0,
         isNextEnabled: startColumnIndex < maxStartIndex,
     };

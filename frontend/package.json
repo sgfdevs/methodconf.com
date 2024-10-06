@@ -24,6 +24,7 @@
         "openapi-fetch": "^0.12.2",
         "react": "^18",
         "react-dom": "^18",
+        "react-swipeable": "^7.0.1",
         "sharp": "^0.33.5",
         "sweetalert2": "^11.14.1",
         "throttle-debounce": "^5.0.2"
