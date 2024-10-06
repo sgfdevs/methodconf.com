@@ -2,7 +2,7 @@ import React from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
 import type { ParsedSession, ParsedConference, Schedule } from '@/data/types';
 import { formatDate } from '@/util';
-import { ScheduleGrid } from '@/components/ScheduleGrid';
+import { ScheduleGrid } from '@/components/ScheduleGrid/ScheduleGrid';
 
 export interface ScheduleBlockProps {
     conference: ParsedConference;
