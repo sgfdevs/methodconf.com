@@ -328,8 +328,8 @@ export interface components {
       start?: string | null;
       /** Format: date-time */
       end?: string | null;
-      isEligibleForFeedback?: boolean | null;
       speakers?: components["schemas"]["IApiContentModel"][] | null;
+      isEligibleForFeedback?: boolean | null;
       description?: components["schemas"]["RichTextModel"];
     };
     SessionsContentModel: {
@@ -372,6 +372,7 @@ export interface components {
       title?: string | null;
       logo?: components["schemas"]["IApiMediaWithCropsModel"][] | null;
       darkBackground?: boolean | null;
+      mobileAppSponsor?: boolean | null;
       url?: string | null;
     };
     SponsorTierElementModel: {
