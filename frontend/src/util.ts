@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import type { TZDate } from '@date-fns/tz';
 import { tz } from '@date-fns/tz';
 import { CST_TZ } from '@/config';
 
@@ -45,7 +44,9 @@ export function splitBy<ItemType>(
     return [validItems, invalidItems];
 }
 
-export function formatDate(date: Date, formatStr: string): string {
+// Dates are actually strings when running on the client
+// hence the Date | string type
+export function formatDate(date: Date | string, formatStr: string): string {
     return format(date, formatStr, { in: tz(CST_TZ) });
 }
 
