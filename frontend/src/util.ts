@@ -1,6 +1,5 @@
 import { format } from 'date-fns';
-import { CST_TZ } from '@/config';
-import { tz } from '@date-fns/tz';
+import type { TZDate } from '@date-fns/tz';
 
 export function _throw(msg: string): never {
     throw msg;
@@ -44,8 +43,8 @@ export function splitBy<ItemType>(
     return [validItems, invalidItems];
 }
 
-export function formatDate(date: Date, formatStr: string): string {
-    return format(date, formatStr, { in: tz(CST_TZ) });
+export function formatDate(date: TZDate, formatStr: string): string {
+    return format(date, formatStr);
 }
 
 export type Overwrite<T, U> = Omit<T, keyof U> & U;

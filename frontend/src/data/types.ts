@@ -1,3 +1,4 @@
+import type { TZDate } from '@date-fns/tz';
 import type { components } from '@/data/umbraco/deliveryApiSchema';
 import type { Overwrite } from '@/util';
 
@@ -10,7 +11,7 @@ export type ParsedConference = Overwrite<
         properties: Overwrite<
             NonNullable<Conference['properties']>,
             {
-                date?: Date;
+                date?: TZDate;
             }
         >;
     }
@@ -32,8 +33,8 @@ export type ParsedSession = Overwrite<
         properties: Overwrite<
             NonNullable<Session['properties']>,
             {
-                start?: Date;
-                end?: Date;
+                start?: TZDate;
+                end?: TZDate;
             }
         >;
     }
