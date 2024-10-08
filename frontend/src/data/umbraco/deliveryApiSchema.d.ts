@@ -398,6 +398,7 @@ export interface components {
     } & Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & components["schemas"]["SponsorsContentModel"];
     SponsorsPropertiesModel: {
       tiers?: components["schemas"]["ApiBlockListModel"];
+      opportunitiesUrl?: components["schemas"]["ApiLinkModel"][] | null;
     };
     TextWithButtonsElementModel: {
       contentType: "textWithButtons";
