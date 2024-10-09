@@ -128,6 +128,9 @@ export interface components {
       callForSpeakersUrl?: string | null;
       tagline?: string | null;
       location?: string | null;
+      surveyUrl?: components["schemas"]["ApiLinkModel"][] | null;
+      /** Format: date-time */
+      surveyAvailableAt?: string | null;
     };
     ConferencesContentModel: {
       contentType: "conferences";
