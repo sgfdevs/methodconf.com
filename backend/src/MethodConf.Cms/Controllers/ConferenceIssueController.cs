@@ -20,7 +20,7 @@ public class ConferenceIssueController : Controller
             Name = request.Name,
             Email = request.Email,
             Phone = request.Phone,
-            ResponseMarkup = "",
+            ResponseMarkup = """<p>This is some test markup with a <a href="https://google.com">link</a></p>""",
         });
     }
 }
