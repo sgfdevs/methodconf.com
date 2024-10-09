@@ -5,6 +5,36 @@
 
 
 export interface paths {
+  "/api/v1/conference/{conferenceId}/issue": {
+    post: {
+      parameters: {
+        path: {
+          conferenceId: string;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": components["schemas"]["CreateIssueRequestDto"];
+          "text/json": components["schemas"]["CreateIssueRequestDto"];
+          "application/*+json": components["schemas"]["CreateIssueRequestDto"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          headers: {
+            /** @description The list of notifications produced during the request. */
+            "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
+          };
+          content: {
+            "application/json": components["schemas"]["CreateIssueResponseDto"];
+            "text/json": components["schemas"]["CreateIssueResponseDto"];
+            "text/plain": components["schemas"]["CreateIssueResponseDto"];
+          };
+        };
+      };
+    };
+  };
   "/api/v1/conference/{conferenceId}/schedule": {
     get: {
       parameters: {
@@ -63,6 +93,21 @@ export interface components {
     ConferenceScheduleResponseDto: {
       scheduleGrid: string[][];
     };
+    CreateIssueRequestDto: {
+      message: string;
+      resolution?: string | null;
+      name?: string | null;
+      email?: string | null;
+      phone?: string | null;
+    };
+    CreateIssueResponseDto: {
+      message: string;
+      resolution?: string | null;
+      name?: string | null;
+      email?: string | null;
+      phone?: string | null;
+      responseMarkup: string;
+    };
     CreateSessionFeedbackRequestDto: {
       /** Format: int32 */
       speakerRating: number;
@@ -71,6 +116,7 @@ export interface components {
       /** Format: int32 */
       venueRating: number;
       comments: string;
+      email?: string | null;
     };
     /** @enum {string} */
     EventMessageTypeModel: "Default" | "Info" | "Error" | "Success" | "Warning";
@@ -89,6 +135,7 @@ export interface components {
       /** Format: int32 */
       venueRating: number;
       comments: string;
+      email?: string | null;
     };
   };
   responses: never;
