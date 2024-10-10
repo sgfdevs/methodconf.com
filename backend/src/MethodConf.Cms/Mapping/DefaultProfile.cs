@@ -18,5 +18,9 @@ public class DefaultProfile : Profile
         CreateMap<CreateSessionFeedbackRequestDto, CreateSessionFeedback>();
         CreateMap<CreateSessionFeedback, SessionFeedback>();
         CreateMap<SessionFeedback, SessionFeedbackResponseDto>();
+
+        CreateMap<CreateIssueRequestDto, CreateIssue>();
+        CreateMap<CreateIssue, Issue>();
+        CreateMap<Issue, CreateIssueResponseDto>();
     }
 }

@@ -1,5 +1,7 @@
 using Asp.Versioning;
+using AutoMapper;
 using MethodConf.Cms.Dtos;
+using MethodConf.Cms.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MethodConf.Cms.Controllers;
@@ -7,7 +9,7 @@ namespace MethodConf.Cms.Controllers;
 [ApiController]
 [ApiVersion("1.0")]
 [Route(RouteTemplates.ConferenceIssue)]
-public class ConferenceIssueController : Controller
+public class ConferenceIssueController(IConferenceIssueService conferenceIssueService, IMapper mapper) : Controller
 {
     [HttpPost]
     public async Task<ActionResult<CreateIssueResponseDto>> CreateIssue(Guid conferenceId, CreateIssueRequestDto request)
