@@ -1,0 +1,19 @@
+@model MethodConf.Cms.Dtos.NewIssueEmailViewModel
+@{
+    Layout = "~/Views/_EmailLayout.cshtml";
+}
+
+<p>A new issue for Method Conference has been reported. Here are the details</p>
+<p>
+    <strong>Message:</strong>
+    <br>
+    @Model.Message
+</p>
+<p>
+    <strong>Resolution:</strong>
+    <br>
+    @Model.Resolution
+</p>
+<p><strong>Name: </strong>@Model.Name</p>
+<p><strong>Email: </strong>@Model.Email</p>
+<p><strong>Phone: </strong>@Model.Phone</p>

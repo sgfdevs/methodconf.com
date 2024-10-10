@@ -1,5 +1,7 @@
 using Asp.Versioning;
 using AutoMapper;
+using MethodConf.Cms.Domain;
+using MethodConf.Cms.Domain.Errors;
 using MethodConf.Cms.Dtos;
 using MethodConf.Cms.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -14,15 +16,15 @@ public class ConferenceIssueController(IConferenceIssueService conferenceIssueSe
     [HttpPost]
     public async Task<ActionResult<CreateIssueResponseDto>> CreateIssue(Guid conferenceId, CreateIssueRequestDto request)
     {
-        await Task.CompletedTask;
-        return Ok(new CreateIssueResponseDto
+        var createIssue = mapper.Map<CreateIssue>(request);
+
+        var result = await conferenceIssueService.CreateIssue(conferenceId, createIssue);
+
+        return result switch
         {
-            Message = request.Message,
-            Resolution = request.Resolution,
-            Name = request.Name,
-            Email = request.Email,
-            Phone = request.Phone,
-            ResponseMarkup = """<p>This is some test markup with a <a href="https://google.com">link</a></p>""",
-        });
+            { IsFailed: true } when result.Errors.Any(e => e is InvalidEntityIdError) => NotFound(result.Errors),
+            { IsSuccess: true } => Ok(mapper.Map<ConferenceScheduleResponseDto>(result.Value)),
+            _ => StatusCode(500)
+        };
     }
 }

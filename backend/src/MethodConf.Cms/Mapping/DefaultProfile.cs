@@ -22,5 +22,7 @@ public class DefaultProfile : Profile
         CreateMap<CreateIssueRequestDto, CreateIssue>();
         CreateMap<CreateIssue, Issue>();
         CreateMap<Issue, CreateIssueResponseDto>();
+        CreateMap<Issue, NewIssueEmailViewModel>();
+        CreateMap<Issue, IssueResponseViewModel>();
     }
 }

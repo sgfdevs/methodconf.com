@@ -1,0 +1,19 @@
+@model MethodConf.Cms.Dtos.NewIssueEmailViewModel
+@{
+    Layout = "~/Views/_EmailLayout.cshtml";
+}
+
+<p>Here's a copy of the issue you reported. An organizer will follow up with you as soon as possible</p>
+<p>
+    <strong>Message:</strong>
+    <br>
+    @Model.Message
+</p>
+<p>
+    <strong>Resolution:</strong>
+    <br>
+    @Model.Resolution
+</p>
+<p><strong>Name: </strong>@Model.Name</p>
+<p><strong>Email: </strong>@Model.Email</p>
+<p><strong>Phone: </strong>@Model.Phone</p>
