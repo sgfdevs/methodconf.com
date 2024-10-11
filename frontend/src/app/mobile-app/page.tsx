@@ -19,5 +19,9 @@ export default function MobileApp() {
         return redirect(APPLE_APP_STORE_LINK);
     }
 
-    return <ClientMobileAppRedirect />;
+    return (
+        <div className="content-container">
+            <ClientMobileAppRedirect />
+        </div>
+    );
 }
