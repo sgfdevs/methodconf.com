@@ -40,7 +40,14 @@ public class ConferenceIssueService(
 
         if (newIssue.Email is { } email && !string.IsNullOrWhiteSpace(email))
         {
-            await SendReporterEmail(email, newIssue);
+            try
+            {
+                await SendReporterEmail(email, newIssue);
+            }
+            catch
+            {
+                await SendOrganizerEmail(newIssue);
+            }
         }
         else
         {
@@ -58,7 +65,7 @@ public class ConferenceIssueService(
         var vm = mapper.Map<NewIssueEmailViewModel>(issue);
         vm.Title = OrganizerEmailSubject;
 
-        var content = await razorEngine.RenderAsync("/Views/Templates/NewIssueOrganizerEmail.cshtml", vm);
+        var content = await razorEngine.RenderAsync("~/Views/Templates/NewIssueOrganizerEmail.cshtml", vm);
 
         var message = new EmailMessage(
             from: globalSettings.Value.Smtp?.From,
