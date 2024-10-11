@@ -1,6 +1,10 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { NewsletterForm } from '@/components/NewsletterForm';
 import type { RootPageProps } from '@/app/[conference]/page';
+import { APPLE_APP_STORE_LINK, GOOGLE_PLAY_STORE_LINK } from '@/config';
+import appStore from '../../../public/app-store.svg';
+import playStore from '../../../public/play-store.svg';
 
 export type IntroAndEmailSignupBlockProps = RootPageProps;
 
@@ -25,10 +29,37 @@ export function IntroAndEmailSignupBlock({
                     </div>
                     <Link
                         href={`/${params.conference}/register/`}
-                        className="button inline-block ml-2"
+                        className="button inline-block mb-8"
                     >
                         Register Now
                     </Link>
+                    <h3 className="font-bold text-xl lg:text-2xl mb-4">
+                        Download Our Mobile App!
+                    </h3>
+                    <div className="flex space-x-4">
+                        <Link
+                            className="block"
+                            href={APPLE_APP_STORE_LINK}
+                            title="Download iOS app"
+                        >
+                            <Image
+                                src={appStore}
+                                alt="Download on the App Store"
+                                height={55}
+                            />
+                        </Link>
+                        <Link
+                            className="block"
+                            href={GOOGLE_PLAY_STORE_LINK}
+                            title="Download android app"
+                        >
+                            <Image
+                                src={playStore}
+                                alt="Get it on Google Play"
+                                height={55}
+                            />
+                        </Link>
+                    </div>
                 </div>
             </div>
             <div className="lg:w-1/2 lg:px-5">
