@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { SectionTitleBar } from '@/components/SectionTitleBar';
+import { BUILDING_MAP, PARKING_MAP } from '@/config';
 
 export interface IDetailSection {
     heading: string;
@@ -13,7 +14,12 @@ export function LocationBlock() {
         {
             heading: 'Event Location',
             content:
-                '<a target="_blank" href="https://maps.app.goo.gl/ZHNKbCreeTA3spxR9">405 N Jefferson Ave, Springfield, MO 65806</a>',
+                '<a target="_blank" href="https://maps.app.goo.gl/ZHNKbCreeTA3spxR9">405 N Jefferson Ave, Springfield, MO 65806</a><br>' +
+                `<a href="${BUILDING_MAP}">Building Map</a>`,
+        },
+        {
+            heading: 'Parking',
+            content: `<p>There is free on-site parking at the event location.<br><a href="${PARKING_MAP}">Parking Map</a></p>`,
         },
         {
             heading: 'Airport',
@@ -35,11 +41,6 @@ export function LocationBlock() {
                 '<a target="_blank" href="https://www.hotelvandivort.com/">Hotel Vandivort</a> <br>' +
                 '<a target="_blank" href="https://www.marriott.com/hotels/travel/sgfts-towneplace-suites-springfield/">TownePlace Suites by Marriott Springfield</a> <br>' +
                 '<a target="_blank" href="https://doubletree3.hilton.com/en/hotels/missouri/doubletree-by-hilton-hotel-springfield-SGFDTDT/index.html">DoubleTree by Hilton</a>',
-        },
-        {
-            heading: 'Parking',
-            content:
-                '<p>There is free on-site parking at the event location.</p>',
         },
     ];
 
