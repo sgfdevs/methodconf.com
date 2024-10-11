@@ -1,6 +1,6 @@
 namespace MethodConf.Cms.Dtos;
 
-public class IssueResponseViewModel
+public class NewIssueAppResponseViewModel
 {
     public required string Message { get; set; }
     public string? Resolution { get; set; }

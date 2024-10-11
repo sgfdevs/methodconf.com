@@ -23,7 +23,7 @@ public class ConferenceIssueController(IConferenceIssueService conferenceIssueSe
         return result switch
         {
             { IsFailed: true } when result.Errors.Any(e => e is InvalidEntityIdError) => NotFound(result.Errors),
-            { IsSuccess: true } => Ok(mapper.Map<ConferenceScheduleResponseDto>(result.Value)),
+            { IsSuccess: true } => Ok(mapper.Map<CreateIssueResponseDto>(result.Value)),
             _ => StatusCode(500)
         };
     }

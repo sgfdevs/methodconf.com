@@ -5,5 +5,5 @@ namespace MethodConf.Cms.Services.Interfaces;
 
 public interface IConferenceIssueService
 {
-    public Task<Result<Issue>> CreateIssue(Guid conferenceId, CreateIssue createIssue);
+    public Task<Result<IssueWithResponse>> CreateIssue(Guid conferenceId, CreateIssue createIssue);
 }
