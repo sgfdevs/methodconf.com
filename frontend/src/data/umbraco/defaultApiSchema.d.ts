@@ -116,6 +116,7 @@ export interface components {
       /** Format: int32 */
       venueRating: number;
       comments?: string | null;
+      name?: string | null;
       email?: string | null;
     };
     /** @enum {string} */
@@ -135,6 +136,7 @@ export interface components {
       /** Format: int32 */
       venueRating: number;
       comments?: string | null;
+      name?: string | null;
       email?: string | null;
     };
   };
