@@ -69,6 +69,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_UMBRACO_BASE_URL=${{ inputs.next_public_umbraco_base_url }}
             NEXT_PUBLIC_SITE_URL=${{ inputs.next_public_site_url }}
+            REPOSITORY_URL=${{ github.server_url }}/${{ github.repository }}
 
   merge:
     name: Create Multi-Arch Manifest

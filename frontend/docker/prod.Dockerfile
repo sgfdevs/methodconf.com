@@ -20,8 +20,10 @@ COPY . .
 
 # Public environment variables must be present at build time
 # https://github.com/vercel/next.js/discussions/14030
-# ARG NEXT_PUBLIC_ENV_VARIABLE
-# ENV NEXT_PUBLIC_ENV_VARIABLE=${NEXT_PUBLIC_ENV_VARIABLE}
+ARG NEXT_PUBLIC_UMBRACO_BASE_URL
+ENV NEXT_PUBLIC_UMBRACO_BASE_URL=${NEXT_PUBLIC_UMBRACO_BASE_URL}
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line to disable telemetry at build time
@@ -65,7 +67,8 @@ ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
 # Note: Don't expose ports here, Compose will handle that for us
 
-LABEL org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}
+ARG REPOSITORY_URL
+LABEL org.opencontainers.image.source=${REPOSITORY_URL}
 LABEL org.opencontainers.image.description="MethodConf Frontend - Next.js"
 LABEL org.opencontainers.image.licenses=MIT
 
