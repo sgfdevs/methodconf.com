@@ -65,4 +65,8 @@ ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
 
 # Note: Don't expose ports here, Compose will handle that for us
 
+LABEL org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}
+LABEL org.opencontainers.image.description="MethodConf Frontend - Next.js"
+LABEL org.opencontainers.image.licenses=MIT
+
 CMD ["node", "server.js"]
