@@ -1,6 +1,6 @@
 {
   "branches": ["main"],
-  "tagFormat": "frontend-v${version}",
+  "tagFormat": "v${version}-frontend",
   "plugins": [
     ["@semantic-release/commit-analyzer", {
       "preset": "conventionalcommits",
