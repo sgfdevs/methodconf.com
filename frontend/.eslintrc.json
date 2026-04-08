@@ -1,7 +1,0 @@
-{
-    "extends": ["next/core-web-vitals", "next/typescript", "plugin:prettier/recommended"],
-    "ignorePatterns": ["src/data/umbraco/*.d.ts"],
-    "rules": {
-        "@typescript-eslint/consistent-type-imports": "error"
-    }
-}
