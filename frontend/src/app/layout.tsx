@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { Source_Sans_3 } from 'next/font/google';
+import PlausibleProvider from 'next-plausible';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import './globals.css';
@@ -27,19 +27,14 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
-            <head>
-                <Script
-                    src="https://plausible.sgf.dev/js/script.js"
-                    strategy="afterInteractive"
-                    data-domain="methodconf.com"
-                />
-            </head>
             <body
                 className={`${sourceSans.className} font-light`}
                 suppressHydrationWarning
             >
-                {children}
-                <Footer />
+                <PlausibleProvider src="https://plausible.sgf.dev/js/script.js">
+                    {children}
+                    <Footer />
+                </PlausibleProvider>
             </body>
         </html>
     );
