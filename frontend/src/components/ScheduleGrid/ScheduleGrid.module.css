@@ -7,15 +7,15 @@
     grid-template-columns: repeat(var(--grid-template-columns), minmax(100%, 1fr));
     gap: 1rem;
 
-    @media screen(lg) {
+    @media (width >= 64rem) {
         grid-template-columns: repeat(var(--grid-template-columns), minmax(50%, 1fr));
     }
 
-    @media screen(xl) {
+    @media (width >= 80rem) {
         grid-template-columns: repeat(var(--grid-template-columns), minmax(33.3333333%, 1fr));
     }
 
-    @media screen('2xl') {
+    @media (width >= 96rem) {
         gap: 2rem;
         grid-template-columns: repeat(var(--grid-template-columns), minmax(calc(33.3333333% - 1rem), 1fr));
     }
