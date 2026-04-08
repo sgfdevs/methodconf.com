@@ -28,8 +28,6 @@ export interface paths {
                 /** @description OK */
                 200: {
                     headers: {
-                        /** @description The list of notifications produced during the request. */
-                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
                         [name: string]: unknown;
                     };
                     content: {
@@ -114,8 +112,6 @@ export interface paths {
                 /** @description OK */
                 200: {
                     headers: {
-                        /** @description The list of notifications produced during the request. */
-                        "Umb-Notifications"?: components["schemas"]["NotificationHeaderModel"][] | null;
                         [name: string]: unknown;
                     };
                     content: {
@@ -164,13 +160,6 @@ export interface components {
             comments?: string | null;
             name?: string | null;
             email?: string | null;
-        };
-        /** @enum {string} */
-        EventMessageTypeModel: "Default" | "Info" | "Error" | "Success" | "Warning";
-        NotificationHeaderModel: {
-            message: string;
-            category: string;
-            type: components["schemas"]["EventMessageTypeModel"];
         };
         SessionFeedbackResponseDto: {
             /** Format: uuid */

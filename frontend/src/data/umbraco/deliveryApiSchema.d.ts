@@ -175,6 +175,7 @@ export interface components {
             readonly destinationType?: string | null;
             readonly route?: components["schemas"]["ApiContentRouteModel"] | null;
             linkType: components["schemas"]["LinkTypeModel"];
+            readonly culture?: string | null;
         };
         ConferenceContentModel: {
             properties?: components["schemas"]["ConferencePropertiesModel"];
