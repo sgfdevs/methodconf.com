@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'path';
 import { loadEnvConfig } from '@next/env';
-import openapiTS from 'openapi-typescript';
+import openapiTS, { astToString } from 'openapi-typescript';
 loadEnvConfig(process.cwd());
 
 async function main() {
@@ -27,11 +27,11 @@ async function main() {
 
     await Promise.all(
         schemaConfigs.map(async ({ url, outputFile }) => {
-            const output = await openapiTS(url.toString());
+            const outputAst = await openapiTS(url.toString());
 
             await fs.promises.writeFile(
                 path.join(__dirname, 'src', 'data', 'umbraco', outputFile),
-                output,
+                astToString(outputAst),
             );
         }),
     );
