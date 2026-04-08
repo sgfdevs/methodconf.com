@@ -1,6 +1,10 @@
 import type { components } from '@/data/umbraco/deliveryApiSchema';
 
-export type ContentTypes = components['schemas']['IApiContentResponseModel'];
+export type UmbracoContent = components['schemas']['IApiContentResponseModel'];
+export type UmbracoContentCollection =
+    components['schemas']['PagedIApiContentResponseModel'];
+
+export type ContentTypes = UmbracoContent;
 export type ContentTypeKeys = ContentTypes['contentType'];
 
 export type UmbracoClientOptions = {

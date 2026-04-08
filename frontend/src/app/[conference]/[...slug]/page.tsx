@@ -25,7 +25,10 @@ export async function generateMetadata({
 
     switch (item.contentType) {
         case 'speaker':
-            return await generateSpeakerMetadata({ conference, speaker: item });
+            return await generateSpeakerMetadata({
+                conference,
+                speaker: item,
+            });
         case 'page':
             return await generateGenericMetadata({
                 params: resolvedParams,

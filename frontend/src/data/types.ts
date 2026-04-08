@@ -1,8 +1,9 @@
 import type { components } from '@/data/umbraco/deliveryApiSchema';
 import type { Overwrite } from '@/util';
 
-export type Conference =
-    components['schemas']['ConferenceContentResponseModel'];
+type Content = components['schemas']['IApiContentResponseModel'];
+
+export type Conference = Extract<Content, { contentType: 'conference' }>;
 
 export type ParsedConference = Overwrite<
     Conference,
@@ -16,15 +17,15 @@ export type ParsedConference = Overwrite<
     }
 >;
 
-export type Sponsors = components['schemas']['SponsorsContentResponseModel'];
+export type Sponsors = Extract<Content, { contentType: 'sponsors' }>;
 
 export type SponsorTier = components['schemas']['SponsorTierElementModel'];
 
 export type Sponsor = components['schemas']['SponsorElementModel'];
 
-export type Sessions = components['schemas']['SessionsContentResponseModel'];
+export type Sessions = Extract<Content, { contentType: 'sessions' }>;
 
-export type Session = components['schemas']['SessionContentResponseModel'];
+export type Session = Extract<Content, { contentType: 'session' }>;
 
 export type ParsedSession = Overwrite<
     Session,
@@ -39,7 +40,7 @@ export type ParsedSession = Overwrite<
     }
 >;
 
-export type Track = components['schemas']['TrackContentResponseModel'];
+export type Track = Extract<Content, { contentType: 'track' }>;
 
 export type TrackWithSessions = Track & { children: ParsedSession[] };
 
@@ -47,11 +48,9 @@ export type ScheduleItem = ParsedSession | TrackWithSessions;
 
 export type Schedule = { items: ScheduleItem[]; grid: string[][] };
 
-export type Speaker = components['schemas']['SpeakerContentResponseModel'];
+export type Speaker = Extract<Content, { contentType: 'speaker' }>;
 
-export type Page =
-    | components['schemas']['PageContentResponseModel']
-    | components['schemas']['HomeContentResponseModel'];
+export type Page = Extract<Content, { contentType: 'home' | 'page' }>;
 
 export type ContentBlock = components['schemas']['IApiElementModel'];
 

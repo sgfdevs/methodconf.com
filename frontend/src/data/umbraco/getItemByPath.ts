@@ -1,6 +1,9 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import type { paths } from '@/data/umbraco/deliveryApiSchema';
-import type { UmbracoClientOptions } from '@/data/umbraco/types';
+import type {
+    UmbracoClientOptions,
+    UmbracoContent,
+} from '@/data/umbraco/types';
 
 type GetItemByPathOptions =
     paths['/umbraco/delivery/api/v2/content/item/{path}']['get']['parameters']['query'] &
@@ -9,10 +12,10 @@ type GetItemByPathOptions =
 export async function getItemByPathOrDefault(
     path: string,
     options: GetItemByPathOptions = {},
-) {
+): Promise<UmbracoContent | undefined> {
     const { data, error } = await getItemByPath(path, options);
 
-    if (error) {
+    if (error || !data) {
         return;
     }
 
@@ -22,7 +25,11 @@ export async function getItemByPathOrDefault(
 export async function getItemByPath(
     path: string,
     { requestOptions = {}, ...options }: GetItemByPathOptions = {},
-) {
+): Promise<{
+    data?: UmbracoContent;
+    error?: unknown;
+    response: Response;
+}> {
     return await umbracoClient.GET(
         '/umbraco/delivery/api/v2/content/item/{path}',
         {
