@@ -31,7 +31,7 @@ export default function RootLayout({
                 className={`${sourceSans.className} font-light`}
                 suppressHydrationWarning
             >
-                <PlausibleProvider src="https://plausible.sgf.dev/js/script.js">
+                <PlausibleProvider src="https://plausible.sgf.dev/js/pa-MKQsdxqo5_oFk0NmM56b1.js">
                     {children}
                     <Footer />
                 </PlausibleProvider>
