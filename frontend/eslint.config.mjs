@@ -9,6 +9,11 @@ const eslintConfig = [
     ...nextCoreWebVitals,
     ...nextTypeScript,
     {
+        settings: {
+            react: {
+                version: '19.0',
+            },
+        },
         rules: {
             '@typescript-eslint/consistent-type-imports': 'error',
         },
