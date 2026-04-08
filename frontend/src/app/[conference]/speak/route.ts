@@ -4,9 +4,10 @@ import { getConference } from '@/data/getConference';
 
 export async function GET(
     request: Request,
-    { params }: { params: { conference: string } },
+    { params }: { params: Promise<{ conference: string }> },
 ) {
-    const conference = await getConference(params.conference);
+    const { conference: conferenceSlug } = await params;
+    const conference = await getConference(conferenceSlug);
 
     const url = parseUrl(conference?.properties?.callForSpeakersUrl);
 

@@ -3,13 +3,14 @@ import { getConference } from '@/data/getConference';
 import { OveItEmbed } from '@/components/OveItEmbed';
 
 export interface RegisterProps {
-    params: {
+    params: Promise<{
         conference: string;
-    };
+    }>;
 }
 
 export default async function Register({ params }: RegisterProps) {
-    const conference = await getConference(params.conference);
+    const { conference: conferenceSlug } = await params;
+    const conference = await getConference(conferenceSlug);
 
     const registerUrl = conference?.properties.registerUrl;
 

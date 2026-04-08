@@ -9,15 +9,14 @@ import { getItemByPathOrDefault } from '@/data/umbraco/getItemByPath';
 import type { Metadata } from 'next';
 
 export interface RootPageProps {
-    params: { conference: string };
+    params: Promise<{ conference: string }>;
 }
 
 export async function generateMetadata({
     params,
 }: RootPageProps): Promise<Metadata> {
-    const { conference, homeContent } = await getHomePageData(
-        params.conference,
-    );
+    const { conference: conferenceSlug } = await params;
+    const { conference, homeContent } = await getHomePageData(conferenceSlug);
 
     if (!conference || !homeContent) {
         return notFound();
@@ -25,7 +24,7 @@ export async function generateMetadata({
 
     return await generateGenericMetadata({
         params: {
-            conference: params.conference,
+            conference: conferenceSlug,
             slug: [],
         },
         conference,
@@ -34,8 +33,9 @@ export async function generateMetadata({
 }
 
 export default async function Home({ params }: RootPageProps) {
+    const resolvedParams = await params;
     const { conference, homeContent } = await getHomePageData(
-        params.conference,
+        resolvedParams.conference,
     );
 
     if (!conference || !homeContent) {
@@ -44,11 +44,11 @@ export default async function Home({ params }: RootPageProps) {
 
     return (
         <>
-            <HomeNav params={params} conference={conference} />
+            <HomeNav params={resolvedParams} conference={conference} />
             <main>
                 <GenericPage
                     params={{
-                        conference: params.conference,
+                        conference: resolvedParams.conference,
                         slug: [],
                     }}
                     conference={conference}

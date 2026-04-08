@@ -1,12 +1,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { NewsletterForm } from '@/components/NewsletterForm';
-import type { RootPageProps } from '@/app/[conference]/page';
 import { APPLE_APP_STORE_LINK, GOOGLE_PLAY_STORE_LINK } from '@/config';
 import appStore from '../../../public/app-store.svg';
 import playStore from '../../../public/play-store.svg';
 
-export type IntroAndEmailSignupBlockProps = RootPageProps;
+export interface IntroAndEmailSignupBlockProps {
+    params: {
+        conference: string;
+    };
+}
 
 export function IntroAndEmailSignupBlock({
     params,
