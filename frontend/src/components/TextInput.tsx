@@ -30,7 +30,7 @@ export function TextInput({
                     id={id}
                     value={value}
                     onChange={(evt) => onChange(evt.target.value)}
-                    className="block px-2.5 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-gray-100 appearance-none focus:outline-none focus:ring-0 peer"
+                    className="block px-2.5 pb-2.5 pt-5 w-full text-sm text-gray-900 bg-gray-100 appearance-none focus:outline-hidden focus:ring-0 peer"
                     placeholder=" "
                     name={name}
                     required={required}
