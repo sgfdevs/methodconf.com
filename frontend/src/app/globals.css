@@ -1,5 +1,10 @@
-@config "../../tailwind.config.ts";
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+    --color-primary: #D72F32;
+    --color-secondary: #1E1E1E;
+}
 
 .button {
     @apply text-white bg-black p-4 uppercase font-bold tracking-wider text-sm hover:-translate-y-1 transition-transform
