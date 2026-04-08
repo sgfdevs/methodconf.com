@@ -1,9 +1,11 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import type { paths } from '@/data/umbraco/deliveryApiSchema';
 import type {
+    RawUmbracoContentCollection,
     UmbracoClientOptions,
     UmbracoContentCollection,
 } from '@/data/umbraco/types';
+import { normalizeUmbracoContentCollection } from '@/data/umbraco/types';
 
 type GetItemsOptions = NonNullable<
     paths['/umbraco/delivery/api/v2/content']['get']['parameters']['query'] &
@@ -19,14 +21,14 @@ export async function getItemsOrDefault(
         return { total: 0, items: [] };
     }
 
-    return data;
+    return normalizeUmbracoContentCollection(data);
 }
 
 export async function getItems({
     requestOptions,
     ...options
 }: GetItemsOptions): Promise<{
-    data?: UmbracoContentCollection;
+    data?: RawUmbracoContentCollection;
     error?: unknown;
     response: Response;
 }> {
