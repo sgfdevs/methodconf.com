@@ -12,7 +12,15 @@ const nextConfig: NextConfig = {
     output: 'standalone',
     trailingSlash: true,
     images: {
-        remotePatterns: [url],
+        remotePatterns: [
+            {
+                protocol: url.protocol.replace(':', '') as 'http' | 'https',
+                hostname: url.hostname,
+                port: url.port,
+                pathname: '/**',
+            },
+        ],
+        qualities: [75, 100],
     },
     productionBrowserSourceMaps: true,
 };
