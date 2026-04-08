@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { APPLE_APP_STORE_LINK, GOOGLE_PLAY_STORE_LINK } from '@/config';
 import { ClientMobileAppRedirect } from '@/components/ClientMobileAppRedirect';
 
-export default function MobileApp() {
-    const headersList = headers();
+export default async function MobileApp() {
+    const headersList = await headers();
     const userAgent = headersList.get('user-agent');
 
     if (!userAgent) {

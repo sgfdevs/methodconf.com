@@ -1,8 +1,9 @@
 import { permanentRedirect } from 'next/navigation';
 
-export function GET(
+export async function GET(
     request: Request,
-    { params }: { params: { conference: string } },
+    { params }: { params: Promise<{ conference: string }> },
 ) {
-    permanentRedirect(`/${params.conference}/register/`);
+    const { conference } = await params;
+    permanentRedirect(`/${conference}/register/`);
 }

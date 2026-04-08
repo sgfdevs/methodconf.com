@@ -3,13 +3,15 @@ import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { formatDate } from '@/util';
 import type { ParsedConference } from '@/data/types';
-import type { RootPageProps } from '@/app/[conference]/page';
 import logo from '../../public/method-logo.svg';
 import skyline from '../../public/skyline.svg';
 import skylineMobile from '../../public/skyline-mobile.svg';
 import headerGradient from '../../public/header-gradient.svg';
 
-interface HomeNavProps extends RootPageProps {
+interface HomeNavProps {
+    params: {
+        conference: string;
+    };
     conference: ParsedConference;
 }
 

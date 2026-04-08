@@ -7,16 +7,17 @@ import { generateMetadata as generateSpeakerMetadata } from '@/components/pageTy
 import { generateMetadata as generateGenericMetadata } from '@/components/pageTypes/GenericPage';
 
 export interface PageProps {
-    params: {
+    params: Promise<{
         conference: string;
         slug: string[];
-    };
+    }>;
 }
 
 export async function generateMetadata({
     params,
 }: PageProps): Promise<Metadata> {
-    const { conference, item } = await getData(params);
+    const resolvedParams = await params;
+    const { conference, item } = await getData(resolvedParams);
 
     if (!conference || !item) {
         return notFound();
@@ -27,7 +28,7 @@ export async function generateMetadata({
             return await generateSpeakerMetadata({ conference, speaker: item });
         case 'page':
             return await generateGenericMetadata({
-                params,
+                params: resolvedParams,
                 conference,
                 page: item,
             });
@@ -47,7 +48,8 @@ const GenericPage = dynamic(() =>
 );
 
 export default async function Page({ params }: PageProps) {
-    const { conference, item } = await getData(params);
+    const resolvedParams = await params;
+    const { conference, item } = await getData(resolvedParams);
 
     if (!conference || !item) {
         return notFound();
@@ -59,7 +61,7 @@ export default async function Page({ params }: PageProps) {
         case 'page':
             return (
                 <GenericPage
-                    params={params}
+                    params={resolvedParams}
                     conference={conference}
                     page={item}
                 />
@@ -69,7 +71,7 @@ export default async function Page({ params }: PageProps) {
     }
 }
 
-async function getData(params: PageProps['params']) {
+async function getData(params: Awaited<PageProps['params']>) {
     const conference = await getConference(params.conference);
 
     if (!conference) {

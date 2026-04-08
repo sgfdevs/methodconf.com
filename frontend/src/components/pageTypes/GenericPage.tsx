@@ -7,12 +7,17 @@ import type {
     Schedule,
     Sponsors,
 } from '@/data/types';
-import type { PageProps } from '@/app/[conference]/[...slug]/page';
 import { imageUrl } from '@/data/umbraco/imageUrl';
 import { getSchedule } from '@/data/getSchedule';
 import { getSponsors } from '@/data/getSponsors';
 
-export interface GenericPageProps extends PageProps {
+interface GenericPageParams {
+    conference: string;
+    slug: string[];
+}
+
+export interface GenericPageProps {
+    params: GenericPageParams;
     conference: ParsedConference;
     page: Page;
 }

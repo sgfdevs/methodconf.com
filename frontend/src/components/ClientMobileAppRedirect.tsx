@@ -1,5 +1,6 @@
 'use client';
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { APPLE_APP_STORE_LINK, GOOGLE_PLAY_STORE_LINK } from '@/config';
 
 export function ClientMobileAppRedirect() {
@@ -22,7 +23,8 @@ export function ClientMobileAppRedirect() {
 
     return (
         <p>
-            If you are not automatically redirected click <a href="/">here</a>
+            If you are not automatically redirected click{' '}
+            <Link href="/">here</Link>
         </p>
     );
 }

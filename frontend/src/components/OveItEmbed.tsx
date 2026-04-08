@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { parseUrl } from '@/util';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -11,8 +11,41 @@ export function OveItEmbed({ embedUrl }: InlineScriptProps) {
     const router = useRouter();
     const pathname = usePathname();
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const [iframeUrl, setIframeUrl] = useState<URL | undefined>();
-    const [embedId, setEmbedId] = useState<string | undefined>();
+
+    const iframeState = useMemo(() => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        const parsedUrl = parseUrl(embedUrl);
+
+        if (!parsedUrl) {
+            return;
+        }
+
+        const embedId = parsedUrl.searchParams.get('id') ?? undefined;
+        let nextPath: string | undefined;
+
+        // Handles incoming redirects from certain payment providers.
+        if (window.location.hash) {
+            const hash = window.location.hash.substring(1);
+            const parts = hash.split('/');
+
+            if (parts.length >= 2 && parts[0] === embedId && parts[1]) {
+                parsedUrl.searchParams.set('next', parts[1]);
+                nextPath = parts[1];
+            }
+        }
+
+        return {
+            embedId,
+            iframeUrl: parsedUrl,
+            nextPath,
+        };
+    }, [embedUrl]);
+
+    const embedId = iframeState?.embedId;
+    const iframeUrl = iframeState?.iframeUrl;
 
     const sendInfo = useCallback(
         (time: number) => {
@@ -40,29 +73,11 @@ export function OveItEmbed({ embedUrl }: InlineScriptProps) {
         iframeRef.current.style.height = dimensions.height + 'px';
     }, []);
 
-    const updateIframeUrl = useCallback(() => {
-        const parsedUrl = parseUrl(embedUrl);
-
-        if (!parsedUrl) {
-            return;
+    useEffect(() => {
+        if (iframeState?.nextPath) {
+            router.replace(pathname, { scroll: false });
         }
-
-        const parsedEmbedId = parsedUrl?.searchParams.get('id') ?? undefined;
-
-        // Handles incoming redirects from certain payment providers
-        if (window.location.hash) {
-            const hash = window.location.hash.substring(1);
-            const parts = hash.split('/');
-
-            if (parts.length >= 2 && parts[0] === parsedEmbedId && parts[1]) {
-                parsedUrl.searchParams.set('next', parts[1]);
-                router.replace(pathname, { scroll: false });
-            }
-        }
-
-        setEmbedId(parsedEmbedId);
-        setIframeUrl(parsedUrl);
-    }, [embedUrl, pathname, router]);
+    }, [iframeState?.nextPath, pathname, router]);
 
     useEffect(() => {
         function onWindowMessage(event: MessageEvent) {
@@ -90,13 +105,11 @@ export function OveItEmbed({ embedUrl }: InlineScriptProps) {
         window.addEventListener('message', onWindowMessage);
         window.addEventListener('resize', onWindowResize);
 
-        updateIframeUrl();
-
         return () => {
             window.removeEventListener('message', onWindowMessage);
             window.removeEventListener('resize', onWindowResize);
         };
-    }, [resizeIframe, sendInfo, updateIframeUrl]);
+    }, [resizeIframe, sendInfo]);
 
     return iframeUrl ? (
         <iframe

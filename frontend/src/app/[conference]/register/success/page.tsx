@@ -2,16 +2,18 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export interface SuccessPageProps {
-    params: {
+    params: Promise<{
         conference: string;
-    };
+    }>;
 }
 
 export const metadata: Metadata = {
     robots: { index: false },
 };
 
-export default function SuccessPage({ params }: SuccessPageProps) {
+export default async function SuccessPage({ params }: SuccessPageProps) {
+    const { conference } = await params;
+
     return (
         <section className="py-24 md:py-32">
             <div className="content-container text-center">
@@ -33,7 +35,7 @@ export default function SuccessPage({ params }: SuccessPageProps) {
                 </p>
                 <br />
                 <Link
-                    href={`/${params.conference}/`}
+                    href={`/${conference}/`}
                     className="button secondary inline-block"
                 >
                     Back Home
