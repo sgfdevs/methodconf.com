@@ -1,7 +1,8 @@
 import type { components } from '@/data/umbraco/deliveryApiSchema';
+import type { UmbracoContent } from '@/data/umbraco/types';
 import type { Overwrite } from '@/util';
 
-type Content = components['schemas']['IApiContentResponseModel'];
+type Content = UmbracoContent;
 
 export type Conference = Extract<Content, { contentType: 'conference' }>;
 
