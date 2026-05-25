@@ -11,14 +11,14 @@
         "generate:umbraco-api-client": "tsx generateUmbracoApiClient.ts"
     },
     "dependencies": {
-        "@date-fns/tz": "^1.4.1",
+        "@date-fns/tz": "^1.5.0",
         "@fortawesome/fontawesome-svg-core": "^7.2.0",
         "@fortawesome/free-brands-svg-icons": "^7.2.0",
         "@fortawesome/free-regular-svg-icons": "^7.2.0",
         "@fortawesome/free-solid-svg-icons": "^7.2.0",
         "@fortawesome/react-fontawesome": "^3.3.1",
         "@szhsin/react-accordion": "^1.4.2",
-        "date-fns": "^4.2.1",
+        "date-fns": "^4.3.0",
         "next": "16.2.6",
         "next-plausible": "^4.0.0",
         "openapi-fetch": "^0.17.0",
@@ -26,7 +26,7 @@
         "react-dom": "^19.2.6",
         "react-swipeable": "^7.0.2",
         "sharp": "^0.34.5",
-        "sweetalert2": "^11.26.24",
+        "sweetalert2": "^11.26.25",
         "throttle-debounce": "^5.0.2"
     },
     "devDependencies": {
