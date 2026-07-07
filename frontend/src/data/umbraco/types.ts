@@ -1,95 +1,58 @@
 import type { components } from '@/data/umbraco/deliveryApiSchema';
 
-const CONTENT_TYPE_MAP = {
-    PageContentModel: 'page',
-    PageContentResponseModel: 'page',
-    SessionContentModel: 'session',
-    SessionContentResponseModel: 'session',
-    SessionsContentModel: 'sessions',
-    SessionsContentResponseModel: 'sessions',
-    SpeakerContentModel: 'speaker',
-    SpeakerContentResponseModel: 'speaker',
-    SpeakersContentModel: 'speakers',
-    SpeakersContentResponseModel: 'speakers',
-    SponsorsContentModel: 'sponsors',
-    SponsorsContentResponseModel: 'sponsors',
-    TrackContentModel: 'track',
-    TrackContentResponseModel: 'track',
-} as const;
+// The v18 OpenAPI schema intersects each content model with a base model that has
+// `properties: null | Record<string, never>`. This poisons the specific properties
+// model via the index signature. ResolveContent overrides `properties` with the
+// correct specific type for each content type.
+type ContentPropertiesFor<C extends string> = C extends 'conference'
+    ? components['schemas']['ConferenceContentPropertiesModel']
+    : C extends 'conferences'
+      ? components['schemas']['ConferencesContentPropertiesModel']
+      : C extends 'home'
+        ? components['schemas']['HomeContentPropertiesModel']
+        : C extends 'page'
+          ? components['schemas']['PageContentPropertiesModel']
+          : C extends 'session'
+            ? components['schemas']['SessionContentPropertiesModel']
+            : C extends 'sessions'
+              ? components['schemas']['SessionsContentPropertiesModel']
+              : C extends 'speaker'
+                ? components['schemas']['SpeakerContentPropertiesModel']
+                : C extends 'speakers'
+                  ? components['schemas']['SpeakersContentPropertiesModel']
+                  : C extends 'sponsors'
+                    ? components['schemas']['SponsorsContentPropertiesModel']
+                    : C extends 'track'
+                      ? components['schemas']['TrackContentPropertiesModel']
+                      : Record<string, never>;
 
-type ContentTypeMap = {
-    [K in keyof typeof CONTENT_TYPE_MAP]: (typeof CONTENT_TYPE_MAP)[K];
-};
-
-type NormalizeContentType<T extends string> = T extends keyof ContentTypeMap
-    ? ContentTypeMap[T]
+type ResolveContent<T> = T extends { contentType: infer C extends string }
+    ? Omit<T, 'properties'> & { properties?: ContentPropertiesFor<C> }
     : T;
 
-type NormalizeUmbracoType<T> = T extends (infer U)[]
-    ? NormalizeUmbracoType<U>[]
-    : T extends readonly (infer U)[]
-      ? readonly NormalizeUmbracoType<U>[]
-      : T extends object
-        ? {
-              [K in keyof T]: K extends 'contentType'
-                  ? T[K] extends string
-                      ? NormalizeContentType<T[K]>
-                      : T[K]
-                  : NormalizeUmbracoType<T[K]>;
-          }
-        : T;
-
-export type UmbracoContent = NormalizeUmbracoType<
+export type UmbracoContent = ResolveContent<
     components['schemas']['IApiContentResponseModel']
 >;
 export type RawUmbracoContent =
     components['schemas']['IApiContentResponseModel'];
-export type UmbracoContentCollection = NormalizeUmbracoType<
-    components['schemas']['PagedIApiContentResponseModel']
->;
+export type UmbracoContentCollection = Omit<
+    components['schemas']['PagedIApiContentResponseModel'],
+    'items'
+> & { items: UmbracoContent[] };
 export type RawUmbracoContentCollection =
     components['schemas']['PagedIApiContentResponseModel'];
 
 export type ContentTypes = UmbracoContent;
 export type ContentTypeKeys = ContentTypes['contentType'];
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
+export function normalizeUmbracoContent<T>(content: T): UmbracoContent {
+    return content as unknown as UmbracoContent;
 }
 
-function normalizeValue(value: unknown): unknown {
-    if (Array.isArray(value)) {
-        return value.map(normalizeValue);
-    }
-
-    if (!isRecord(value)) {
-        return value;
-    }
-
-    return Object.fromEntries(
-        Object.entries(value).map(([key, entry]) => {
-            if (key === 'contentType' && typeof entry === 'string') {
-                return [
-                    key,
-                    CONTENT_TYPE_MAP[entry as keyof ContentTypeMap] ?? entry,
-                ];
-            }
-
-            return [key, normalizeValue(entry)];
-        }),
-    );
-}
-
-export function normalizeUmbracoContent(
-    content: RawUmbracoContent,
-): UmbracoContent {
-    return normalizeValue(content) as UmbracoContent;
-}
-
-export function normalizeUmbracoContentCollection(
-    collection: RawUmbracoContentCollection,
+export function normalizeUmbracoContentCollection<T>(
+    collection: T,
 ): UmbracoContentCollection {
-    return normalizeValue(collection) as UmbracoContentCollection;
+    return collection as unknown as UmbracoContentCollection;
 }
 
 export type UmbracoClientOptions = {

@@ -8,7 +8,7 @@ export async function GET() {
         return notFound();
     }
 
-    const path = conference.route.path.replace(/\/$/, '');
+    const path = (conference.route.path ?? '/').replace(/\/$/, '');
 
     permanentRedirect(`${path}/register/`);
 }

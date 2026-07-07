@@ -37,7 +37,7 @@ export function SponsorCard({ sponsor, cardSize }: SponsorCardProps) {
         <div className={`flex items-center justify-center h-full`}>
             {image ? (
                 <Image
-                    src={imageUrl(image.url, {
+                    src={imageUrl(image.url ?? '', {
                         height: imageHeight,
                     })}
                     height={image.height ?? 200}

@@ -8,36 +8,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    conferenceId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["CreateIssueRequestDto"];
-                    "text/json": components["schemas"]["CreateIssueRequestDto"];
-                    "application/*+json": components["schemas"]["CreateIssueRequestDto"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["CreateIssueResponseDto"];
-                        "text/json": components["schemas"]["CreateIssueResponseDto"];
-                        "text/plain": components["schemas"]["CreateIssueResponseDto"];
-                    };
-                };
-            };
-        };
+        post: operations["PostConferenceByConferenceIdIssue"];
         delete?: never;
         options?: never;
         head?: never;
@@ -51,30 +22,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    conferenceId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ConferenceScheduleResponseDto"];
-                        "text/json": components["schemas"]["ConferenceScheduleResponseDto"];
-                        "text/plain": components["schemas"]["ConferenceScheduleResponseDto"];
-                    };
-                };
-            };
-        };
+        get: operations["GetConferenceByConferenceIdSchedule"];
         put?: never;
         post?: never;
         delete?: never;
@@ -92,36 +40,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    sessionId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: {
-                content: {
-                    "application/json": components["schemas"]["CreateSessionFeedbackRequestDto"];
-                    "text/json": components["schemas"]["CreateSessionFeedbackRequestDto"];
-                    "application/*+json": components["schemas"]["CreateSessionFeedbackRequestDto"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["SessionFeedbackResponseDto"];
-                        "text/json": components["schemas"]["SessionFeedbackResponseDto"];
-                        "text/plain": components["schemas"]["SessionFeedbackResponseDto"];
-                    };
-                };
-            };
-        };
+        post: operations["PostSessionBySessionIdFeedback"];
         delete?: never;
         options?: never;
         head?: never;
@@ -137,42 +56,42 @@ export interface components {
         };
         CreateIssueRequestDto: {
             message: string;
-            resolution?: string | null;
-            name?: string | null;
-            email?: string | null;
-            phone?: string | null;
+            resolution?: null | string;
+            name?: null | string;
+            email?: null | string;
+            phone?: null | string;
         };
         CreateIssueResponseDto: {
             message: string;
-            resolution?: string | null;
-            name?: string | null;
-            email?: string | null;
-            phone?: string | null;
+            resolution?: null | string;
+            name?: null | string;
+            email?: null | string;
+            phone?: null | string;
             responseMarkup: string;
         };
         CreateSessionFeedbackRequestDto: {
             /** Format: int32 */
-            speakerRating: number;
+            speakerRating: number | string;
             /** Format: int32 */
-            contentRating: number;
+            contentRating: number | string;
             /** Format: int32 */
-            venueRating: number;
-            comments?: string | null;
-            name?: string | null;
-            email?: string | null;
+            venueRating: number | string;
+            comments?: null | string;
+            name?: null | string;
+            email?: null | string;
         };
         SessionFeedbackResponseDto: {
             /** Format: uuid */
-            id: string;
+            id?: string;
             /** Format: int32 */
-            speakerRating: number;
+            speakerRating: number | string;
             /** Format: int32 */
-            contentRating: number;
+            contentRating: number | string;
             /** Format: int32 */
-            venueRating: number;
-            comments?: string | null;
-            name?: string | null;
-            email?: string | null;
+            venueRating: number | string;
+            comments?: null | string;
+            name?: null | string;
+            email?: null | string;
         };
     };
     responses: never;
@@ -182,4 +101,89 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    PostConferenceByConferenceIdIssue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conferenceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateIssueRequestDto"];
+                "text/json": components["schemas"]["CreateIssueRequestDto"];
+                "application/*+json": components["schemas"]["CreateIssueRequestDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateIssueResponseDto"];
+                    "text/json": components["schemas"]["CreateIssueResponseDto"];
+                    "text/plain": components["schemas"]["CreateIssueResponseDto"];
+                };
+            };
+        };
+    };
+    GetConferenceByConferenceIdSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conferenceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConferenceScheduleResponseDto"];
+                    "text/json": components["schemas"]["ConferenceScheduleResponseDto"];
+                    "text/plain": components["schemas"]["ConferenceScheduleResponseDto"];
+                };
+            };
+        };
+    };
+    PostSessionBySessionIdFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSessionFeedbackRequestDto"];
+                "text/json": components["schemas"]["CreateSessionFeedbackRequestDto"];
+                "application/*+json": components["schemas"]["CreateSessionFeedbackRequestDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionFeedbackResponseDto"];
+                    "text/json": components["schemas"]["SessionFeedbackResponseDto"];
+                    "text/plain": components["schemas"]["SessionFeedbackResponseDto"];
+                };
+            };
+        };
+    };
+}

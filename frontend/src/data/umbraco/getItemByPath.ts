@@ -1,7 +1,6 @@
 import { umbracoClient } from '@/data/umbraco/client';
 import type { paths } from '@/data/umbraco/deliveryApiSchema';
 import type {
-    RawUmbracoContent,
     UmbracoClientOptions,
     UmbracoContent,
 } from '@/data/umbraco/types';
@@ -27,21 +26,14 @@ export async function getItemByPathOrDefault(
 export async function getItemByPath(
     path: string,
     { requestOptions = {}, ...options }: GetItemByPathOptions = {},
-): Promise<{
-    data?: RawUmbracoContent;
-    error?: unknown;
-    response: Response;
-}> {
-    return await umbracoClient.GET(
-        '/umbraco/delivery/api/v2/content/item/{path}',
-        {
-            params: {
-                path: {
-                    path: path,
-                },
-                query: options,
+) {
+    return umbracoClient.GET('/umbraco/delivery/api/v2/content/item/{path}', {
+        params: {
+            path: {
+                path: path,
             },
-            ...requestOptions,
+            query: options,
         },
-    );
+        ...requestOptions,
+    });
 }

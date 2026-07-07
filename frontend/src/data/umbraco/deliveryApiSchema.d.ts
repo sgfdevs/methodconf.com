@@ -15,22 +15,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/umbraco/delivery/api/v2/content/item/{path}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetContentItemByPath2.0"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/umbraco/delivery/api/v2/content/item/{id}": {
         parameters: {
             query?: never;
@@ -39,6 +23,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["GetContentItemById2.0"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/umbraco/delivery/api/v2/content/item/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetContentItemByPath2.0"];
         put?: never;
         post?: never;
         delete?: never;
@@ -79,22 +79,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/umbraco/delivery/api/v2/media/item/{path}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetMediaItemByPath2.0"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/umbraco/delivery/api/v2/media/item/{id}": {
         parameters: {
             query?: never;
@@ -103,6 +87,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["GetMediaItemById2.0"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/umbraco/delivery/api/v2/media/item/{path}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMediaItemByPath2.0"];
         put?: never;
         post?: never;
         delete?: never;
@@ -131,197 +131,236 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        ApiBlockGridAreaModel: {
-            alias: string;
-            /** Format: int32 */
-            rowSpan: number;
-            /** Format: int32 */
-            columnSpan: number;
-            items: components["schemas"]["ApiBlockGridItemModel"][];
-        };
-        ApiBlockGridItemModel: components["schemas"]["ApiBlockItemModel"] & {
-            /** Format: int32 */
-            rowSpan?: number;
-            /** Format: int32 */
-            columnSpan?: number;
-            /** Format: int32 */
-            areaGridColumns?: number;
-            areas?: components["schemas"]["ApiBlockGridAreaModel"][];
-        };
         ApiBlockItemModel: {
             content: components["schemas"]["IApiElementModel"];
-            settings?: components["schemas"]["IApiElementModel"];
+            settings: components["schemas"]["IApiElementModel"];
         };
         ApiBlockListModel: {
-            items: (components["schemas"]["ApiBlockItemModel"] | components["schemas"]["ApiBlockGridItemModel"])[];
+            items: components["schemas"]["ApiBlockItemModel"][];
         };
-        ApiContentRouteModel: {
-            path: string;
-            queryString?: string | null;
-            startItem: components["schemas"]["ApiContentStartItemModel"];
-        };
-        ApiContentStartItemModel: {
-            /** Format: uuid */
-            id: string;
-            path: string;
+        ApiImageCropperValueModel: {
+            url: string;
+            focalPoint: components["schemas"]["ImageFocalPointModel"];
+            crops: null | components["schemas"]["ImageCropModel"][];
         };
         ApiLinkModel: {
-            readonly url?: string | null;
-            readonly queryString?: string | null;
-            readonly title?: string | null;
-            readonly target?: string | null;
+            url?: null | string;
+            queryString?: null | string;
+            title?: null | string;
+            target?: null | string;
             /** Format: uuid */
-            readonly destinationId?: string | null;
-            readonly destinationType?: string | null;
-            readonly route?: components["schemas"]["ApiContentRouteModel"] | null;
+            destinationId?: null | string;
+            destinationType?: null | string;
+            route?: components["schemas"]["IApiContentRouteModel"];
             linkType: components["schemas"]["LinkTypeModel"];
-            readonly culture?: string | null;
+            culture?: null | string;
         };
         ConferenceContentModel: {
-            properties?: components["schemas"]["ConferencePropertiesModel"];
-        } & (Omit<components["schemas"]["IApiContentModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "conference";
+            properties?: components["schemas"]["ConferenceContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "conference";
         });
-        ConferenceContentResponseModel: Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["ConferenceContentModel"], "contentType"> & {
+        ConferenceContentPropertiesModel: {
+            /** Format: date-time */
+            date?: null | string;
+            registerUrl?: null | string;
+            callForSpeakersUrl?: null | string;
+            tagline?: null | string;
+            location?: null | string;
+            surveyUrl?: null | components["schemas"]["ApiLinkModel"][];
+            /** Format: date-time */
+            surveyAvailableAt?: null | string;
+            mobileAppLinks?: null | components["schemas"]["ApiLinkModel"][];
+        };
+        ConferenceContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["ConferenceContentModel"] & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "conference";
-        };
-        ConferencePropertiesModel: {
-            /** Format: date-time */
-            date?: string | null;
-            registerUrl?: string | null;
-            callForSpeakersUrl?: string | null;
-            tagline?: string | null;
-            location?: string | null;
-            surveyUrl?: components["schemas"]["ApiLinkModel"][] | null;
-            /** Format: date-time */
-            surveyAvailableAt?: string | null;
-            mobileAppLinks?: components["schemas"]["ApiLinkModel"][] | null;
         };
         ConferencesContentModel: {
-            properties?: components["schemas"]["ConferencesPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiContentModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "conferences";
+            properties?: components["schemas"]["ConferencesContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "conferences";
         });
-        ConferencesContentResponseModel: Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["ConferencesContentModel"], "contentType"> & {
+        ConferencesContentPropertiesModel: Record<string, never>;
+        ConferencesContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["ConferencesContentModel"] & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "conferences";
         };
-        ConferencesPropertiesModel: Record<string, never>;
+        FileMediaPropertiesModel: {
+            umbracoFile?: null | string;
+            umbracoExtension?: null | string;
+            /** Format: int64 */
+            umbracoBytes?: null | number;
+        };
+        FileMediaWithCropsModel: {
+            /** @constant */
+            mediaType: "File";
+            properties?: components["schemas"]["FileMediaPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiMediaWithCropsBaseModel"], "mediaType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "File";
+        });
+        FileMediaWithCropsResponseModel: components["schemas"]["IApiMediaWithCropsResponseBaseModel"] & components["schemas"]["FileMediaWithCropsModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "File";
+        };
+        FolderMediaPropertiesModel: Record<string, never>;
+        FolderMediaWithCropsModel: {
+            /** @constant */
+            mediaType: "Folder";
+            properties?: components["schemas"]["FolderMediaPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiMediaWithCropsBaseModel"], "mediaType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "Folder";
+        });
+        FolderMediaWithCropsResponseModel: components["schemas"]["IApiMediaWithCropsResponseBaseModel"] & components["schemas"]["FolderMediaWithCropsModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "Folder";
+        };
         HomeContentModel: {
-            properties?: components["schemas"]["HomePropertiesModel"];
-        } & (Omit<components["schemas"]["IApiContentModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "home";
+            properties?: components["schemas"]["HomeContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "home";
         });
-        HomeContentResponseModel: Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["HomeContentModel"], "contentType"> & {
+        HomeContentPropertiesModel: components["schemas"]["PageContentPropertiesModel"];
+        HomeContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["HomeContentModel"] & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "home";
         };
-        HomePropertiesModel: components["schemas"]["PagePropertiesModel"];
-        HttpValidationProblemDetails: components["schemas"]["ProblemDetails"] & ({
-            errors?: {
-                [key: string]: string[];
-            };
-        } & {
-            [key: string]: unknown;
-        });
+        IApiContentBaseModel: {
+            contentType: null | string;
+            name?: null | string;
+            /** Format: date-time */
+            createDate: string;
+            /** Format: date-time */
+            updateDate: string;
+            route: components["schemas"]["IApiContentRouteModel"];
+            /** Format: uuid */
+            id: string;
+            properties: null | Record<string, never>;
+        };
         IApiContentModel: components["schemas"]["ConferenceContentModel"] | components["schemas"]["SponsorsContentModel"] | components["schemas"]["SessionContentModel"] | components["schemas"]["SpeakersContentModel"] | components["schemas"]["TrackContentModel"] | components["schemas"]["SpeakerContentModel"] | components["schemas"]["SessionsContentModel"] | components["schemas"]["HomeContentModel"] | components["schemas"]["ConferencesContentModel"] | components["schemas"]["PageContentModel"];
-        IApiContentModelBase: {
+        IApiContentResponseBaseModel: {
+            contentType: null | string;
+            name?: null | string;
+            /** Format: date-time */
+            createDate: string;
+            /** Format: date-time */
+            updateDate: string;
+            route: components["schemas"]["IApiContentRouteModel"];
             /** Format: uuid */
-            readonly id: string;
-            readonly contentType: string;
-            readonly name?: string | null;
-            /** Format: date-time */
-            readonly createDate: string;
-            /** Format: date-time */
-            readonly updateDate: string;
-            readonly route: components["schemas"]["ApiContentRouteModel"];
-        } & Omit<WithRequired<components["schemas"]["IApiElementModelBase"], "contentType" | "id">, "contentType">;
+            id: string;
+            properties: null | Record<string, never>;
+            cultures: null | {
+                [key: string]: {
+                    path: null | string;
+                    queryString?: null | string;
+                    startItem: {
+                        /** Format: uuid */
+                        id: string;
+                        path: null | string;
+                    };
+                };
+            };
+        };
         IApiContentResponseModel: components["schemas"]["ConferenceContentResponseModel"] | components["schemas"]["SponsorsContentResponseModel"] | components["schemas"]["SessionContentResponseModel"] | components["schemas"]["SpeakersContentResponseModel"] | components["schemas"]["TrackContentResponseModel"] | components["schemas"]["SpeakerContentResponseModel"] | components["schemas"]["SessionsContentResponseModel"] | components["schemas"]["HomeContentResponseModel"] | components["schemas"]["ConferencesContentResponseModel"] | components["schemas"]["PageContentResponseModel"];
-        IApiContentResponseModelBase: {
+        IApiContentRouteModel: {
+            path: null | string;
+            queryString?: null | string;
+            startItem: components["schemas"]["IApiContentStartItemModel"];
+        };
+        IApiContentStartItemModel: {
             /** Format: uuid */
-            readonly id: string;
-            readonly contentType: string;
-            readonly name?: string | null;
-            /** Format: date-time */
-            readonly createDate: string;
-            /** Format: date-time */
-            readonly updateDate: string;
-            readonly route: components["schemas"]["ApiContentRouteModel"];
-            readonly cultures: {
-                [key: string]: components["schemas"]["ApiContentRouteModel"];
-            };
-        } & Omit<WithRequired<components["schemas"]["IApiContentModelBase"], "contentType" | "createDate" | "id" | "route" | "updateDate">, "contentType">;
+            id: string;
+            path: null | string;
+        };
+        IApiElementBaseModel: {
+            contentType: null | string;
+            /** Format: uuid */
+            id: string;
+            properties: null | Record<string, never>;
+        };
         IApiElementModel: components["schemas"]["SponsorElementModel"] | components["schemas"]["SponsorTierElementModel"] | components["schemas"]["IntroAndEmailSignupBlockElementModel"] | components["schemas"]["ScheduleBlockElementModel"] | components["schemas"]["TextWithButtonsElementModel"] | components["schemas"]["SponsorsBlockElementModel"] | components["schemas"]["LocationBlockElementModel"] | components["schemas"]["RichTextElementModel"];
-        IApiElementModelBase: {
-            /** Format: uuid */
-            readonly id: string;
-            readonly contentType: string;
-        };
-        IApiMediaWithCropsModel: {
-            /** Format: uuid */
-            readonly id: string;
-            readonly name: string;
-            readonly mediaType: string;
-            readonly url: string;
-            readonly extension?: string | null;
-            /** Format: int32 */
-            readonly width?: number | null;
-            /** Format: int32 */
-            readonly height?: number | null;
-            /** Format: int32 */
-            readonly bytes?: number | null;
-            readonly properties: {
-                [key: string]: unknown;
-            };
+        IApiMediaWithCropsBaseModel: {
             focalPoint?: components["schemas"]["ImageFocalPointModel"];
-            readonly crops?: components["schemas"]["ImageCropModel"][] | null;
-        };
-        IApiMediaWithCropsResponseModel: {
+            crops?: null | components["schemas"]["ImageCropModel"][];
             /** Format: uuid */
-            readonly id: string;
-            readonly name: string;
-            readonly mediaType: string;
-            readonly url: string;
-            readonly extension?: string | null;
+            id: string;
+            name: null | string;
+            mediaType: null | string;
+            url: null | string;
+            extension?: null | string;
             /** Format: int32 */
-            readonly width?: number | null;
+            width?: null | number;
             /** Format: int32 */
-            readonly height?: number | null;
+            height?: null | number;
             /** Format: int32 */
-            readonly bytes?: number | null;
-            readonly properties: {
-                [key: string]: unknown;
-            };
-            focalPoint: components["schemas"]["ImageFocalPointModel"];
-            readonly crops?: components["schemas"]["ImageCropModel"][] | null;
-            readonly path: string;
-            /** Format: date-time */
-            readonly createDate: string;
-            /** Format: date-time */
-            readonly updateDate: string;
+            bytes?: null | number;
+            properties: null | Record<string, never>;
         };
+        IApiMediaWithCropsModel: components["schemas"]["FolderMediaWithCropsModel"] | components["schemas"]["ImageMediaWithCropsModel"] | components["schemas"]["FileMediaWithCropsModel"] | components["schemas"]["UmbracoMediaVideoMediaWithCropsModel"] | components["schemas"]["UmbracoMediaAudioMediaWithCropsModel"] | components["schemas"]["UmbracoMediaArticleMediaWithCropsModel"] | components["schemas"]["UmbracoMediaVectorGraphicsMediaWithCropsModel"];
+        IApiMediaWithCropsResponseBaseModel: {
+            path: null | string;
+            /** Format: date-time */
+            createDate: string;
+            /** Format: date-time */
+            updateDate: string;
+            focalPoint?: components["schemas"]["ImageFocalPointModel"];
+            crops?: null | components["schemas"]["ImageCropModel"][];
+            /** Format: uuid */
+            id: string;
+            name: null | string;
+            mediaType: null | string;
+            url: null | string;
+            extension?: null | string;
+            /** Format: int32 */
+            width?: null | number;
+            /** Format: int32 */
+            height?: null | number;
+            /** Format: int32 */
+            bytes?: null | number;
+            properties: null | Record<string, never>;
+        };
+        IApiMediaWithCropsResponseModel: components["schemas"]["FolderMediaWithCropsResponseModel"] | components["schemas"]["ImageMediaWithCropsResponseModel"] | components["schemas"]["FileMediaWithCropsResponseModel"] | components["schemas"]["UmbracoMediaVideoMediaWithCropsResponseModel"] | components["schemas"]["UmbracoMediaAudioMediaWithCropsResponseModel"] | components["schemas"]["UmbracoMediaArticleMediaWithCropsResponseModel"] | components["schemas"]["UmbracoMediaVectorGraphicsMediaWithCropsResponseModel"];
         ImageCropCoordinatesModel: {
             /** Format: double */
             x1: number;
@@ -333,12 +372,12 @@ export interface components {
             y2: number;
         };
         ImageCropModel: {
-            alias?: string | null;
+            alias: null | string;
             /** Format: int32 */
             width: number;
             /** Format: int32 */
             height: number;
-            coordinates?: components["schemas"]["ImageCropCoordinatesModel"];
+            coordinates: components["schemas"]["ImageCropCoordinatesModel"];
         };
         ImageFocalPointModel: {
             /** Format: double */
@@ -346,43 +385,86 @@ export interface components {
             /** Format: double */
             top: number;
         };
+        ImageMediaPropertiesModel: {
+            umbracoFile?: components["schemas"]["ApiImageCropperValueModel"] | null;
+            /** Format: int32 */
+            umbracoWidth?: null | number;
+            /** Format: int32 */
+            umbracoHeight?: null | number;
+            /** Format: int64 */
+            umbracoBytes?: null | number;
+            umbracoExtension?: null | string;
+        };
+        ImageMediaWithCropsModel: {
+            /** @constant */
+            mediaType: "Image";
+            properties?: components["schemas"]["ImageMediaPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiMediaWithCropsBaseModel"], "mediaType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "Image";
+        });
+        ImageMediaWithCropsResponseModel: components["schemas"]["IApiMediaWithCropsResponseBaseModel"] & components["schemas"]["ImageMediaWithCropsModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "Image";
+        };
         IntroAndEmailSignupBlockElementModel: {
-            properties?: components["schemas"]["IntroAndEmailSignupBlockPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "introAndEmailSignupBlock";
+            properties?: components["schemas"]["IntroAndEmailSignupBlockElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "introAndEmailSignupBlock";
         });
-        IntroAndEmailSignupBlockPropertiesModel: {
-            text?: components["schemas"]["RichTextModel"];
-            emailSignupText?: string | null;
+        IntroAndEmailSignupBlockElementPropertiesModel: {
+            text?: components["schemas"]["RichTextModel"] | null;
+            emailSignupText?: null | string;
         };
-        /** @enum {string} */
+        /** @enum {unknown} */
         LinkTypeModel: "Content" | "Media" | "External";
         LocationBlockElementModel: {
-            properties?: components["schemas"]["LocationBlockPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "locationBlock";
+            properties?: components["schemas"]["LocationBlockElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "locationBlock";
         });
-        LocationBlockPropertiesModel: Record<string, never>;
+        LocationBlockElementPropertiesModel: Record<string, never>;
         PageContentModel: {
-            contentType: "PageContentModel";
-            properties?: components["schemas"]["PagePropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
-        PageContentResponseModel: {
-            contentType: "PageContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["PageContentModel"], "contentType">);
-        PagePropertiesModel: {
-            blocks?: components["schemas"]["ApiBlockListModel"];
-            title?: string | null;
-            metaDescription?: string | null;
-            openGraphImage?: components["schemas"]["IApiMediaWithCropsModel"][] | null;
+            /** @constant */
+            contentType: "page";
+            properties?: components["schemas"]["PageContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "page";
+        });
+        PageContentPropertiesModel: {
+            blocks?: components["schemas"]["ApiBlockListModel"] | null;
+            title?: null | string;
+            metaDescription?: null | string;
+            openGraphImage?: null | components["schemas"]["IApiMediaWithCropsModel"][];
+        };
+        PageContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["PageContentModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "page";
         };
         PagedIApiContentResponseModel: {
             /** Format: int64 */
@@ -395,161 +477,337 @@ export interface components {
             items: components["schemas"]["IApiMediaWithCropsResponseModel"][];
         };
         ProblemDetails: {
-            type?: string | null;
-            title?: string | null;
+            type?: null | string;
+            title?: null | string;
             /** Format: int32 */
-            status?: number | null;
-            detail?: string | null;
-            instance?: string | null;
-        } & {
-            [key: string]: unknown;
+            status?: null | number;
+            detail?: null | string;
+            instance?: null | string;
         };
         RichTextElementModel: {
-            properties?: components["schemas"]["RichTextPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "richText";
+            properties?: components["schemas"]["RichTextElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "richText";
         });
+        RichTextElementPropertiesModel: {
+            text?: components["schemas"]["RichTextModel"] | null;
+        };
         RichTextModel: {
             markup: string;
-            blocks: (components["schemas"]["ApiBlockItemModel"] | components["schemas"]["ApiBlockGridItemModel"])[];
-        };
-        RichTextPropertiesModel: {
-            text?: components["schemas"]["RichTextModel"];
+            blocks: components["schemas"]["ApiBlockItemModel"][];
         };
         ScheduleBlockElementModel: {
-            properties?: components["schemas"]["ScheduleBlockPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "scheduleBlock";
+            properties?: components["schemas"]["ScheduleBlockElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "scheduleBlock";
         });
-        ScheduleBlockPropertiesModel: Record<string, never>;
+        ScheduleBlockElementPropertiesModel: Record<string, never>;
         SessionContentModel: {
-            contentType: "SessionContentModel";
-            properties?: components["schemas"]["SessionPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
-        SessionContentResponseModel: {
-            contentType: "SessionContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SessionContentModel"], "contentType">);
-        SessionPropertiesModel: {
+            /** @constant */
+            contentType: "session";
+            properties?: components["schemas"]["SessionContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "session";
+        });
+        SessionContentPropertiesModel: {
             /** Format: date-time */
-            start?: string | null;
+            start?: null | string;
             /** Format: date-time */
-            end?: string | null;
-            speakers?: components["schemas"]["IApiContentModel"][] | null;
-            isEligibleForFeedback?: boolean | null;
-            description?: components["schemas"]["RichTextModel"];
+            end?: null | string;
+            speakers?: null | components["schemas"]["IApiContentModel"][];
+            isEligibleForFeedback?: null | boolean;
+            description?: components["schemas"]["RichTextModel"] | null;
+        };
+        SessionContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["SessionContentModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "session";
         };
         SessionsContentModel: {
-            contentType: "SessionsContentModel";
-            properties?: components["schemas"]["SessionsPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
-        SessionsContentResponseModel: {
-            contentType: "SessionsContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SessionsContentModel"], "contentType">);
-        SessionsPropertiesModel: Record<string, never>;
+            /** @constant */
+            contentType: "sessions";
+            properties?: components["schemas"]["SessionsContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "sessions";
+        });
+        SessionsContentPropertiesModel: Record<string, never>;
+        SessionsContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["SessionsContentModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "sessions";
+        };
         SpeakerContentModel: {
-            contentType: "SpeakerContentModel";
-            properties?: components["schemas"]["SpeakerPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
-        SpeakerContentResponseModel: {
-            contentType: "SpeakerContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SpeakerContentModel"], "contentType">);
-        SpeakerPropertiesModel: {
-            jobTitle?: string | null;
-            profileImage?: components["schemas"]["IApiMediaWithCropsModel"][] | null;
-            bio?: components["schemas"]["RichTextModel"];
-            websiteUrl?: string | null;
-            xTwitterUrl?: string | null;
-            linkedInUrl?: string | null;
-            instagramUrl?: string | null;
+            /** @constant */
+            contentType: "speaker";
+            properties?: components["schemas"]["SpeakerContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "speaker";
+        });
+        SpeakerContentPropertiesModel: {
+            jobTitle?: null | string;
+            profileImage?: null | components["schemas"]["IApiMediaWithCropsModel"][];
+            bio?: components["schemas"]["RichTextModel"] | null;
+            websiteUrl?: null | string;
+            xTwitterUrl?: null | string;
+            linkedInUrl?: null | string;
+            instagramUrl?: null | string;
+        };
+        SpeakerContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["SpeakerContentModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "speaker";
         };
         SpeakersContentModel: {
-            contentType: "SpeakersContentModel";
-            properties?: components["schemas"]["SpeakersPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
-        SpeakersContentResponseModel: {
-            contentType: "SpeakersContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SpeakersContentModel"], "contentType">);
-        SpeakersPropertiesModel: Record<string, never>;
+            /** @constant */
+            contentType: "speakers";
+            properties?: components["schemas"]["SpeakersContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "speakers";
+        });
+        SpeakersContentPropertiesModel: Record<string, never>;
+        SpeakersContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["SpeakersContentModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "speakers";
+        };
         SponsorElementModel: {
-            properties?: components["schemas"]["SponsorPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "sponsor";
+            properties?: components["schemas"]["SponsorElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "sponsor";
         });
-        SponsorPropertiesModel: {
-            title?: string | null;
-            logo?: components["schemas"]["IApiMediaWithCropsModel"][] | null;
-            darkBackground?: boolean | null;
-            mobileAppSponsor?: boolean | null;
-            url?: string | null;
-        };
-        SponsorTierElementModel: {
-            properties?: components["schemas"]["SponsorTierPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
-            /**
-             * @description discriminator enum property added by openapi-typescript
-             * @enum {string}
-             */
-            contentType: "sponsorTier";
-        });
-        SponsorTierPropertiesModel: {
-            title?: string | null;
-            logoSizes?: string | null;
-            sponsors?: components["schemas"]["ApiBlockListModel"];
+        SponsorElementPropertiesModel: {
+            title?: null | string;
+            logo?: null | components["schemas"]["IApiMediaWithCropsModel"][];
+            darkBackground?: null | boolean;
+            mobileAppSponsor?: null | boolean;
+            url?: null | string;
         };
         SponsorsBlockElementModel: {
-            properties?: components["schemas"]["SponsorsBlockPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "sponsorsBlock";
+            properties?: components["schemas"]["SponsorsBlockElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "sponsorsBlock";
         });
-        SponsorsBlockPropertiesModel: Record<string, never>;
+        SponsorsBlockElementPropertiesModel: Record<string, never>;
         SponsorsContentModel: {
-            contentType: "SponsorsContentModel";
-            properties?: components["schemas"]["SponsorsPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
-        SponsorsContentResponseModel: {
-            contentType: "SponsorsContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["SponsorsContentModel"], "contentType">);
-        SponsorsPropertiesModel: {
-            tiers?: components["schemas"]["ApiBlockListModel"];
-            opportunitiesUrl?: components["schemas"]["ApiLinkModel"][] | null;
+            /** @constant */
+            contentType: "sponsors";
+            properties?: components["schemas"]["SponsorsContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "sponsors";
+        });
+        SponsorsContentPropertiesModel: {
+            tiers?: components["schemas"]["ApiBlockListModel"] | null;
+            opportunitiesUrl?: null | components["schemas"]["ApiLinkModel"][];
+        };
+        SponsorsContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["SponsorsContentModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "sponsors";
+        };
+        SponsorTierElementModel: {
+            /** @constant */
+            contentType: "sponsorTier";
+            properties?: components["schemas"]["SponsorTierElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "sponsorTier";
+        });
+        SponsorTierElementPropertiesModel: {
+            title?: null | string;
+            logoSizes?: null | string;
+            sponsors?: components["schemas"]["ApiBlockListModel"] | null;
         };
         TextWithButtonsElementModel: {
-            properties?: components["schemas"]["TextWithButtonsPropertiesModel"];
-        } & (Omit<components["schemas"]["IApiElementModelBase"], "contentType"> & {
+            /** @constant */
+            contentType: "textWithButtons";
+            properties?: components["schemas"]["TextWithButtonsElementPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiElementBaseModel"], "contentType"> & {
             /**
              * @description discriminator enum property added by openapi-typescript
              * @enum {string}
              */
             contentType: "textWithButtons";
         });
-        TextWithButtonsPropertiesModel: {
-            text?: components["schemas"]["RichTextModel"];
-            buttons?: components["schemas"]["ApiLinkModel"][] | null;
+        TextWithButtonsElementPropertiesModel: {
+            text?: components["schemas"]["RichTextModel"] | null;
+            buttons?: null | components["schemas"]["ApiLinkModel"][];
         };
         TrackContentModel: {
-            contentType: "TrackContentModel";
-            properties?: components["schemas"]["TrackPropertiesModel"];
-        } & Omit<components["schemas"]["IApiContentModelBase"], "contentType">;
-        TrackContentResponseModel: {
-            contentType: "TrackContentResponseModel";
-        } & (Omit<components["schemas"]["IApiContentResponseModelBase"], "contentType"> & Omit<components["schemas"]["TrackContentModel"], "contentType">);
-        TrackPropertiesModel: Record<string, never>;
+            /** @constant */
+            contentType: "track";
+            properties?: components["schemas"]["TrackContentPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiContentBaseModel"], "contentType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "track";
+        });
+        TrackContentPropertiesModel: Record<string, never>;
+        TrackContentResponseModel: components["schemas"]["IApiContentResponseBaseModel"] & components["schemas"]["TrackContentModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            contentType: "track";
+        };
+        UmbracoMediaArticleMediaPropertiesModel: {
+            umbracoFile?: null | string;
+            umbracoExtension?: null | string;
+            /** Format: int64 */
+            umbracoBytes?: null | number;
+        };
+        UmbracoMediaArticleMediaWithCropsModel: {
+            /** @constant */
+            mediaType: "umbracoMediaArticle";
+            properties?: components["schemas"]["UmbracoMediaArticleMediaPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiMediaWithCropsBaseModel"], "mediaType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaArticle";
+        });
+        UmbracoMediaArticleMediaWithCropsResponseModel: components["schemas"]["IApiMediaWithCropsResponseBaseModel"] & components["schemas"]["UmbracoMediaArticleMediaWithCropsModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaArticle";
+        };
+        UmbracoMediaAudioMediaPropertiesModel: {
+            umbracoFile?: null | string;
+            umbracoExtension?: null | string;
+            /** Format: int64 */
+            umbracoBytes?: null | number;
+        };
+        UmbracoMediaAudioMediaWithCropsModel: {
+            /** @constant */
+            mediaType: "umbracoMediaAudio";
+            properties?: components["schemas"]["UmbracoMediaAudioMediaPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiMediaWithCropsBaseModel"], "mediaType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaAudio";
+        });
+        UmbracoMediaAudioMediaWithCropsResponseModel: components["schemas"]["IApiMediaWithCropsResponseBaseModel"] & components["schemas"]["UmbracoMediaAudioMediaWithCropsModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaAudio";
+        };
+        UmbracoMediaVectorGraphicsMediaPropertiesModel: {
+            umbracoFile?: null | string;
+            umbracoExtension?: null | string;
+            /** Format: int64 */
+            umbracoBytes?: null | number;
+            /** Format: int32 */
+            umbracoWidth?: null | number;
+            /** Format: int32 */
+            umbracoHeight?: null | number;
+        };
+        UmbracoMediaVectorGraphicsMediaWithCropsModel: {
+            /** @constant */
+            mediaType: "umbracoMediaVectorGraphics";
+            properties?: components["schemas"]["UmbracoMediaVectorGraphicsMediaPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiMediaWithCropsBaseModel"], "mediaType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaVectorGraphics";
+        });
+        UmbracoMediaVectorGraphicsMediaWithCropsResponseModel: components["schemas"]["IApiMediaWithCropsResponseBaseModel"] & components["schemas"]["UmbracoMediaVectorGraphicsMediaWithCropsModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaVectorGraphics";
+        };
+        UmbracoMediaVideoMediaPropertiesModel: {
+            umbracoFile?: null | string;
+            umbracoExtension?: null | string;
+            /** Format: int64 */
+            umbracoBytes?: null | number;
+        };
+        UmbracoMediaVideoMediaWithCropsModel: {
+            /** @constant */
+            mediaType: "umbracoMediaVideo";
+            properties?: components["schemas"]["UmbracoMediaVideoMediaPropertiesModel"];
+        } & (WithRequired<components["schemas"]["IApiMediaWithCropsBaseModel"], "mediaType"> & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaVideo";
+        });
+        UmbracoMediaVideoMediaWithCropsResponseModel: components["schemas"]["IApiMediaWithCropsResponseBaseModel"] & components["schemas"]["UmbracoMediaVideoMediaWithCropsModel"] & {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            mediaType: "umbracoMediaVideo";
+        };
     };
     responses: never;
     parameters: never;
@@ -582,8 +840,6 @@ export interface operations {
                 "Accept-Language"?: string;
                 /** @description Defines the segment to return. Use this when querying segment variant content items. */
                 "Accept-Segment"?: string;
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
                 /** @description Whether to request draft content. */
                 Preview?: boolean;
                 /** @description URL segment or GUID of a root content item. */
@@ -609,7 +865,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProblemDetails"] | components["schemas"]["HttpValidationProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Not Found */
@@ -621,7 +877,7 @@ export interface operations {
             };
         };
     };
-    "GetContentItemByPath2.0": {
+    "GetContentItemById2.0": {
         parameters: {
             query?: {
                 /** @description Defines the properties that should be expanded in the response. Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api#query-parameters) for more details on this. */
@@ -634,15 +890,13 @@ export interface operations {
                 "Accept-Language"?: string;
                 /** @description Defines the segment to return. Use this when querying segment variant content items. */
                 "Accept-Segment"?: string;
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
                 /** @description Whether to request draft content. */
                 Preview?: boolean;
                 /** @description URL segment or GUID of a root content item. */
                 "Start-Item"?: string;
             };
             path: {
-                path: string;
+                id: string;
             };
             cookie?: never;
         };
@@ -680,7 +934,7 @@ export interface operations {
             };
         };
     };
-    "GetContentItemById2.0": {
+    "GetContentItemByPath2.0": {
         parameters: {
             query?: {
                 /** @description Defines the properties that should be expanded in the response. Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api#query-parameters) for more details on this. */
@@ -693,15 +947,13 @@ export interface operations {
                 "Accept-Language"?: string;
                 /** @description Defines the segment to return. Use this when querying segment variant content items. */
                 "Accept-Segment"?: string;
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
                 /** @description Whether to request draft content. */
                 Preview?: boolean;
                 /** @description URL segment or GUID of a root content item. */
                 "Start-Item"?: string;
             };
             path: {
-                id: string;
+                path: string;
             };
             cookie?: never;
         };
@@ -753,8 +1005,6 @@ export interface operations {
                 "Accept-Language"?: string;
                 /** @description Defines the segment to return. Use this when querying segment variant content items. */
                 "Accept-Segment"?: string;
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
                 /** @description Whether to request draft content. */
                 Preview?: boolean;
                 /** @description URL segment or GUID of a root content item. */
@@ -808,10 +1058,7 @@ export interface operations {
                 /** @description Explicitly defines which properties should be included in the response (by default all properties are included). Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api/media-delivery-api#query-parameters) for more details on this. */
                 fields?: string;
             };
-            header?: {
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -832,12 +1079,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProblemDetails"] | components["schemas"]["HttpValidationProblemDetails"];
+                    "application/json": components["schemas"]["ProblemDetails"];
                 };
             };
         };
     };
-    "GetMediaItemByPath2.0": {
+    "GetMediaItemById2.0": {
         parameters: {
             query?: {
                 /** @description Defines the properties that should be expanded in the response. Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api/media-delivery-api#query-parameters) for more details on this. */
@@ -845,12 +1092,9 @@ export interface operations {
                 /** @description Explicitly defines which properties should be included in the response (by default all properties are included). Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api/media-delivery-api#query-parameters) for more details on this. */
                 fields?: string;
             };
-            header?: {
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
-            };
+            header?: never;
             path: {
-                path: string;
+                id: string;
             };
             cookie?: never;
         };
@@ -874,7 +1118,7 @@ export interface operations {
             };
         };
     };
-    "GetMediaItemById2.0": {
+    "GetMediaItemByPath2.0": {
         parameters: {
             query?: {
                 /** @description Defines the properties that should be expanded in the response. Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api/media-delivery-api#query-parameters) for more details on this. */
@@ -882,12 +1126,9 @@ export interface operations {
                 /** @description Explicitly defines which properties should be included in the response (by default all properties are included). Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api/media-delivery-api#query-parameters) for more details on this. */
                 fields?: string;
             };
-            header?: {
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
-            };
+            header?: never;
             path: {
-                id: string;
+                path: string;
             };
             cookie?: never;
         };
@@ -920,10 +1161,7 @@ export interface operations {
                 /** @description Explicitly defines which properties should be included in the response (by default all properties are included). Refer to [the documentation](https://docs.umbraco.com/umbraco-cms/reference/content-delivery-api/media-delivery-api#query-parameters) for more details on this. */
                 fields?: string;
             };
-            header?: {
-                /** @description API key specified through configuration to authorize access to the API. */
-                "Api-Key"?: string;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
