@@ -7,15 +7,8 @@ using Umbraco.Cms.Web.Common.PublishedModels;
 namespace MethodConf.Cms.Mapping;
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
-public partial class ScheduleMapper
+public partial class ScheduleMapper(IDocumentUrlService documentUrlService)
 {
-    private readonly IDocumentUrlService _documentUrlService;
-
-    public ScheduleMapper(IDocumentUrlService documentUrlService)
-    {
-        _documentUrlService = documentUrlService;
-    }
-
     [MapperRequiredMapping(RequiredMappingStrategy.Both)]
     public partial ConferenceScheduleResponseDto ToDto(ConferenceSchedule src);
 
@@ -32,5 +25,5 @@ public partial class ScheduleMapper
     }
 
     private string ResolveSessionKey(Guid key) =>
-        _documentUrlService.GetUrlSegment(key, "", false) ?? key.ToString();
+        documentUrlService.GetUrlSegment(key, "", false) ?? key.ToString();
 }
