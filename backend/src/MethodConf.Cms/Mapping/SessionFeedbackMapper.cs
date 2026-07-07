@@ -14,9 +14,8 @@ public partial class SessionFeedbackMapper
     public partial SessionFeedbackResponseDto ToDto(SessionFeedback src);
 
     [MapValue(nameof(SessionFeedback.Id), Use = nameof(EmptyGuid))]
-    [MapValue(nameof(SessionFeedback.SessionId), Use = nameof(EmptyGuid))]
     [MapperIgnoreTarget(nameof(SessionFeedback.CreatedAt))]
-    public partial SessionFeedback ToSessionFeedback(CreateSessionFeedback src);
+    public partial SessionFeedback ToSessionFeedback(CreateSessionFeedback src, Guid sessionId);
 
     private static Guid EmptyGuid() => Guid.Empty;
 }

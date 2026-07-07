@@ -24,8 +24,7 @@ public class SessionFeedbackService(IPublishedContentQuery publishedContentQuery
             return new IneligibleForFeedback(session);
         }
 
-        var sessionFeedback = mapper.ToSessionFeedback(createSessionFeedback);
-        sessionFeedback.SessionId = session.Key;
+        var sessionFeedback = mapper.ToSessionFeedback(createSessionFeedback, session.Key);
         sessionFeedback.CreatedAt = DateTime.UtcNow;
 
 
