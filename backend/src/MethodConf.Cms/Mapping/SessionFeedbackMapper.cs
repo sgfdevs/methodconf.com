@@ -14,20 +14,12 @@ public partial class SessionFeedbackMapper
     [MapperIgnoreSource(nameof(SessionFeedback.CreatedAt))]
     public partial SessionFeedbackResponseDto ToDto(SessionFeedback src);
 
-    public SessionFeedback ToSessionFeedback(CreateSessionFeedback src)
-    {
-        return new SessionFeedback
-        {
-            Id = Guid.Empty,
-            SessionId = Guid.Empty,
-            SpeakerRating = src.SpeakerRating,
-            ContentRating = src.ContentRating,
-            VenueRating = src.VenueRating,
-            Comments = src.Comments,
-            Name = src.Name,
-            Email = src.Email,
-        };
-    }
+    [MapValue(nameof(SessionFeedback.Id), Use = nameof(EmptyGuid))]
+    [MapValue(nameof(SessionFeedback.SessionId), Use = nameof(EmptyGuid))]
+    [MapperIgnoreTarget(nameof(SessionFeedback.CreatedAt))]
+    public partial SessionFeedback ToSessionFeedback(CreateSessionFeedback src);
 
     private static string NullToEmpty(string? value) => value ?? "";
+
+    private static Guid EmptyGuid() => Guid.Empty;
 }

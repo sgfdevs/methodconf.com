@@ -33,18 +33,7 @@ public partial class IssueMapper
     [MapProperty(nameof(Issue.PhoneNumber), nameof(NewIssueAppResponseViewModel.Phone))]
     public partial NewIssueAppResponseViewModel ToNewIssueAppResponseViewModel(Issue src);
 
-    public IssueWithResponse ToIssueWithResponse(Issue src)
-    {
-        return new IssueWithResponse
-        {
-            Id = src.Id,
-            ConferenceId = src.ConferenceId,
-            Message = src.Message,
-            Resolution = src.Resolution,
-            Name = src.Name,
-            Email = src.Email,
-            PhoneNumber = src.PhoneNumber,
-            ResponseMarkup = "",
-        };
-    }
+    [MapperIgnoreSource(nameof(Issue.CreatedAt))]
+    [MapValue(nameof(IssueWithResponse.ResponseMarkup), "")]
+    public partial IssueWithResponse ToIssueWithResponse(Issue src);
 }

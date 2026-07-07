@@ -21,13 +21,13 @@ public partial class ScheduleMapper
     [MapProperty(nameof(Session.Key), nameof(SessionItem.Key), Use = nameof(ResolveSessionKey))]
     public partial SessionItem ToSessionItem(Session src);
 
-    public TrackItem ToTrackItem(Track src)
+    [MapPropertyFromSource(nameof(TrackItem.Sessions), Use = nameof(MapTrackSessions))]
+    public partial TrackItem ToTrackItem(Track src);
+
+    private SessionItem[] MapTrackSessions(Track src)
     {
         var sessions = src.Children<Session>() ?? [];
-        return new TrackItem
-        {
-            Sessions = sessions.Select(ToSessionItem).ToArray()
-        };
+        return sessions.Select(ToSessionItem).ToArray();
     }
 
     private string ResolveSessionKey(Guid key) =>
