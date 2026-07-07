@@ -11,9 +11,8 @@ public partial class IssueMapper
     public partial CreateIssue ToCreateIssue(CreateIssueRequestDto src);
 
     [MapperIgnoreTarget(nameof(Issue.Id))]
-    [MapperIgnoreTarget(nameof(Issue.ConferenceId))]
     [MapperIgnoreTarget(nameof(Issue.CreatedAt))]
-    public partial Issue ToIssue(CreateIssue src);
+    public partial Issue ToIssue(CreateIssue src, Guid conferenceId);
 
     [MapperIgnoreSource(nameof(IssueWithResponse.Id))]
     [MapperIgnoreSource(nameof(IssueWithResponse.ConferenceId))]

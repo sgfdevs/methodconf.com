@@ -33,8 +33,7 @@ public class ConferenceIssueService(
             return Result.Fail(new InvalidEntityIdError(conferenceId.ToString()));
         }
 
-        var newIssue = mapper.ToIssue(createIssue);
-        newIssue.ConferenceId = conference.Key;
+        var newIssue = mapper.ToIssue(createIssue, conference.Key);
         newIssue.CreatedAt = DateTime.UtcNow;
 
         dbContext.Add(newIssue);
