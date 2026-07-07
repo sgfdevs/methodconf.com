@@ -11,9 +11,7 @@ public class DefaultProfile : Profile
     {
         CreateMap<ConferenceSchedule, ConferenceScheduleResponseDto>();
         CreateMap<Session, SessionItem>()
-#pragma warning disable CS0618
-            .ForMember(dest => dest.Key, opts => opts.MapFrom(src => src.UrlSegment));
-#pragma warning restore CS0618
+            .ForMember(dest => dest.Key, opts => opts.MapFrom<SessionUrlSegmentResolver>());
         CreateMap<Track, TrackItem>()
             .ForMember(dest => dest.Sessions, opts => opts.MapFrom((src, _) => src.Children<Session>() ?? []));
 
