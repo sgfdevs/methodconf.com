@@ -6,7 +6,7 @@ const originalOrder = Symbol();
 
 type WithOriginalOrder<T> = T & { [originalOrder]?: number };
 
-export function treeByRoutePath<T extends { route: { path: string } }>(
+export function treeByRoutePath<T extends { route: { path: string | null } }>(
     items: T[],
 ): Nested<T>[] {
     const itemsWithOriginalOrder = items.map((item, index) => {
@@ -16,7 +16,7 @@ export function treeByRoutePath<T extends { route: { path: string } }>(
     });
 
     const sortedItems = itemsWithOriginalOrder.sort(
-        (a, b) => a.route.path.length - b.route.path.length,
+        (a, b) => (a.route.path ?? '').length - (b.route.path ?? '').length,
     );
 
     const tree = treeByRoutePathSorted(sortedItems);
@@ -26,7 +26,7 @@ export function treeByRoutePath<T extends { route: { path: string } }>(
     return tree;
 }
 
-function treeByRoutePathSorted<T extends { route: { path: string } }>(
+function treeByRoutePathSorted<T extends { route: { path: string | null } }>(
     items: T[],
 ): Nested<T>[] {
     const [shortestItem, ...otherItems] = items;
@@ -35,8 +35,10 @@ function treeByRoutePathSorted<T extends { route: { path: string } }>(
         return [];
     }
 
+    const shortestPath = shortestItem.route.path ?? '';
+
     const [matchingItems, nonMatchingItems] = splitBy(otherItems, (item) =>
-        item.route.path.startsWith(shortestItem.route.path),
+        (item.route.path ?? '').startsWith(shortestPath),
     );
 
     const itemWithChildren = shortestItem as Nested<T>;

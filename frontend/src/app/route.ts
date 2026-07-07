@@ -8,5 +8,5 @@ export async function GET() {
         return notFound();
     }
 
-    redirect(conference.route.path);
+    redirect(conference.route.path ?? '/');
 }

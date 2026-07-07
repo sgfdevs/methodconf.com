@@ -9,18 +9,11 @@ async function main() {
 
     const schemaConfigs = [
         {
-            url: new URL(
-                '/umbraco/swagger/delivery/swagger.json?urls.primaryName=Umbraco+Delivery+API',
-                baseUrl,
-            ),
+            url: new URL('/umbraco/openapi/delivery.json', baseUrl),
             outputFile: `deliveryApiSchema.d.ts`,
         },
-
         {
-            url: new URL(
-                '/umbraco/swagger/default/swagger.json?urls.primaryName=Default+API',
-                baseUrl,
-            ),
+            url: new URL('/umbraco/openapi/default.json', baseUrl),
             outputFile: `defaultApiSchema.d.ts`,
         },
     ];

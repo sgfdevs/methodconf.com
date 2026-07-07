@@ -38,7 +38,7 @@ export function SessionCard({
         <div className="flex items-center w-full text-left">
             {profileImage ? (
                 <Image
-                    src={imageUrl(profileImage.url, {
+                    src={imageUrl(profileImage.url ?? '', {
                         width: 100,
                         height: 100,
                     })}
@@ -58,7 +58,7 @@ export function SessionCard({
                             speakerContent.name
                         ) : (
                             <Link
-                                href={speakerContent.route.path}
+                                href={speakerContent.route.path ?? '#'}
                                 className="text-primary"
                             >
                                 {speakerContent.name}

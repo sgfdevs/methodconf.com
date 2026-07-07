@@ -47,7 +47,7 @@ export async function SpeakerDetailPage({
                         <div className="w-full mb-5 md:mb-0 md:w-1/3">
                             {image ? (
                                 <Image
-                                    src={imageUrl(image.url, {
+                                    src={imageUrl(image.url ?? '', {
                                         width: 500,
                                         height: 560,
                                     })}

@@ -105,7 +105,7 @@ export function ScheduleGrid({ grid, tracks, sessions }: ScheduleGridProps) {
             </div>
             {sessions.map((session) => {
                 const gridAreaId = createGridAreaId(
-                    getEndPath(session.route.path),
+                    getEndPath(session.route.path ?? ''),
                 );
 
                 return (
