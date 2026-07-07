@@ -16,6 +16,7 @@ public partial class ScheduleMapper
         _documentUrlService = documentUrlService;
     }
 
+    [MapperRequiredMapping(RequiredMappingStrategy.Both)]
     public partial ConferenceScheduleResponseDto ToDto(ConferenceSchedule src);
 
     [MapProperty(nameof(Session.Key), nameof(SessionItem.Key), Use = nameof(ResolveSessionKey))]
