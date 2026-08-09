@@ -7,7 +7,7 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import './globals.css';
 import { Footer } from '@/components/Footer';
-import { getSiteUrl } from '@/serverConfig';
+import { getSiteUrl, isSearchIndexingEnabled } from '@/serverConfig';
 
 config.autoAddCss = false;
 
@@ -22,6 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
             default: 'Method Conference - October 12th 2024 - Springfield, MO',
         },
         metadataBase: getSiteUrl(),
+        robots: isSearchIndexingEnabled()
+            ? undefined
+            : { index: false, follow: false },
     };
 }
 

@@ -23,6 +23,10 @@ export function getSiteUrl(): URL {
     return getRequiredUrl('SITE_URL');
 }
 
+export function isSearchIndexingEnabled(): boolean {
+    return process.env.SEARCH_INDEXING_ENABLED === 'true';
+}
+
 export function getNewsletterConfig(): {
     endpoint?: URL;
     listId?: string;
