@@ -1,7 +1,9 @@
-import { NEWSLETTER_ENDPOINT, NEWSLETTER_LIST_ID } from '@/config';
+import { getNewsletterConfig } from '@/serverConfig';
 
 export async function POST(request: Request): Promise<Response> {
-    if (!NEWSLETTER_ENDPOINT || !NEWSLETTER_LIST_ID) {
+    const { endpoint, listId } = getNewsletterConfig();
+
+    if (!endpoint || !listId) {
         return Response.json({ success: false }, { status: 500 });
     }
 
@@ -9,13 +11,13 @@ export async function POST(request: Request): Promise<Response> {
 
     if (!nullCheck) {
         try {
-            await fetch(NEWSLETTER_ENDPOINT, {
+            await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name,
                     email,
-                    list_uuids: [NEWSLETTER_LIST_ID],
+                    list_uuids: [listId],
                 }),
             }).then((res) => res.json());
         } catch {

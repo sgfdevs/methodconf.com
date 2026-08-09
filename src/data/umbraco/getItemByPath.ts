@@ -1,4 +1,4 @@
-import { umbracoClient } from '@/data/umbraco/client';
+import { getUmbracoClient } from '@/data/umbraco/client';
 import type { paths } from '@/data/umbraco/deliveryApiSchema';
 import type {
     UmbracoClientOptions,
@@ -27,13 +27,16 @@ export async function getItemByPath(
     path: string,
     { requestOptions = {}, ...options }: GetItemByPathOptions = {},
 ) {
-    return umbracoClient.GET('/umbraco/delivery/api/v2/content/item/{path}', {
-        params: {
-            path: {
-                path: path,
+    return getUmbracoClient().GET(
+        '/umbraco/delivery/api/v2/content/item/{path}',
+        {
+            params: {
+                path: {
+                    path: path,
+                },
+                query: options,
             },
-            query: options,
+            ...requestOptions,
         },
-        ...requestOptions,
-    });
+    );
 }

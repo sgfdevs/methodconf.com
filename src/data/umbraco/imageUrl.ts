@@ -1,14 +1,11 @@
-import { NEXT_PUBLIC_UMBRACO_BASE_URL } from '@/config';
-
 export interface ImageUrlOptions {
     width?: number;
     height?: number;
 }
 
 export function imageUrl(url: string, { width, height }: ImageUrlOptions = {}) {
-    const parsedUrl = new URL(url, NEXT_PUBLIC_UMBRACO_BASE_URL);
-
-    const urlSearchParams = new URLSearchParams();
+    const parsedUrl = new URL(url, 'http://cms.local');
+    const urlSearchParams = parsedUrl.searchParams;
 
     if (width) {
         urlSearchParams.set('width', width.toString());
@@ -18,5 +15,7 @@ export function imageUrl(url: string, { width, height }: ImageUrlOptions = {}) {
         urlSearchParams.set('height', height.toString());
     }
 
-    return `${parsedUrl.toString()}?${urlSearchParams.toString()}`;
+    const search = urlSearchParams.size > 0 ? `?${urlSearchParams}` : '';
+
+    return `/cms-media${parsedUrl.pathname}${search}`;
 }

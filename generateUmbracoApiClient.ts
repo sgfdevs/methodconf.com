@@ -5,7 +5,7 @@ import openapiTS, { astToString } from 'openapi-typescript';
 loadEnvConfig(process.cwd());
 
 async function main() {
-    const baseUrl = new URL(process.env.NEXT_PUBLIC_UMBRACO_BASE_URL ?? '');
+    const baseUrl = new URL(process.env.UMBRACO_BASE_URL ?? '');
 
     const schemaConfigs = [
         {

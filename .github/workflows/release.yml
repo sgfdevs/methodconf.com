@@ -39,8 +39,6 @@ jobs:
     uses: ./.github/workflows/docker-publish.yml
     with:
       version: ${{ needs.release.outputs.release-version }}
-      next_public_umbraco_base_url: https://cms.methodconf.com/
-      next_public_site_url: https://www.methodconf.com/
     secrets: inherit
 
   promote-staging:
