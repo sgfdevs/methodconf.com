@@ -3,7 +3,7 @@ import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
 import { parseSession } from '@/data/parseSession';
 import { getFirstChildNodeOfType } from '@/data/umbraco/getChildNodesOfType';
 import { getItemsOrDefault } from '@/data/umbraco/getItems';
-import { umbracoClient } from '@/data/umbraco/client';
+import { getUmbracoClient } from '@/data/umbraco/client';
 
 const MAXIMUM_SCHEDULE_ITEMS = 100;
 
@@ -47,7 +47,7 @@ export async function getScheduleItems(
 export async function getScheduleGrid(
     conferenceId: string,
 ): Promise<string[][]> {
-    const { data, error } = await umbracoClient.GET(
+    const { data, error } = await getUmbracoClient().GET(
         '/api/v1/conference/{conferenceId}/schedule',
         { params: { path: { conferenceId } } },
     );

@@ -11,9 +11,6 @@ permissions:
 jobs:
   lint-build:
     runs-on: ubuntu-latest
-    env:
-      NEXT_PUBLIC_UMBRACO_BASE_URL: https://cms.methodconf.com/
-      NEXT_PUBLIC_SITE_URL: https://www.methodconf.com/
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

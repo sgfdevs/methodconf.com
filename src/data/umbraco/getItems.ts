@@ -1,4 +1,4 @@
-import { umbracoClient } from '@/data/umbraco/client';
+import { getUmbracoClient } from '@/data/umbraco/client';
 import type { paths } from '@/data/umbraco/deliveryApiSchema';
 import type {
     UmbracoClientOptions,
@@ -27,7 +27,7 @@ export async function getItems({
     requestOptions,
     ...options
 }: GetItemsOptions) {
-    return umbracoClient.GET('/umbraco/delivery/api/v2/content', {
+    return getUmbracoClient().GET('/umbraco/delivery/api/v2/content', {
         params: {
             query: options,
         },

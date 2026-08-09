@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { CmsLink } from '@/data/types';
-import { NEXT_PUBLIC_UMBRACO_BASE_URL } from '@/config';
+import { imageUrl } from '@/data/umbraco/imageUrl';
 
 export type ButtonProps = UrlButtonProps | CmsButtonProps;
 
@@ -57,13 +57,13 @@ export function CmsButton({ cmsLink, children, className }: CmsButtonProps) {
 
     if (cmsLink.linkType === 'Media' && url) {
         const combinedUrl = queryString ? url + queryString : url;
-        const fullUrl = new URL(
-            combinedUrl,
-            NEXT_PUBLIC_UMBRACO_BASE_URL,
-        ).toString();
 
         return (
-            <a className={className} href={fullUrl} target={target}>
+            <a
+                className={className}
+                href={imageUrl(combinedUrl)}
+                target={target}
+            >
                 {children ?? title}
             </a>
         );
