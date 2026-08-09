@@ -1,3 +1,28 @@
-include:
-  - path: './backend/docker-compose.yml'
-  - path: './frontend/docker-compose.yml'
+services:
+  frontend-dev:
+    build:
+      context: ./
+      dockerfile: ./docker/dev.Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+    ports:
+      - ${APP_PORT:-3000}:3000
+    stop_grace_period: 0s
+    profiles: [ frontend-dev ]
+
+  frontend-prod:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+        NEXT_PUBLIC_UMBRACO_BASE_URL: ${NEXT_PUBLIC_UMBRACO_BASE_URL}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - ${APP_PORT:-3000}:3000
+    profiles: [ frontend-prod ]

@@ -1,0 +1,10 @@
+.git
+.github
+.env
+.next
+backend
+docker
+docker-compose.yml
+frontend
+node_modules
+README.md

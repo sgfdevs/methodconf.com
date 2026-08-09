@@ -1,6 +1,0 @@
-docker/
-node_modules/
-.next/
-docker-compose.yml
-README.md
-.gitignore

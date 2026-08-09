@@ -1,24 +1,22 @@
-# MethodConf.com
+# MethodConf
 
-Simple setup for the MethodConf website.
-
-## Structure
-
-- `frontend/` - Next.js app
-- `backend/` - Umbraco/.NET app
+The Next.js frontend for [MethodConf](https://www.methodconf.com/). The Umbraco CMS lives in [`sgfdevs/cms.methodconf.com`](https://github.com/sgfdevs/cms.methodconf.com).
 
 ## Local Development
 
-1. Copy `frontend/.env.example` to `frontend/.env`.
-2. Copy `backend/.env.example` to `backend/.env`.
-3. Start the backend:
+1. Copy `.env.example` to `.env` and configure the CMS and site URLs.
+2. Install dependencies and start the development server:
 
 ```bash
-dotnet run --project backend/src/MethodConf.Cms/MethodConf.Cms.csproj
+npm ci
+npm run dev
 ```
 
-4. Start the frontend:
+The production image can be built locally with:
 
 ```bash
-cd frontend && npm install && npm run dev
+docker build \
+  --build-arg NEXT_PUBLIC_UMBRACO_BASE_URL=https://cms.methodconf.com/ \
+  --build-arg NEXT_PUBLIC_SITE_URL=https://www.methodconf.com/ \
+  -t methodconf.com .
 ```
