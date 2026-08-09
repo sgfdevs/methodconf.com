@@ -1,9 +1,12 @@
 'use client';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { APPLE_APP_STORE_LINK, GOOGLE_PLAY_STORE_LINK } from '@/config';
 
 export function ClientMobileAppRedirect() {
+    const router = useRouter();
+
     useEffect(() => {
         const userAgent = window.navigator.userAgent;
 
@@ -17,9 +20,9 @@ export function ClientMobileAppRedirect() {
         ) {
             window.location.href = APPLE_APP_STORE_LINK;
         } else {
-            window.location.href = '/';
+            router.replace('/');
         }
-    }, []);
+    }, [router]);
 
     return (
         <p>
