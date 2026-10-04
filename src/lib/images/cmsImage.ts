@@ -11,7 +11,6 @@ export interface CmsImageAttributesOptions {
     height: number;
     alt: string;
     quality?: 75 | 100;
-    sizes?: string;
     loading?: 'eager' | 'lazy';
     decoding?: 'async' | 'auto' | 'sync';
     fetchpriority?: 'high' | 'low' | 'auto';
@@ -30,7 +29,6 @@ export interface CmsImageAttributes {
     fetchpriority?: 'high' | 'low' | 'auto';
     class?: string;
     style?: string;
-    sizes?: string;
 }
 
 export function nextFixedWidths(width: number): number[] {
@@ -65,7 +63,6 @@ export function buildCmsImageAttributes({
     height,
     alt,
     quality = 75,
-    sizes,
     loading,
     decoding,
     fetchpriority,
@@ -73,15 +70,10 @@ export function buildCmsImageAttributes({
     style,
 }: CmsImageAttributesOptions): CmsImageAttributes {
     const widths = nextFixedWidths(width);
-    const descriptors = sizes
-        ? widths.map(
-              (candidate) =>
-                  `${buildOptimizerUrl(src, candidate, quality)} ${candidate}w`,
-          )
-        : widths.map(
-              (candidate, index) =>
-                  `${buildOptimizerUrl(src, candidate, quality)} ${index + 1}x`,
-          );
+    const descriptors = widths.map(
+        (candidate, index) =>
+            `${buildOptimizerUrl(src, candidate, quality)} ${index + 1}x`,
+    );
 
     return {
         src: buildOptimizerUrl(src, widths[widths.length - 1], quality),
@@ -94,6 +86,5 @@ export function buildCmsImageAttributes({
         fetchpriority,
         class: className,
         style,
-        sizes,
     };
 }

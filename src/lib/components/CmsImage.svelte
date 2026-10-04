@@ -7,7 +7,6 @@
         height: number;
         alt: string;
         quality?: 75 | 100;
-        sizes?: string;
         loading?: 'eager' | 'lazy';
         decoding?: 'async' | 'auto' | 'sync';
         fetchpriority?: 'high' | 'low' | 'auto';
@@ -21,7 +20,6 @@
         height,
         alt,
         quality = 75,
-        sizes,
         loading,
         decoding,
         fetchpriority,
@@ -36,7 +34,6 @@
             height,
             alt,
             quality,
-            sizes,
             loading,
             decoding,
             fetchpriority,
@@ -57,5 +54,4 @@
     fetchpriority={attrs.fetchpriority}
     class={attrs.class}
     style={attrs.style}
-    sizes={attrs.sizes}
 />

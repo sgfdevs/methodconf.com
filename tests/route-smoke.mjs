@@ -141,6 +141,16 @@ async function startUpstream() {
             return;
         }
 
+        if (url.pathname === '/media/broken.jpg') {
+            response.writeHead(200, 'OK', {
+                'content-type': 'image/jpeg',
+                'content-length': '12',
+                'cache-control': 'public, max-age=604800, must-revalidate',
+            });
+            response.end('not an image');
+            return;
+        }
+
         if (url.pathname === '/media/too-large.jpg') {
             response.writeHead(200, 'OK', {
                 'content-type': 'image/jpeg',
@@ -543,6 +553,24 @@ async function runImageOptimizerChecks(origin) {
     assert.equal(jpegFallback.status, 200);
     assert.equal(jpegFallback.headers.get('content-type'), 'image/jpeg');
 
+    const acceptCases = [
+        ['image/webp;q=1,image/jpeg', 'image/webp'],
+        ['image/webp;foo=bar;q=.5,image/jpeg', 'image/webp'],
+        ['image/webp;q=0,image/jpeg,*/*;q=.8', 'image/jpeg'],
+        ['image/*,*/*', 'image/jpeg'],
+        ['*/*', 'image/jpeg'],
+        ['', 'image/jpeg'],
+        ['IMAGE/WEBP,image/jpeg', 'image/jpeg'],
+    ];
+
+    for (const [accept, contentType] of acceptCases) {
+        const response = await request(origin, imagePath, {
+            headers: { accept },
+        });
+        assert.equal(response.status, 200, accept);
+        assert.equal(response.headers.get('content-type'), contentType, accept);
+    }
+
     const privateCache = await request(
         origin,
         `/_image?url=${encodeURIComponent('/cms-media/media/private-image.jpg')}&w=32&q=75`,
@@ -587,6 +615,14 @@ async function runImageOptimizerChecks(origin) {
         { headers: { accept: 'image/webp' } },
     );
     assert.equal(redirect.status, 502);
+
+    const processingFailure = await request(
+        origin,
+        `/_image?url=${encodeURIComponent('/cms-media/media/broken.jpg')}&w=32&q=75`,
+        { headers: { accept: 'image/webp' } },
+    );
+    assert.equal(processingFailure.status, 502);
+    assert.equal(await processingFailure.text(), 'Image optimization failed');
 }
 
 async function runMediaChecks(origin) {

@@ -68,4 +68,24 @@ describe('image optimizer transform', () => {
         expect(metadata.width).toBe(20);
         expect(metadata.height).toBe(10);
     });
+
+    it.each([
+        ['image/webp,image/apng,*/*', 'image/webp'],
+        ['image/webp;level=1;q=0.5,image/jpeg', 'image/webp'],
+        ['image/webp;q=0,image/jpeg,*/*;q=.8', 'image/jpeg'],
+        ['image/*,*/*', 'image/jpeg'],
+        ['*/*', 'image/jpeg'],
+        ['', 'image/jpeg'],
+        ['IMAGE/WEBP,image/jpeg', 'image/jpeg'],
+    ])('negotiates %s as %s', async (accept, contentType) => {
+        const optimized = await optimizeImageBuffer({
+            input: await fixturePng(),
+            width: 32,
+            quality: 75,
+            upstreamContentType: 'image/jpeg',
+            accept,
+        });
+
+        expect(optimized.contentType).toBe(contentType);
+    });
 });

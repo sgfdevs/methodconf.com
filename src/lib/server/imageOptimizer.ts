@@ -27,6 +27,7 @@ const SUPPORTED_UPSTREAM_TYPES = new Set([
 ]);
 
 export const IMAGE_UPSTREAM_TIMEOUT_MS = 7_000;
+export const IMAGE_SHARP_TIMEOUT_SECONDS = 7;
 export const IMAGE_MAX_UPSTREAM_BYTES = 15 * 1024 * 1024;
 export const IMAGE_MAX_INPUT_PIXELS = 40_000_000;
 
@@ -222,7 +223,31 @@ export function parseImageOptimizerRequest(url: URL): ImageOptimizerRequest {
 }
 
 function acceptsWebp(accept: string | null): boolean {
-    return accept?.toLowerCase().includes('image/webp') ?? false;
+    if (!accept?.includes('image/webp')) {
+        return false;
+    }
+
+    return accept.split(',').some((entry) => {
+        const [mediaType, ...parameters] = entry
+            .split(';')
+            .map((part) => part.trim());
+
+        if (mediaType.toLowerCase() !== 'image/webp') {
+            return false;
+        }
+
+        const quality = parameters.find((parameter) =>
+            /^q\s*=/i.test(parameter),
+        );
+
+        if (!quality) {
+            return true;
+        }
+
+        const value = Number.parseFloat(quality.split('=')[1] ?? '');
+
+        return value !== 0;
+    });
 }
 
 function chooseOutputType(
@@ -345,7 +370,7 @@ export async function optimizeImageBuffer({
     const pipeline = sharp(input, {
         limitInputPixels: IMAGE_MAX_INPUT_PIXELS,
         sequentialRead: true,
-    });
+    }).timeout({ seconds: IMAGE_SHARP_TIMEOUT_SECONDS });
     const metadata = await pipeline.metadata();
 
     if ((metadata.pages ?? 1) > 1) {
