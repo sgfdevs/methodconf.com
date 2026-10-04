@@ -1,5 +1,5 @@
-import type { Conference, ParsedConference } from '@/data/types';
-import { parseUtcAsCst } from '@/data/parseUtcAsCst';
+import type { Conference, ParsedConference } from '#lib/types.ts';
+import { parseUtcAsCst } from '#lib/date.ts';
 
 export function parseConference(conference: Conference): ParsedConference {
     const { properties: { date, ...properties } = {}, ...original } =

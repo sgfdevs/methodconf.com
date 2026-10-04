@@ -1,6 +1,6 @@
-import type { components } from '@/data/umbraco/deliveryApiSchema';
-import type { UmbracoContent } from '@/data/umbraco/types';
-import type { Overwrite } from '@/util';
+import type { components } from '#lib/umbraco/deliveryApiSchema.d.ts';
+import type { UmbracoContent } from '#lib/umbraco/types.ts';
+import type { Overwrite } from '#lib/util.ts';
 
 type Content = UmbracoContent;
 

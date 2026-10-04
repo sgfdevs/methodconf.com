@@ -26,7 +26,7 @@ async function main() {
             const outputAst = await openapiTS(url.toString());
 
             await fs.promises.writeFile(
-                path.join(__dirname, 'src', 'data', 'umbraco', outputFile),
+                path.join(__dirname, 'src', 'lib', 'umbraco', outputFile),
                 astToString(outputAst),
             );
         }),
