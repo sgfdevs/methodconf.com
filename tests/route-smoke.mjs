@@ -324,15 +324,13 @@ function countHeadTags(head, pattern) {
     return (head.match(pattern) ?? []).length;
 }
 
-function assertDefaultSharedHead(head, path, { assertTitle = true } = {}) {
-    if (assertTitle) {
-        assert.equal(countHeadTags(head, /<title[\s>]/g), 1, path);
-        assert.match(
-            head,
-            /<title>Method Conference - October 12th 2024 - Springfield, MO<\/title>/,
-            path,
-        );
-    }
+function assertDefaultSharedHead(head, path) {
+    assert.equal(countHeadTags(head, /<title[\s>]/g), 1, path);
+    assert.match(
+        head,
+        /<title>Method Conference - October 12th 2024 - Springfield, MO<\/title>/,
+        path,
+    );
     assert.equal(countHeadTags(head, /property="og:title"/g), 1, path);
     assert.match(
         head,
@@ -529,15 +527,9 @@ async function runHeadChecks(origin, { searchIndexingEnabled }) {
     }
 
     const notFound = await expectHead(origin, '/2024/nope/', 404);
-    assertDefaultSharedHead(notFound.head, '/2024/nope/', {
-        assertTitle: false,
-    });
+    assertDefaultSharedHead(notFound.head, '/2024/nope/');
     assert.equal(countHeadTags(notFound.head, /name="robots"/g), 1);
     assert.match(notFound.head, /<meta name="robots" content="noindex"/);
-    assert.match(
-        notFound.head,
-        /<title>404: This page could not be found\.<\/title>/,
-    );
     assert.equal(countHeadTags(notFound.head, /property="og:image"/g), 1);
     const shellIndex = notFound.html.indexOf('next-error-shell');
     const footerIndex = notFound.html.indexOf('<footer');

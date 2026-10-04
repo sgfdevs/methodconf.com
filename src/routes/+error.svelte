@@ -3,9 +3,7 @@
 </script>
 
 <svelte:head>
-    {#if page.status === 404}
-        <title>404: This page could not be found.</title>
-    {:else}
+    {#if page.status !== 404}
         <title
             >{page.status}: {page.error?.message ?? 'Application error'}</title
         >

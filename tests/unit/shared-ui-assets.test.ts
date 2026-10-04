@@ -59,8 +59,9 @@ describe('shared UI static assets and root shell', () => {
     it('keeps a Next-like 404 shell distinct from generic errors', () => {
         const errorPage = readProjectFile('src/routes/+error.svelte');
 
-        expect(errorPage).toContain('404: This page could not be found.');
+        expect(errorPage).toContain('This page could not be found.');
         expect(errorPage).toContain('page.status === 404');
+        expect(errorPage).toContain('page.status !== 404');
         expect(errorPage).toContain('page.status}: {page.error?.message');
         expect(errorPage).toContain('content="noindex"');
         expect(errorPage).toContain('system-ui');
