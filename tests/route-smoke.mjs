@@ -1,0 +1,488 @@
+/* global TextEncoder, URL, process, fetch, setTimeout */
+
+import { spawn } from 'node:child_process';
+import { createServer, request as httpRequest } from 'node:http';
+import assert from 'node:assert/strict';
+
+const TEXT_ENCODER = new TextEncoder();
+const GOOGLE_PLAY_STORE_LINK =
+    'https://play.google.com/store/apps/details?id=com.sgfdevs.methodConfApp';
+const APPLE_APP_STORE_LINK =
+    'https://apps.apple.com/us/app/method-conf/id1498359521';
+
+const conference = (slug, date, callForSpeakersUrl) => ({
+    contentType: 'conference',
+    name: slug,
+    route: { path: `/${slug}/` },
+    properties: {
+        date,
+        callForSpeakersUrl,
+    },
+});
+
+const state = {
+    conferences: [
+        conference('2023', '2023-09-01T09:00:00Z'),
+        conference(
+            '2024',
+            '2024-09-01T09:00:00Z',
+            'https://sessionize.example/method-2024/',
+        ),
+    ],
+    mediaRequests: [],
+    cmsRequests: 0,
+};
+
+function writeJson(response, status, body) {
+    response.writeHead(status, {
+        'content-type': 'application/json',
+        'cache-control': 'no-store',
+    });
+    response.end(JSON.stringify(body));
+}
+
+async function getFreePort() {
+    return new Promise((resolve, reject) => {
+        const server = createServer();
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', () => {
+            const address = server.address();
+            const port =
+                typeof address === 'object' && address ? address.port : 0;
+            server.close(() => resolve(port));
+        });
+    });
+}
+
+async function startUpstream() {
+    const server = createServer((request, response) => {
+        const url = new URL(request.url ?? '/', 'http://upstream.test');
+
+        if (url.pathname === '/umbraco/delivery/api/v2/content') {
+            state.cmsRequests += 1;
+            writeJson(response, 200, {
+                total: state.conferences.length,
+                items: state.conferences,
+            });
+            return;
+        }
+
+        if (url.pathname.startsWith('/umbraco/delivery/api/v2/content/item/')) {
+            state.cmsRequests += 1;
+            const slug = decodeURIComponent(
+                url.pathname.replace(
+                    '/umbraco/delivery/api/v2/content/item/',
+                    '',
+                ),
+            );
+
+            if (slug === 'nocall') {
+                writeJson(
+                    response,
+                    200,
+                    conference('nocall', '2025-09-01T09:00:00Z'),
+                );
+                return;
+            }
+
+            const item = state.conferences.find((item) => item.name === slug);
+
+            if (!item) {
+                writeJson(response, 404, { message: 'not found' });
+                return;
+            }
+
+            writeJson(response, 200, item);
+            return;
+        }
+
+        if (url.pathname.startsWith('/media/')) {
+            state.mediaRequests.push({
+                method: request.method,
+                path: url.pathname,
+                search: url.search,
+                accept: request.headers.accept,
+                range: request.headers.range,
+                ifNoneMatch: request.headers['if-none-match'],
+                ifModifiedSince: request.headers['if-modified-since'],
+            });
+
+            const baseHeaders = {
+                'content-type': 'application/pdf',
+                etag: '"media-etag"',
+                'accept-ranges': 'bytes',
+                'cache-control': 'public, max-age=604800, must-revalidate',
+                'last-modified': 'Wed, 01 Jan 2025 00:00:00 GMT',
+            };
+
+            if (request.headers['if-none-match'] === '"media-etag"') {
+                response.writeHead(304, 'Not Modified', baseHeaders);
+                response.end();
+                return;
+            }
+
+            if (request.headers.range === 'bytes=0-3') {
+                response.writeHead(206, 'Partial Content', {
+                    ...baseHeaders,
+                    'content-range': 'bytes 0-3/10',
+                    'content-length': '4',
+                });
+                if (request.method !== 'HEAD') response.end('medi');
+                else response.end();
+                return;
+            }
+
+            response.writeHead(200, 'OK', {
+                ...baseHeaders,
+                'content-length': '10',
+            });
+            if (request.method !== 'HEAD') response.end('media-body');
+            else response.end();
+            return;
+        }
+
+        response.writeHead(404, { 'content-type': 'text/plain' });
+        response.end('not found');
+    });
+
+    await new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', resolve);
+    });
+
+    const address = server.address();
+    assert.equal(typeof address, 'object');
+
+    return {
+        url: `http://127.0.0.1:${address.port}/`,
+        close: () => new Promise((resolve) => server.close(resolve)),
+    };
+}
+
+async function startApp({ upstreamUrl, searchIndexingEnabled }) {
+    const port = await getFreePort();
+    const child = spawn(process.execPath, ['build'], {
+        cwd: process.cwd(),
+        env: {
+            ...process.env,
+            PORT: String(port),
+            HOST: '127.0.0.1',
+            UMBRACO_BASE_URL: upstreamUrl,
+            CMS_PUBLIC_URL: 'https://cms.example.test/',
+            SITE_URL: 'https://www.example.test/',
+            SEARCH_INDEXING_ENABLED: searchIndexingEnabled ? 'true' : 'false',
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    let output = '';
+    child.stdout.on('data', (chunk) => {
+        output += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+        output += chunk;
+    });
+
+    const origin = `http://127.0.0.1:${port}`;
+    const deadline = Date.now() + 10_000;
+    let ready = false;
+
+    while (Date.now() < deadline) {
+        if (child.exitCode !== null) {
+            throw new Error(`app exited before ready\n${output}`);
+        }
+
+        try {
+            const response = await fetch(`${origin}/robots.txt`, {
+                redirect: 'manual',
+            });
+            if (response.status === 200) {
+                ready = true;
+                break;
+            }
+        } catch {
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+    }
+
+    if (!ready) {
+        child.kill('SIGTERM');
+        throw new Error(`app did not start\n${output}`);
+    }
+
+    return {
+        origin,
+        close: async () => {
+            child.kill('SIGTERM');
+            await new Promise((resolve) => child.once('exit', resolve));
+        },
+    };
+}
+
+async function request(origin, path, init = {}) {
+    return fetch(`${origin}${path}`, {
+        redirect: 'manual',
+        ...init,
+    });
+}
+
+async function expectRedirect(origin, path, status, location, init = {}) {
+    const response = await request(origin, path, init);
+    const body = await response.text();
+    assert.equal(response.status, status, `${path}\n${body}`);
+    assert.equal(response.headers.get('location'), location, path);
+    assert.equal(body, '', path);
+}
+
+async function expectText(origin, path, status, text, init = {}) {
+    const response = await request(origin, path, init);
+    assert.equal(response.status, status, path);
+    assert.equal(await response.text(), text, path);
+    return response;
+}
+
+async function requestWithoutUserAgent(origin, path) {
+    const url = new URL(`${origin}${path}`);
+
+    return new Promise((resolve, reject) => {
+        const request = httpRequest(
+            url,
+            {
+                method: 'GET',
+                headers: {},
+            },
+            (response) => {
+                let body = '';
+                response.setEncoding('utf8');
+                response.on('data', (chunk) => {
+                    body += chunk;
+                });
+                response.on('end', () => {
+                    resolve({
+                        status: response.statusCode,
+                        location: response.headers.location,
+                        body,
+                    });
+                });
+            },
+        );
+        request.on('error', reject);
+        request.end();
+    });
+}
+
+async function runRouteChecks(origin) {
+    await expectRedirect(origin, '/', 307, '/2024/', {
+        headers: { accept: 'text/html' },
+    });
+    await expectRedirect(origin, '/?utm=1', 307, '/2024/');
+    await expectRedirect(origin, '/register?utm=1', 308, '/register/?utm=1');
+    await expectRedirect(origin, '/register/', 308, '/2024/register/');
+    await expectRedirect(origin, '/tickets?utm=1', 308, '/tickets/?utm=1');
+    await expectRedirect(origin, '/tickets/?utm=1', 307, '/register/');
+    await expectRedirect(origin, '/speak/', 307, '/2024/');
+    await expectRedirect(origin, '/umbraco/', 307, 'https://cms.example.test/');
+    await expectRedirect(origin, '/umbraco', 308, '/umbraco/');
+    await expectRedirect(
+        origin,
+        '/2024/speak?source=homepage',
+        308,
+        '/2024/speak/?source=homepage',
+    );
+    await expectRedirect(
+        origin,
+        '/2024/speak/?source=homepage',
+        307,
+        'https://sessionize.example/method-2024/',
+    );
+    await expectRedirect(
+        origin,
+        '/2024/tickets/?utm=1',
+        308,
+        '/2024/register/',
+    );
+    await expectRedirect(
+        origin,
+        '/cms-media/media/file.pdf/',
+        308,
+        '/cms-media/media/file.pdf',
+    );
+    await expectRedirect(origin, '/robots.txt/', 308, '/robots.txt');
+
+    assert.equal((await request(origin, '/nocall/speak/')).status, 404);
+    assert.equal(
+        (await request(origin, '/2024/sessions/not-a-page/')).status,
+        404,
+    );
+    assert.equal((await request(origin, '/sitemap.xml')).status, 404);
+
+    state.conferences = [];
+    assert.equal((await request(origin, '/')).status, 404);
+    state.conferences = [
+        conference('2023', '2023-09-01T09:00:00Z'),
+        conference(
+            '2024',
+            '2024-09-01T09:00:00Z',
+            'https://sessionize.example/method-2024/',
+        ),
+    ];
+}
+
+async function runMobileChecks(origin) {
+    await expectRedirect(
+        origin,
+        '/mobile-app?from=qr',
+        308,
+        '/mobile-app/?from=qr',
+    );
+
+    const missingUserAgent = await requestWithoutUserAgent(
+        origin,
+        '/mobile-app/',
+    );
+    assert.equal(missingUserAgent.status, 307);
+    assert.equal(missingUserAgent.location, '/');
+    assert.equal(missingUserAgent.body, '');
+
+    await expectRedirect(origin, '/mobile-app/', 307, GOOGLE_PLAY_STORE_LINK, {
+        headers: { 'user-agent': 'Mozilla/5.0 Android' },
+    });
+    await expectRedirect(origin, '/mobile-app/', 307, APPLE_APP_STORE_LINK, {
+        headers: { 'user-agent': 'Mozilla/5.0 iPhone' },
+    });
+
+    const desktop = await request(origin, '/mobile-app/', {
+        headers: { 'user-agent': 'Mozilla/5.0 Macintosh' },
+    });
+    assert.equal(desktop.status, 200);
+    assert.match(
+        await desktop.text(),
+        /If you are not automatically redirected click\s*<a href="\/">here<\/a>/,
+    );
+}
+
+async function runRobotChecks(upstreamUrl) {
+    const before = state.cmsRequests;
+    const enabledApp = await startApp({
+        upstreamUrl,
+        searchIndexingEnabled: true,
+    });
+    try {
+        const response = await expectText(
+            enabledApp.origin,
+            '/robots.txt',
+            200,
+            'User-agent: *\nAllow: /\n',
+        );
+        assert.match(
+            response.headers.get('content-type') ?? '',
+            /^text\/plain/,
+        );
+    } finally {
+        await enabledApp.close();
+    }
+
+    const disabledApp = await startApp({
+        upstreamUrl,
+        searchIndexingEnabled: false,
+    });
+    try {
+        await expectText(
+            disabledApp.origin,
+            '/robots.txt',
+            200,
+            'User-agent: *\nDisallow: /\n',
+        );
+    } finally {
+        await disabledApp.close();
+    }
+    assert.equal(state.cmsRequests, before, 'robots should not hit CMS');
+}
+
+async function runMediaChecks(origin) {
+    state.mediaRequests = [];
+
+    const media = await request(
+        origin,
+        '/cms-media/media/a%20b/%23file.pdf?width=10&format=webp',
+        {
+            headers: {
+                accept: 'application/pdf',
+            },
+        },
+    );
+    assert.equal(media.status, 200);
+    assert.equal(media.statusText, 'OK');
+    assert.equal(media.headers.get('content-type'), 'application/pdf');
+    assert.equal(media.headers.get('etag'), '"media-etag"');
+    assert.equal(
+        media.headers.get('cache-control'),
+        'public, max-age=604800, must-revalidate',
+    );
+    assert.equal(await media.text(), 'media-body');
+    assert.deepEqual(state.mediaRequests.at(-1), {
+        method: 'GET',
+        path: '/media/a%20b/%23file.pdf',
+        search: '?width=10&format=webp',
+        accept: 'application/pdf',
+        range: undefined,
+        ifNoneMatch: undefined,
+        ifModifiedSince: undefined,
+    });
+
+    const range = await request(origin, '/cms-media/media/file.pdf', {
+        headers: {
+            range: 'bytes=0-3',
+        },
+    });
+    assert.equal(range.status, 206);
+    assert.equal(range.statusText, 'Partial Content');
+    assert.equal(range.headers.get('content-range'), 'bytes 0-3/10');
+    assert.equal(range.headers.get('accept-ranges'), 'bytes');
+    assert.equal(await range.text(), 'medi');
+
+    const notModified = await request(origin, '/cms-media/media/file.pdf', {
+        headers: {
+            'if-none-match': '"media-etag"',
+            'if-modified-since': 'Wed, 01 Jan 2025 00:00:00 GMT',
+        },
+    });
+    assert.equal(notModified.status, 304);
+    assert.equal(notModified.statusText, 'Not Modified');
+    assert.equal(await notModified.text(), '');
+    assert.equal(state.mediaRequests.at(-1).ifNoneMatch, '"media-etag"');
+    assert.equal(
+        state.mediaRequests.at(-1).ifModifiedSince,
+        'Wed, 01 Jan 2025 00:00:00 GMT',
+    );
+
+    const head = await request(origin, '/cms-media/media/file.pdf', {
+        method: 'HEAD',
+        headers: {
+            range: 'bytes=0-3',
+        },
+    });
+    assert.equal(head.status, 206);
+    assert.equal(head.headers.get('content-length'), '4');
+    assert.equal(TEXT_ENCODER.encode(await head.text()).byteLength, 0);
+    assert.equal(state.mediaRequests.at(-1).method, 'HEAD');
+}
+
+const upstream = await startUpstream();
+try {
+    await runRobotChecks(upstream.url);
+
+    const app = await startApp({
+        upstreamUrl: upstream.url,
+        searchIndexingEnabled: true,
+    });
+    try {
+        await runRouteChecks(app.origin);
+        await runMobileChecks(app.origin);
+        await runMediaChecks(app.origin);
+    } finally {
+        await app.close();
+    }
+} finally {
+    await upstream.close();
+}
