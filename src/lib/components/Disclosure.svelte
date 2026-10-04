@@ -26,29 +26,35 @@
     let panelElement = $state<globalThis.HTMLDivElement>();
     let height = $state('0px');
     let transitionTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
-    let animationFrame: number | undefined;
+    let transitionFrame: number | undefined;
+    let resizeFrame: number | undefined;
 
-    const isMounted = $derived(phase !== 'exited');
     const expanded = $derived(phase === 'entering' || phase === 'entered');
-    const display = $derived(phase === 'exited' ? 'none' : undefined);
+    const wrapperStyle = $derived(
+        `${phase === 'exited' ? 'display: none; ' : ''}height: ${height};`,
+    );
 
     async function open() {
         clearPendingTransition();
         phase = 'entering';
         height = '0px';
         await tick();
-        height = `${panelElement?.scrollHeight ?? 0}px`;
-        transitionTimer = globalThis.setTimeout(() => {
-            phase = 'entered';
-            height = 'auto';
-        }, transitionDurationMs);
+        transitionFrame = globalThis.requestAnimationFrame(() => {
+            transitionFrame = undefined;
+            height = `${panelElement?.scrollHeight ?? 0}px`;
+            transitionTimer = globalThis.setTimeout(() => {
+                phase = 'entered';
+                height = 'auto';
+            }, transitionDurationMs);
+        });
     }
 
     function close() {
         clearPendingTransition();
         height = `${panelElement?.scrollHeight ?? 0}px`;
         phase = 'exiting';
-        animationFrame = globalThis.requestAnimationFrame(() => {
+        transitionFrame = globalThis.requestAnimationFrame(() => {
+            transitionFrame = undefined;
             height = '0px';
         });
         transitionTimer = globalThis.setTimeout(() => {
@@ -71,10 +77,32 @@
             transitionTimer = undefined;
         }
 
-        if (animationFrame) {
-            globalThis.cancelAnimationFrame(animationFrame);
-            animationFrame = undefined;
+        if (transitionFrame) {
+            globalThis.cancelAnimationFrame(transitionFrame);
+            transitionFrame = undefined;
         }
+
+        if (resizeFrame) {
+            globalThis.cancelAnimationFrame(resizeFrame);
+            resizeFrame = undefined;
+        }
+    }
+
+    function updateEnteringHeight() {
+        if (phase !== 'entering') {
+            return;
+        }
+
+        if (resizeFrame) {
+            globalThis.cancelAnimationFrame(resizeFrame);
+        }
+
+        resizeFrame = globalThis.requestAnimationFrame(() => {
+            resizeFrame = undefined;
+            if (phase === 'entering') {
+                height = `${panelElement?.scrollHeight ?? 0}px`;
+            }
+        });
     }
 
     $effect(() => {
@@ -83,9 +111,7 @@
         }
 
         const resizeObserver = new globalThis.ResizeObserver(() => {
-            if (phase === 'entering') {
-                height = `${panelElement?.scrollHeight ?? 0}px`;
-            }
+            updateEnteringHeight();
         });
 
         resizeObserver.observe(panelElement);
@@ -100,19 +126,16 @@
 
 {@render trigger({ expanded, panelId, buttonId, toggle })}
 
-{#if isMounted}
+<div
+    class="transition-[height] duration-300 ease-[cubic-bezier(0,0,0,1)] overflow-hidden"
+    style={wrapperStyle}
+>
     <div
-        class="transition-[height] duration-300 ease-[cubic-bezier(0,0,0,1)] overflow-hidden"
-        style:display
-        style:height
+        bind:this={panelElement}
+        id={panelId}
+        role="region"
+        aria-labelledby={buttonId}
     >
-        <div
-            bind:this={panelElement}
-            id={panelId}
-            role="region"
-            aria-labelledby={buttonId}
-        >
-            {@render children()}
-        </div>
+        {@render children()}
     </div>
-{/if}
+</div>

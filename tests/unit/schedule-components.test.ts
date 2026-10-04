@@ -278,6 +278,26 @@ describe('schedule SSR components', () => {
         );
     });
 
+    it('keeps collapsed disclosure content and the controlled region in SSR', () => {
+        const html = render(SessionCard, {
+            props: { session: trackOneSession },
+        }).body;
+        const controlledRegion = html.match(/aria-controls="([^"]+)"/);
+
+        expect(controlledRegion?.[1]).toBe('session-card-session-a-panel');
+        expect(html.match(/aria-expanded="false"/g)).toHaveLength(1);
+        expect(html).toContain('id="session-card-session-a-trigger"');
+        expect(html).toContain('id="session-card-session-a-panel"');
+        expect(html).toContain(
+            'aria-labelledby="session-card-session-a-trigger"',
+        );
+        expect(html).toContain('role="region"');
+        expect(html).toContain('<p>Session details</p>');
+        expect(html).toMatch(
+            /class="transition-\[height\][^"]*overflow-hidden" style="[^"]*display:\s*none[^"]*height:\s*0px/,
+        );
+    });
+
     it('can disable speaker links and still render the speaker text', () => {
         const html = render(SessionCard, {
             props: { session: trackOneSession, disableSpeakerLinks: true },
