@@ -2,7 +2,9 @@
 .github
 .env
 .next
+.svelte-kit
 backend
+build
 docker
 docker-compose.yml
 frontend

@@ -1,24 +1,37 @@
-import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
-import nextTypeScript from 'eslint-config-next/typescript';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
+import tseslint from 'typescript-eslint';
 
-const eslintConfig = [
+export default tseslint.config(
     {
-        ignores: ['src/data/umbraco/*.d.ts'],
+        ignores: [
+            '.next/**',
+            '.svelte-kit/**',
+            'build/**',
+            'coverage/**',
+            'node_modules/**',
+            'next-env.d.ts',
+            'next.config.ts',
+            'src/app/**',
+            'src/components/**',
+            'src/config.ts',
+            'src/data/**',
+            'src/routes/**/*.svelte',
+            'src/serverConfig.ts',
+            'src/util.ts',
+        ],
     },
-    ...nextCoreWebVitals,
-    ...nextTypeScript,
+    js.configs.recommended,
+    ...tseslint.configs.recommended,
+    prettier,
     {
-        settings: {
-            react: {
-                version: '19.0',
-            },
+        files: ['**/*.{js,ts,mjs}'],
+        plugins: {
+            prettier: prettierPlugin,
         },
         rules: {
-            '@typescript-eslint/consistent-type-imports': 'error',
+            'prettier/prettier': 'error',
         },
     },
-    eslintPluginPrettierRecommended,
-];
-
-export default eslintConfig;
+);
