@@ -3,6 +3,7 @@
 import { spawn } from 'node:child_process';
 import { createServer, request as httpRequest } from 'node:http';
 import assert from 'node:assert/strict';
+import sharp from 'sharp';
 
 const TEXT_ENCODER = new TextEncoder();
 const GOOGLE_PLAY_STORE_LINK =
@@ -19,6 +20,19 @@ const conference = (slug, date, callForSpeakersUrl) => ({
         callForSpeakersUrl,
     },
 });
+
+const imageFixture = await sharp({
+    create: {
+        width: 20,
+        height: 10,
+        channels: 3,
+        background: { r: 24, g: 88, b: 160 },
+    },
+})
+    .jpeg({ quality: 92 })
+    .toBuffer();
+
+const largeImagePlaceholderBytes = 16 * 1024 * 1024;
 
 const state = {
     conferences: [
@@ -93,6 +107,55 @@ async function startUpstream() {
             }
 
             writeJson(response, 200, item);
+            return;
+        }
+
+        if (url.pathname === '/media/image.jpg') {
+            state.mediaRequests.push({
+                method: request.method,
+                path: url.pathname,
+                search: url.search,
+                accept: request.headers.accept,
+                range: request.headers.range,
+                ifNoneMatch: request.headers['if-none-match'],
+                ifModifiedSince: request.headers['if-modified-since'],
+            });
+            response.writeHead(200, 'OK', {
+                'content-type': 'image/jpeg',
+                'content-length': String(imageFixture.byteLength),
+                etag: '"image-etag"',
+                'cache-control': 'public, max-age=604800, must-revalidate',
+            });
+            if (request.method !== 'HEAD') response.end(imageFixture);
+            else response.end();
+            return;
+        }
+
+        if (url.pathname === '/media/private-image.jpg') {
+            response.writeHead(200, 'OK', {
+                'content-type': 'image/jpeg',
+                'content-length': String(imageFixture.byteLength),
+                'cache-control': 'private, no-store',
+            });
+            response.end(imageFixture);
+            return;
+        }
+
+        if (url.pathname === '/media/too-large.jpg') {
+            response.writeHead(200, 'OK', {
+                'content-type': 'image/jpeg',
+                'content-length': String(largeImagePlaceholderBytes),
+                'cache-control': 'public, max-age=604800, must-revalidate',
+            });
+            response.end();
+            return;
+        }
+
+        if (url.pathname === '/media/redirect.jpg') {
+            response.writeHead(302, 'Found', {
+                location: 'https://evil.example/image.jpg',
+            });
+            response.end();
             return;
         }
 
@@ -402,6 +465,130 @@ async function runRobotChecks(upstreamUrl) {
     assert.equal(state.cmsRequests, before, 'robots should not hit CMS');
 }
 
+async function runImageOptimizerChecks(origin) {
+    state.mediaRequests = [];
+
+    const imagePath = `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?width=20&height=10')}&w=32&q=75`;
+    await expectRedirect(
+        origin,
+        imagePath.replace('/_image?', '/_image/?'),
+        308,
+        imagePath,
+    );
+
+    const image = await request(origin, imagePath, {
+        headers: {
+            accept: 'image/webp,image/apng,*/*',
+        },
+    });
+    const imageBytes = new Uint8Array(await image.arrayBuffer());
+    const imageMetadata = await sharp(imageBytes).metadata();
+
+    assert.equal(image.status, 200);
+    assert.equal(image.headers.get('content-type'), 'image/webp');
+    assert.equal(
+        image.headers.get('cache-control'),
+        'public, max-age=604800, must-revalidate',
+    );
+    assert.equal(image.headers.get('vary'), 'Accept');
+    assert.equal(
+        image.headers.get('content-length'),
+        String(imageBytes.length),
+    );
+    assert.match(image.headers.get('etag') ?? '', /^"[A-Za-z0-9_-]+"$/);
+    assert.equal(imageMetadata.width, 20);
+    assert.equal(imageMetadata.height, 10);
+    assert.deepEqual(state.mediaRequests.at(-1), {
+        method: 'GET',
+        path: '/media/image.jpg',
+        search: '?width=20&height=10',
+        accept: '*/*',
+        range: undefined,
+        ifNoneMatch: undefined,
+        ifModifiedSince: undefined,
+    });
+
+    const cropped = await request(
+        origin,
+        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?crop=0,0,1,1&maxsize=50')}&w=32&q=75`,
+        { headers: { accept: 'image/webp' } },
+    );
+    assert.equal(cropped.status, 200);
+    assert.equal(
+        state.mediaRequests.at(-1).search,
+        '?crop=0%2C0%2C1%2C1&maxsize=50',
+    );
+
+    const notModified = await request(origin, imagePath, {
+        headers: {
+            accept: 'image/webp',
+            'if-none-match': image.headers.get('etag'),
+        },
+    });
+    assert.equal(notModified.status, 304);
+    assert.equal(await notModified.text(), '');
+    assert.equal(notModified.headers.get('etag'), image.headers.get('etag'));
+
+    const head = await request(origin, imagePath, {
+        method: 'HEAD',
+        headers: { accept: 'image/webp' },
+    });
+    assert.equal(head.status, 200);
+    assert.equal(head.headers.get('content-type'), 'image/webp');
+    assert.equal(TEXT_ENCODER.encode(await head.text()).byteLength, 0);
+
+    const jpegFallback = await request(origin, imagePath, {
+        headers: { accept: 'image/jpeg,*/*' },
+    });
+    assert.equal(jpegFallback.status, 200);
+    assert.equal(jpegFallback.headers.get('content-type'), 'image/jpeg');
+
+    const privateCache = await request(
+        origin,
+        `/_image?url=${encodeURIComponent('/cms-media/media/private-image.jpg')}&w=32&q=75`,
+        { headers: { accept: 'image/webp' } },
+    );
+    assert.equal(privateCache.status, 200);
+    assert.equal(
+        privateCache.headers.get('cache-control'),
+        'private, no-store',
+    );
+
+    const cases = [
+        `/_image?url=${encodeURIComponent('https://example.com/image.jpg')}&w=32&q=75`,
+        `/_image?url=${encodeURIComponent('//example.com/image.jpg')}&w=32&q=75`,
+        '/_image?url=%E0%A4%A&w=32&q=75',
+        `/_image?url=${encodeURIComponent('/cms-media/../secret.jpg')}&w=32&q=75`,
+        `/_image?url=${encodeURIComponent('/cms-media/media/file.pdf')}&w=32&q=75`,
+        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg#fragment')}&w=32&q=75`,
+        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?format=webp')}&w=32&q=75`,
+        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?width=0')}&w=32&q=75`,
+        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg')}&w=33&q=75`,
+        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg')}&w=32&q=80`,
+    ];
+
+    for (const path of cases) {
+        const response = await request(origin, path, {
+            headers: { accept: 'image/webp' },
+        });
+        assert.equal(response.status, 400, path);
+    }
+
+    const tooLarge = await request(
+        origin,
+        `/_image?url=${encodeURIComponent('/cms-media/media/too-large.jpg')}&w=32&q=75`,
+        { headers: { accept: 'image/webp' } },
+    );
+    assert.equal(tooLarge.status, 502);
+
+    const redirect = await request(
+        origin,
+        `/_image?url=${encodeURIComponent('/cms-media/media/redirect.jpg')}&w=32&q=75`,
+        { headers: { accept: 'image/webp' } },
+    );
+    assert.equal(redirect.status, 502);
+}
+
 async function runMediaChecks(origin) {
     state.mediaRequests = [];
 
@@ -483,6 +670,7 @@ try {
         await runRouteChecks(app.origin);
         await runMobileChecks(app.origin);
         await runMediaChecks(app.origin);
+        await runImageOptimizerChecks(app.origin);
     } finally {
         await app.close();
     }
