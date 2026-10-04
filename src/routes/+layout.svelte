@@ -34,7 +34,11 @@ plausible.init()<` +
         }),
     );
     const shouldEmitLayoutRobots = $derived(
-        !data.searchIndexingEnabled && page.status < 400,
+        page.status < 400 &&
+            (!data.searchIndexingEnabled || page.data.robotsNoIndex),
+    );
+    const layoutRobotsContent = $derived(
+        data.searchIndexingEnabled ? 'noindex' : 'noindex,nofollow',
     );
 </script>
 
@@ -48,7 +52,9 @@ plausible.init()<` +
         <meta property="og:description" content={head.description} />
     {/if}
     <meta property="og:image" content={head.openGraph.image.url} />
-    <meta property="og:image:type" content={head.openGraph.image.type} />
+    {#if head.openGraph.image.type}
+        <meta property="og:image:type" content={head.openGraph.image.type} />
+    {/if}
     <meta
         property="og:image:width"
         content={String(head.openGraph.image.width)}
@@ -63,7 +69,9 @@ plausible.init()<` +
         <meta name="twitter:description" content={head.description} />
     {/if}
     <meta name="twitter:image" content={head.twitter.image.url} />
-    <meta name="twitter:image:type" content={head.twitter.image.type} />
+    {#if head.twitter.image.type}
+        <meta name="twitter:image:type" content={head.twitter.image.type} />
+    {/if}
     <meta
         name="twitter:image:width"
         content={String(head.twitter.image.width)}
@@ -86,7 +94,7 @@ plausible.init()<` +
         crossorigin="anonymous"
     />
     {#if shouldEmitLayoutRobots}
-        <meta name="robots" content="noindex,nofollow" />
+        <meta name="robots" content={layoutRobotsContent} />
     {/if}
     {#if !dev}
         <!-- next-plausible parity scripts copied from next-plausible's provider output. -->

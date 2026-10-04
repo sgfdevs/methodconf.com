@@ -26,12 +26,12 @@ export type SharedHead = {
     description?: string;
     openGraph: {
         title: string;
-        image: Required<SharedHeadImage>;
+        image: SharedHeadImage & { url: string };
     };
     twitter: {
         card: 'summary_large_image';
         title: string;
-        image: Required<SharedHeadImage>;
+        image: SharedHeadImage & { url: string };
     };
     icon: {
         href: string;
@@ -83,7 +83,9 @@ export function buildSharedHead({
             siteUrl,
             metadata?.openGraph?.image?.url ?? DEFAULT_OG_IMAGE_PATH,
         ),
-        type: metadata?.openGraph?.image?.type ?? 'image/jpeg',
+        type:
+            metadata?.openGraph?.image?.type ??
+            (metadata?.openGraph?.image ? undefined : 'image/jpeg'),
         width: metadata?.openGraph?.image?.width ?? 1200,
         height: metadata?.openGraph?.image?.height ?? 630,
     };
