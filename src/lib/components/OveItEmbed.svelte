@@ -34,19 +34,16 @@
         iframe.style.height = `${Number.isNaN(parsedHeight) ? 800 : parsedHeight}px`;
     }
 
-    onMount(() => {
+    $effect(() => {
         const iframeState = buildOveItIframeState(
             embedUrl,
             window.location.hash,
         );
+        embedId = iframeState?.embedId;
+        iframeSrc = iframeState?.iframeUrl.toString();
+    });
 
-        if (!iframeState) {
-            return;
-        }
-
-        embedId = iframeState.embedId;
-        iframeSrc = iframeState.iframeUrl.toString();
-
+    onMount(() => {
         function onWindowMessage(event: MessageEvent) {
             if (event.source !== iframe?.contentWindow) {
                 return;
