@@ -10,9 +10,7 @@
 /coverage
 
 # framework output
-/.next/
 /.svelte-kit/
-/out/
 
 # production
 /build
@@ -30,12 +28,8 @@ yarn-error.log*
 .env*.local
 .env
 
-# vercel
-.vercel
-
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 .idea
 /backend/
