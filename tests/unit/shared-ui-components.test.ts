@@ -6,12 +6,14 @@ import HomeNav from '../../src/lib/components/HomeNav.svelte';
 import Navigation from '../../src/lib/components/Navigation.svelte';
 import RichText from '../../src/lib/components/RichText.svelte';
 import SponsorCard from '../../src/lib/components/SponsorCard.svelte';
+import SponsorsBlock from '../../src/lib/components/SponsorsBlock.svelte';
 import TextInput from '../../src/lib/components/TextInput.svelte';
 import { rewriteRichTextMediaUrls } from '../../src/lib/components/richText.ts';
 import type {
     CmsLink,
     ParsedConference,
     Sponsor,
+    Sponsors,
 } from '../../src/lib/types.ts';
 
 const conference = {
@@ -123,6 +125,31 @@ describe('shared UI components', () => {
         expect(html).toContain('prose-a:text-primary');
         expect(html).toContain('class="prose');
         expect(html).toContain('src="/cms-media/media/logo.png"');
+    });
+
+    it('keeps the sponsor CTA Method logo intrinsic dimensions', () => {
+        const sponsors = {
+            id: 'sponsors-id',
+            contentType: 'sponsors',
+            name: 'Sponsors',
+            properties: {
+                tiers: { items: [] },
+                opportunitiesUrl: [
+                    {
+                        linkType: 'Media',
+                        title: 'See Opportunities',
+                        url: '/media/sponsor-packet.pdf',
+                    },
+                ],
+            },
+        } as unknown as Sponsors;
+
+        const html = render(SponsorsBlock, { props: { sponsors } }).body;
+
+        expect(html).toContain('src="/method-logo.svg"');
+        expect(html).toContain('alt="Method Logo"');
+        expect(html).toContain('width="359"');
+        expect(html).toContain('height="78"');
     });
 
     it('uses the fixed-width CMS image helper at quality 100 for sponsor logos', () => {

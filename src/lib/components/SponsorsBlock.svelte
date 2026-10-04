@@ -46,7 +46,12 @@
                 <div
                     class="flex flex-col xl:flex-row justify-center relative py-20 px-10 xl:space-x-8 items-center space-y-4 xl:space-y-0"
                 >
-                    <img src="/method-logo.svg" alt="Method Logo" />
+                    <img
+                        src="/method-logo.svg"
+                        alt="Method Logo"
+                        width="359"
+                        height="78"
+                    />
 
                     <p class="text-white font-bold text-2xl text-center">
                         Interested in becoming a sponsor?

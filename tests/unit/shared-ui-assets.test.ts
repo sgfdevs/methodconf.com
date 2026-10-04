@@ -42,6 +42,20 @@ describe('shared UI static assets and root shell', () => {
         expect(license).toContain('SIL OPEN FONT LICENSE');
     });
 
+    it('keeps root typography from live Next instead of forcing brand text color globally', () => {
+        const layout = readProjectFile('src/routes/+layout.svelte');
+        const css = readProjectFile('src/app.css');
+
+        expect(layout).toContain('<main class="min-h-screen bg-white">');
+        expect(layout).not.toContain(
+            '<main class="min-h-screen bg-white text-secondary">',
+        );
+        expect(css).toContain('--color-secondary: #1E1E1E;');
+        expect(css).not.toMatch(
+            /body\s*\{[^}]*color:\s*(?:var\(--color-secondary\)|#1E1E1E|rgb\(30,\s*30,\s*30\))/s,
+        );
+    });
+
     it('preloads only the Latin subset and keeps next-plausible script parity', () => {
         const layout = readProjectFile('src/routes/+layout.svelte');
 

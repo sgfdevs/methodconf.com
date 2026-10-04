@@ -81,7 +81,7 @@ plausible.init()<` +
     {/if}
 </svelte:head>
 
-<main class="min-h-screen bg-white text-secondary">
+<main class="min-h-screen bg-white">
     {@render children()}
 </main>
 
