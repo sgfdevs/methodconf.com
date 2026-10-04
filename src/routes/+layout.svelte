@@ -2,8 +2,9 @@
     import { dev } from '$app/env';
     import { page } from '$app/state';
     import Footer from '#lib/components/Footer.svelte';
+    import { resolveDocumentTitle } from '#lib/head.ts';
     import '../app.css';
-    import type { Snippet } from 'svelte';
+    import { onMount, type Snippet } from 'svelte';
     import type { LayoutData } from './$types';
 
     const plausibleHeadHtml =
@@ -17,15 +18,28 @@ plausible.init()<` +
         `/script>`;
 
     let { data, children }: { data: LayoutData; children: Snippet } = $props();
+    let clientMounted = $state(false);
+
+    onMount(() => {
+        clientMounted = true;
+    });
 
     const head = $derived(page.data.sharedHead ?? data.sharedHead);
+    const documentTitle = $derived(
+        resolveDocumentTitle({
+            sharedTitle: head.title,
+            status: page.status,
+            errorMessage: page.error?.message,
+            clientMounted,
+        }),
+    );
     const shouldEmitLayoutRobots = $derived(
         !data.searchIndexingEnabled && page.status < 400,
     );
 </script>
 
 <svelte:head>
-    <title>{head.title}</title>
+    <title>{documentTitle}</title>
     {#if head.description}
         <meta name="description" content={head.description} />
     {/if}

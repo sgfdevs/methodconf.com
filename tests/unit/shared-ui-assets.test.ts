@@ -1,6 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import {
+    DEFAULT_TITLE,
+    NOT_FOUND_BROWSER_TITLE,
+    resolveDocumentTitle,
+} from '../../src/lib/head.ts';
 
 const root = process.cwd();
 
@@ -70,15 +75,59 @@ describe('shared UI static assets and root shell', () => {
         expect(layout).not.toContain('page.status >= 400');
     });
 
-    it('keeps a Next-like 404 shell distinct from generic errors', () => {
+    it('keeps a root-owned title lifecycle for hydrated 404s and errors', () => {
+        const layout = readProjectFile('src/routes/+layout.svelte');
         const errorPage = readProjectFile('src/routes/+error.svelte');
 
+        expect(layout).toContain('clientMounted = $state(false)');
+        expect(layout).toContain('resolveDocumentTitle({');
+        expect(layout).toContain('status: page.status');
+        expect(layout).toContain('errorMessage: page.error?.message');
+        expect(layout).toContain('<title>{documentTitle}</title>');
+        expect(errorPage).not.toContain('<title');
         expect(errorPage).toContain('This page could not be found.');
         expect(errorPage).toContain('page.status === 404');
-        expect(errorPage).toContain('page.status !== 404');
-        expect(errorPage).toContain('page.status}: {page.error?.message');
         expect(errorPage).toContain('content="noindex"');
         expect(errorPage).toContain('system-ui');
         expect(errorPage).not.toContain('property="og:image"');
+    });
+
+    it('resolves SSR, hydrated 404, normal, and generic error titles', () => {
+        expect(
+            resolveDocumentTitle({
+                sharedTitle: DEFAULT_TITLE,
+                status: 404,
+                clientMounted: false,
+            }),
+        ).toBe(DEFAULT_TITLE);
+        expect(
+            resolveDocumentTitle({
+                sharedTitle: DEFAULT_TITLE,
+                status: 404,
+                clientMounted: true,
+            }),
+        ).toBe(NOT_FOUND_BROWSER_TITLE);
+        expect(
+            resolveDocumentTitle({
+                sharedTitle: 'Fixture leaf title',
+                status: 200,
+                clientMounted: true,
+            }),
+        ).toBe('Fixture leaf title');
+        expect(
+            resolveDocumentTitle({
+                sharedTitle: DEFAULT_TITLE,
+                status: 500,
+                errorMessage: 'Probe failure',
+                clientMounted: true,
+            }),
+        ).toBe('500: Probe failure');
+        expect(
+            resolveDocumentTitle({
+                sharedTitle: DEFAULT_TITLE,
+                status: 500,
+                clientMounted: false,
+            }),
+        ).toBe('500: Application error');
     });
 });

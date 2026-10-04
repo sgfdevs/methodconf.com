@@ -1,4 +1,6 @@
-const DEFAULT_TITLE = 'Method Conference - October 12th 2024 - Springfield, MO';
+export const DEFAULT_TITLE =
+    'Method Conference - October 12th 2024 - Springfield, MO';
+export const NOT_FOUND_BROWSER_TITLE = '404: This page could not be found.';
 const DEFAULT_OG_IMAGE_PATH =
     '/opengraph-image.jpg?opengraph-image.44rvcdk19e2xk.jpg';
 const DEFAULT_ICON_PATH = '/icon.png?icon.232taq741yhvg.png';
@@ -42,6 +44,30 @@ type BuildSharedHeadOptions = {
     siteUrl: string;
     metadata?: SharedHeadMetadata;
 };
+
+type ResolveDocumentTitleOptions = {
+    sharedTitle: string;
+    status: number;
+    errorMessage?: string;
+    clientMounted: boolean;
+};
+
+export function resolveDocumentTitle({
+    sharedTitle,
+    status,
+    errorMessage,
+    clientMounted,
+}: ResolveDocumentTitleOptions): string {
+    if (status === 404) {
+        return clientMounted ? NOT_FOUND_BROWSER_TITLE : sharedTitle;
+    }
+
+    if (status >= 400) {
+        return `${status}: ${errorMessage ?? 'Application error'}`;
+    }
+
+    return sharedTitle;
+}
 
 function resolveFromSiteUrl(siteUrl: string, pathOrUrl: string): string {
     return new URL(pathOrUrl, siteUrl).toString();

@@ -82,6 +82,50 @@ const fixturePage = `<script lang="ts">
 <SponsorsBlock sponsors={data.sponsors} />
 `;
 
+const defaultTitle = 'Method Conference - October 12th 2024 - Springfield, MO';
+const notFoundTitle = '404: This page could not be found.';
+const fixtureLeafTitle = 'Fixture leaf title';
+const fixtureLeafOgTitle = 'Fixture leaf OG title';
+
+const headFixtureServer = `import { buildSharedHead } from '#lib/head.ts';
+import { getSiteUrl } from '#lib/server/config.ts';
+
+export function load() {
+    return {
+        sharedHead: buildSharedHead({
+            siteUrl: getSiteUrl().toString(),
+            metadata: {
+                title: '${fixtureLeafTitle}',
+                openGraph: { title: '${fixtureLeafOgTitle}' },
+            },
+        }),
+    };
+}
+`;
+
+const headFixturePage = `<h1>Head fixture</h1>
+<a data-fixture="to-404" href="/fixture-404/">Missing fixture</a>
+`;
+
+const defaultFixturePage = `<h1>Default fixture</h1>
+<a data-fixture="to-404" href="/fixture-404/">Missing fixture</a>
+<a data-fixture="to-500" href="/fixture-500/">Server error fixture</a>
+`;
+
+const notFoundFixture = `import { error } from '@sveltejs/kit';
+
+export function load() {
+    error(404, 'Not found');
+}
+`;
+
+const serverErrorFixture = `import { error } from '@sveltejs/kit';
+
+export function load() {
+    error(500, 'Probe failure');
+}
+`;
+
 function run(command, args, options = {}) {
     const result = spawnSync(command, args, {
         cwd: options.cwd ?? root,
@@ -144,6 +188,7 @@ class ChromeSession {
         );
         this.nextId = 1;
         this.pending = new Map();
+        this.consoleMessages = [];
     }
 
     async start() {
@@ -193,6 +238,7 @@ class ChromeSession {
         );
         await this.cdp('Page.enable');
         await this.cdp('Runtime.enable');
+        await this.cdp('Log.enable');
         await this.cdp('Network.enable');
         await this.cdp('Network.setUserAgentOverride', {
             userAgent: chromeUserAgent,
@@ -200,6 +246,29 @@ class ChromeSession {
     }
 
     onMessage(message) {
+        if (message.method === 'Runtime.consoleAPICalled') {
+            this.consoleMessages.push({
+                source: 'console',
+                type: message.params.type,
+                text: message.params.args
+                    .map((arg) => arg.value ?? arg.description ?? '')
+                    .join(' '),
+            });
+        }
+        if (message.method === 'Runtime.exceptionThrown') {
+            this.consoleMessages.push({
+                source: 'exception',
+                type: 'error',
+                text: message.params.exceptionDetails?.text ?? 'exception',
+            });
+        }
+        if (message.method === 'Log.entryAdded') {
+            this.consoleMessages.push({
+                source: 'log',
+                type: message.params.entry.level,
+                text: message.params.entry.text,
+            });
+        }
         if (message.id && this.pending.has(message.id)) {
             const { resolve, reject } = this.pending.get(message.id);
             this.pending.delete(message.id);
@@ -226,6 +295,14 @@ class ChromeSession {
         if (result.exceptionDetails)
             throw new Error(JSON.stringify(result.exceptionDetails));
         return result.result?.value;
+    }
+
+    async waitForExpression(expression, attempts = 80) {
+        for (let index = 0; index < attempts; index += 1) {
+            if (await this.evaluate(expression)) return;
+            await delay(100);
+        }
+        throw new Error(`timed out waiting for ${expression}`);
     }
 
     async navigate(url, viewport) {
@@ -327,6 +404,85 @@ function compactText(value) {
     return value.replace(/\s+/g, '');
 }
 
+function headHtml(html) {
+    return /<head[^>]*>([\s\S]*?)<\/head>/i.exec(html)?.[1] ?? '';
+}
+
+function countHeadTags(head, pattern) {
+    return (head.match(pattern) ?? []).length;
+}
+
+function assertSharedHeadCounts(head, label, failures) {
+    const expectations = [
+        [/property="og:title"/g, 1, 'og:title'],
+        [/property="og:image"/g, 1, 'og:image'],
+        [/name="twitter:card"/g, 1, 'twitter:card'],
+        [/name="twitter:title"/g, 1, 'twitter:title'],
+        [/name="twitter:image"/g, 1, 'twitter:image'],
+    ];
+
+    for (const [pattern, expected, name] of expectations) {
+        const actual = countHeadTags(head, pattern);
+        if (actual !== expected) {
+            failures.push(
+                `${label}: expected ${expected} ${name}, got ${actual}`,
+            );
+        }
+    }
+}
+
+async function assertRawHead(localOrigin, failures) {
+    const cases = [
+        {
+            path: '/fixture-404/',
+            status: 404,
+            title: defaultTitle,
+            robots: '<meta name="robots" content="noindex"',
+        },
+        {
+            path: '/fixture-500/',
+            status: 500,
+            title: '500: Probe failure',
+            robots: '<meta name="robots" content="noindex"',
+        },
+    ];
+    const results = [];
+
+    for (const entry of cases) {
+        const response = await fetch(`${localOrigin}${entry.path}`);
+        const html = await response.text();
+        const head = headHtml(html);
+        const titleMatch = /<title>([^<]*)<\/title>/.exec(head);
+        const title = titleMatch?.[1] ?? '';
+        const robotsCount = countHeadTags(head, /name="robots"/g);
+
+        results.push({
+            path: entry.path,
+            status: response.status,
+            title,
+            robotsCount,
+        });
+
+        if (response.status !== entry.status) {
+            failures.push(
+                `${entry.path}: expected status ${entry.status}, got ${response.status}`,
+            );
+        }
+        if (countHeadTags(head, /<title[\s>]/g) !== 1) {
+            failures.push(`${entry.path}: expected one title tag`);
+        }
+        if (title !== entry.title) {
+            failures.push(`${entry.path}: title ${title}`);
+        }
+        if (robotsCount !== 1 || !head.includes(entry.robots)) {
+            failures.push(`${entry.path}: robots noindex count/value mismatch`);
+        }
+        assertSharedHeadCounts(head, entry.path, failures);
+    }
+
+    return results;
+}
+
 function prepareFixture() {
     rmSync(outputRoot, { recursive: true, force: true });
     mkdirSync(outputRoot, { recursive: true });
@@ -354,7 +510,206 @@ function prepareFixture() {
     mkdirSync(routeDir, { recursive: true });
     writeFileSync(join(routeDir, '+page.server.ts'), fixtureServer);
     writeFileSync(join(routeDir, '+page.svelte'), fixturePage);
+
+    const defaultRouteDir = join(fixtureRoot, 'src/routes/fixture-default');
+    mkdirSync(defaultRouteDir, { recursive: true });
+    writeFileSync(join(defaultRouteDir, '+page.svelte'), defaultFixturePage);
+
+    const headRouteDir = join(fixtureRoot, 'src/routes/fixture-title');
+    mkdirSync(headRouteDir, { recursive: true });
+    writeFileSync(join(headRouteDir, '+page.server.ts'), headFixtureServer);
+    writeFileSync(join(headRouteDir, '+page.svelte'), headFixturePage);
+
+    const notFoundRouteDir = join(fixtureRoot, 'src/routes/fixture-404');
+    mkdirSync(notFoundRouteDir, { recursive: true });
+    writeFileSync(join(notFoundRouteDir, '+page.server.ts'), notFoundFixture);
+
+    const errorRouteDir = join(fixtureRoot, 'src/routes/fixture-500');
+    mkdirSync(errorRouteDir, { recursive: true });
+    writeFileSync(join(errorRouteDir, '+page.server.ts'), serverErrorFixture);
+
     run('npm', ['run', 'build'], { cwd: fixtureRoot });
+}
+
+async function readBrowserHead(chrome) {
+    return await chrome.evaluate(`(() => ({
+        url: location.pathname,
+        title: document.title,
+        ogTitle: document.querySelector('meta[property="og:title"]')?.content ?? null,
+        twitterTitle: document.querySelector('meta[name="twitter:title"]')?.content ?? null,
+        titleCount: document.querySelectorAll('title').length,
+        robots: [...document.querySelectorAll('meta[name="robots"]')].map((node) => node.content),
+        ogImageCount: document.querySelectorAll('meta[property="og:image"]').length,
+        twitterImageCount: document.querySelectorAll('meta[name="twitter:image"]').length,
+        csrMarker: window.__sharedUiCsrMarker ?? null,
+    }))()`);
+}
+
+async function clickAndWaitForTitle(chrome, selector, marker, title) {
+    await chrome.evaluate(`(() => {
+        window.__sharedUiCsrMarker = ${JSON.stringify(marker)};
+        document.querySelector(${JSON.stringify(selector)}).click();
+        return true;
+    })()`);
+    await chrome.waitForExpression(
+        `document.title === ${JSON.stringify(title)} && window.__sharedUiCsrMarker === ${JSON.stringify(marker)}`,
+    );
+}
+
+async function historyBackAndWaitForTitle(chrome, marker, title) {
+    await chrome.evaluate('history.back(); true');
+    await chrome.waitForExpression(
+        `document.title === ${JSON.stringify(title)} && window.__sharedUiCsrMarker === ${JSON.stringify(marker)}`,
+    );
+}
+
+async function historyForwardAndWaitForTitle(chrome, marker, title) {
+    await chrome.evaluate('history.forward(); true');
+    await chrome.waitForExpression(
+        `document.title === ${JSON.stringify(title)} && window.__sharedUiCsrMarker === ${JSON.stringify(marker)}`,
+    );
+}
+
+async function assertBrowserTitleLifecycle(chrome, failures) {
+    const titleViewport = { name: 'title-probe', width: 1024, height: 768 };
+    const snapshots = [];
+
+    await chrome.navigate(`${local}/fixture-404/`, titleViewport);
+    await chrome.waitForExpression(
+        `document.title === ${JSON.stringify(notFoundTitle)}`,
+    );
+    snapshots.push({
+        step: 'direct hydrated 404',
+        ...(await readBrowserHead(chrome)),
+    });
+
+    await chrome.navigate(`${local}/fixture-default/`, titleViewport);
+    await chrome.waitForExpression(
+        `document.title === ${JSON.stringify(defaultTitle)}`,
+    );
+    snapshots.push({
+        step: 'normal default',
+        ...(await readBrowserHead(chrome)),
+    });
+    await clickAndWaitForTitle(
+        chrome,
+        '[data-fixture="to-404"]',
+        'default-to-404',
+        notFoundTitle,
+    );
+    snapshots.push({
+        step: 'default to 404',
+        ...(await readBrowserHead(chrome)),
+    });
+    await historyBackAndWaitForTitle(chrome, 'default-to-404', defaultTitle);
+    snapshots.push({
+        step: '404 back to default',
+        ...(await readBrowserHead(chrome)),
+    });
+
+    await chrome.navigate(`${local}/fixture-title/`, titleViewport);
+    await chrome.waitForExpression(
+        `document.title === ${JSON.stringify(fixtureLeafTitle)}`,
+    );
+    snapshots.push({ step: 'leaf custom', ...(await readBrowserHead(chrome)) });
+    await clickAndWaitForTitle(
+        chrome,
+        '[data-fixture="to-404"]',
+        'leaf-to-404',
+        notFoundTitle,
+    );
+    snapshots.push({ step: 'leaf to 404', ...(await readBrowserHead(chrome)) });
+    await historyBackAndWaitForTitle(chrome, 'leaf-to-404', fixtureLeafTitle);
+    snapshots.push({
+        step: '404 back to leaf',
+        ...(await readBrowserHead(chrome)),
+    });
+    await historyForwardAndWaitForTitle(chrome, 'leaf-to-404', notFoundTitle);
+    snapshots.push({
+        step: 'forward to 404',
+        ...(await readBrowserHead(chrome)),
+    });
+    await historyBackAndWaitForTitle(chrome, 'leaf-to-404', fixtureLeafTitle);
+    snapshots.push({
+        step: 'back again to leaf',
+        ...(await readBrowserHead(chrome)),
+    });
+
+    await chrome.navigate(`${local}/fixture-default/`, titleViewport);
+    await clickAndWaitForTitle(
+        chrome,
+        '[data-fixture="to-500"]',
+        'default-to-500',
+        '500: Probe failure',
+    );
+    snapshots.push({
+        step: 'default to 500',
+        ...(await readBrowserHead(chrome)),
+    });
+    await historyBackAndWaitForTitle(chrome, 'default-to-500', defaultTitle);
+    snapshots.push({
+        step: '500 back to default',
+        ...(await readBrowserHead(chrome)),
+    });
+
+    const direct404 = snapshots.find(
+        (item) => item.step === 'direct hydrated 404',
+    );
+    const defaultBack = snapshots.find(
+        (item) => item.step === '404 back to default',
+    );
+    const leafBack = snapshots.find((item) => item.step === '404 back to leaf');
+    const errorBack = snapshots.find(
+        (item) => item.step === '500 back to default',
+    );
+
+    if (direct404?.title !== notFoundTitle)
+        failures.push('direct hydrated 404 title mismatch');
+    if (defaultBack?.title !== defaultTitle)
+        failures.push('default title did not restore after 404');
+    if (leafBack?.title !== fixtureLeafTitle)
+        failures.push('leaf title did not restore after 404');
+    if (leafBack?.ogTitle !== fixtureLeafOgTitle)
+        failures.push('leaf og:title did not restore after 404');
+    if (errorBack?.title !== defaultTitle)
+        failures.push('default title did not restore after 500');
+
+    for (const snapshot of snapshots) {
+        if (snapshot.titleCount !== 1)
+            failures.push(
+                `${snapshot.step}: titleCount ${snapshot.titleCount}`,
+            );
+        if (
+            snapshot.title === notFoundTitle ||
+            snapshot.title.startsWith('500:')
+        ) {
+            if (
+                snapshot.robots.length !== 1 ||
+                snapshot.robots[0] !== 'noindex'
+            ) {
+                failures.push(
+                    `${snapshot.step}: expected one noindex robots tag`,
+                );
+            }
+        } else if (snapshot.robots.length !== 0) {
+            failures.push(
+                `${snapshot.step}: expected robots tags to be restored away`,
+            );
+        }
+        if (snapshot.ogImageCount !== 1 || snapshot.twitterImageCount !== 1) {
+            failures.push(`${snapshot.step}: OG/Twitter image count mismatch`);
+        }
+    }
+
+    const hydrationConsoleErrors = chrome.consoleMessages.filter((message) => {
+        const text = message.text.toLowerCase();
+        return text.includes('hydration') || text.includes('svelte');
+    });
+    if (hydrationConsoleErrors.length > 0) {
+        failures.push('Svelte hydration/browser console errors were reported');
+    }
+
+    return { snapshots, hydrationConsoleErrors };
 }
 
 prepareFixture();
@@ -368,7 +723,7 @@ const server = spawn(process.execPath, ['build'], {
         UMBRACO_BASE_URL: 'https://cms.methodconf.com/',
         CMS_PUBLIC_URL: 'https://cms.methodconf.com/',
         SITE_URL: 'https://www.methodconf.com/',
-        SEARCH_INDEXING_ENABLED: 'false',
+        SEARCH_INDEXING_ENABLED: 'true',
     },
     stdio: ['ignore', 'pipe', 'pipe'],
 });
@@ -393,6 +748,8 @@ try {
     await chrome.start();
     const results = [];
     const failures = [];
+    const rawHead = await assertRawHead(local, failures);
+    const titleLifecycle = await assertBrowserTitleLifecycle(chrome, failures);
 
     for (const viewport of viewports) {
         const liveMeta = await chrome.captureSponsor(`${live}/2024/`, viewport);
@@ -495,6 +852,8 @@ try {
         local,
         live,
         results,
+        rawHead,
+        titleLifecycle,
         failures,
         serverLog,
     };

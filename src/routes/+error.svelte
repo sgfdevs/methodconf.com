@@ -3,11 +3,6 @@
 </script>
 
 <svelte:head>
-    {#if page.status !== 404}
-        <title
-            >{page.status}: {page.error?.message ?? 'Application error'}</title
-        >
-    {/if}
     <meta name="robots" content="noindex" />
 </svelte:head>
 
