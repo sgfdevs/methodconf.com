@@ -10,7 +10,7 @@ export function getMobileAppStoreRedirect(
     }
 
     if (
-        (/iPad|iPhone|iPod/.test(userAgent) && !hasMicrosoftStream) ||
+        (/iPad|iPhone|iPod/i.test(userAgent) && !hasMicrosoftStream) ||
         (/Macintosh/.test(userAgent) && isTouchMac)
     ) {
         return APPLE_APP_STORE_LINK;

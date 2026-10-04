@@ -350,6 +350,9 @@ async function runMobileChecks(origin) {
     await expectRedirect(origin, '/mobile-app/', 307, APPLE_APP_STORE_LINK, {
         headers: { 'user-agent': 'Mozilla/5.0 iPhone' },
     });
+    await expectRedirect(origin, '/mobile-app/', 307, APPLE_APP_STORE_LINK, {
+        headers: { 'user-agent': 'Mozilla/5.0 iphone' },
+    });
 
     const desktop = await request(origin, '/mobile-app/', {
         headers: { 'user-agent': 'Mozilla/5.0 Macintosh' },
@@ -372,7 +375,7 @@ async function runRobotChecks(upstreamUrl) {
             enabledApp.origin,
             '/robots.txt',
             200,
-            'User-agent: *\nAllow: /\n',
+            'User-Agent: *\nAllow: /\n',
         );
         assert.match(
             response.headers.get('content-type') ?? '',
@@ -391,7 +394,7 @@ async function runRobotChecks(upstreamUrl) {
             disabledApp.origin,
             '/robots.txt',
             200,
-            'User-agent: *\nDisallow: /\n',
+            'User-Agent: *\nDisallow: /\n',
         );
     } finally {
         await disabledApp.close();

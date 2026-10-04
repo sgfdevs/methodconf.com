@@ -13,6 +13,9 @@ describe('mobile app store redirect detection', () => {
         expect(getMobileAppStoreRedirect('Mozilla/5.0 iPhone')).toBe(
             APPLE_APP_STORE_LINK,
         );
+        expect(getMobileAppStoreRedirect('Mozilla/5.0 iphone')).toBe(
+            APPLE_APP_STORE_LINK,
+        );
     });
 
     it('redirects touch Macs to the Apple App Store', () => {
