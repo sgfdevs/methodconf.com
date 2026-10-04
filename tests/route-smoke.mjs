@@ -375,7 +375,7 @@ async function runRobotChecks(upstreamUrl) {
             enabledApp.origin,
             '/robots.txt',
             200,
-            'User-Agent: *\nAllow: /\n',
+            'User-Agent: *\nAllow: /\n\n',
         );
         assert.match(
             response.headers.get('content-type') ?? '',
@@ -394,7 +394,7 @@ async function runRobotChecks(upstreamUrl) {
             disabledApp.origin,
             '/robots.txt',
             200,
-            'User-Agent: *\nDisallow: /\n',
+            'User-Agent: *\nDisallow: /\n\n',
         );
     } finally {
         await disabledApp.close();

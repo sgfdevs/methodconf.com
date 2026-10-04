@@ -13,7 +13,7 @@ export const GET: RequestHandler = ({ url }) => {
 
     const directive = isSearchIndexingEnabled() ? 'Allow' : 'Disallow';
 
-    return new Response(`User-Agent: *\n${directive}: /\n`, {
+    return new Response(`User-Agent: *\n${directive}: /\n\n`, {
         headers: {
             'content-type': 'text/plain',
         },
