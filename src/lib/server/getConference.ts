@@ -1,6 +1,6 @@
-import type { ParsedConference } from '@/data/types';
-import { parseConference } from '@/data/parseConference';
-import { getItemByPathOrDefault } from '@/data/umbraco/getItemByPath';
+import type { ParsedConference } from '#lib/types.ts';
+import { parseConference } from '#lib/server/parseConference.ts';
+import { getItemByPathOrDefault } from '#lib/server/umbraco/getItemByPath.ts';
 
 export async function getConference(
     conferenceSlug: string,
