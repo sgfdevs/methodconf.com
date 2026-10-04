@@ -219,6 +219,121 @@ describe('CMS JSON cache', () => {
         ]);
     });
 
+    it('keeps the shared upstream request detached from caller aborts', async () => {
+        let resolveBody: () => void = () => undefined;
+        const body = new Promise<void>((resolve) => {
+            resolveBody = resolve;
+        });
+        const requests: Request[] = [];
+        const fetch: typeof globalThis.fetch = async (input, init) => {
+            const request =
+                input instanceof Request ? input : new Request(input, init);
+            requests.push(request.clone());
+
+            if (request.signal.aborted) {
+                throw request.signal.reason;
+            }
+
+            await Promise.race([
+                body,
+                new Promise((_, reject) => {
+                    request.signal.addEventListener(
+                        'abort',
+                        () => reject(request.signal.reason),
+                        { once: true },
+                    );
+                }),
+            ]);
+
+            return jsonResponse({ value: 1 });
+        };
+        const cachedFetch = createCmsJsonFetch({ baseUrl, fetch });
+        const controller = new AbortController();
+
+        const first = cachedFetch(contentUrl, { signal: controller.signal });
+        const second = cachedFetch(contentUrl);
+        controller.abort(new DOMException('first caller left', 'AbortError'));
+        resolveBody();
+
+        await expect(first).rejects.toThrow(/first caller left|aborted/i);
+        await expect(readJson(await second)).resolves.toEqual({ value: 1 });
+        expect(requests).toHaveLength(1);
+        expect(requests[0].signal.aborted).toBe(false);
+    });
+
+    it('does not start a cache request for an already-aborted caller', async () => {
+        const { fetch, requests } = createMockFetch([{ body: { value: 1 } }]);
+        const cachedFetch = createCmsJsonFetch({ baseUrl, fetch });
+        const controller = new AbortController();
+        controller.abort(new DOMException('gone', 'AbortError'));
+
+        await expect(
+            cachedFetch(contentUrl, { signal: controller.signal }),
+        ).rejects.toThrow(/gone|aborted/i);
+        expect(requests).toHaveLength(0);
+    });
+
+    it('passes through private responses and set-cookie without storing them', async () => {
+        const { fetch, requests } = createMockFetch([
+            {
+                body: { value: 1 },
+                headers: {
+                    'cache-control': 'private, no-store',
+                    'set-cookie': 'preview=true; Path=/; HttpOnly',
+                },
+            },
+            {
+                body: { value: 2 },
+                headers: { 'cache-control': 'no-cache' },
+            },
+        ]);
+        const cachedFetch = createCmsJsonFetch({ baseUrl, fetch });
+
+        const first = await cachedFetch(contentUrl);
+        expect(await readJson(first)).toEqual({ value: 1 });
+        expect(first.headers.get('set-cookie')).toContain('preview=true');
+
+        expect(await readJson(await cachedFetch(contentUrl))).toEqual({
+            value: 2,
+        });
+        expect(requests).toHaveLength(2);
+    });
+
+    it('evicts stale public data when the refresh becomes private', async () => {
+        let now = 0;
+        const { fetch, requests } = createMockFetch([
+            { body: { value: 1 } },
+            {
+                body: { value: 2 },
+                headers: { 'cache-control': 'private, no-store' },
+            },
+            {
+                body: { value: 3 },
+                headers: { 'cache-control': 'private, no-store' },
+            },
+        ]);
+        const cachedFetch = createCmsJsonFetch({
+            baseUrl,
+            fetch,
+            now: () => now,
+        });
+
+        expect(await readJson(await cachedFetch(contentUrl))).toEqual({
+            value: 1,
+        });
+        now += 61_000;
+        expect(await readJson(await cachedFetch(contentUrl))).toEqual({
+            value: 1,
+        });
+        await Promise.resolve();
+        await Promise.resolve();
+
+        expect(await readJson(await cachedFetch(contentUrl))).toEqual({
+            value: 3,
+        });
+        expect(requests).toHaveLength(3);
+    });
+
     it('does not store failed refreshes or keep stale content after an authoritative 404', async () => {
         let now = 0;
         const { fetch, requests } = createMockFetch([

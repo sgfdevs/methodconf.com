@@ -19,6 +19,7 @@ type FetchedJsonResponse = Omit<CachedJsonResponse, 'storedAt'>;
 
 type FetchOutcome =
     | { kind: 'success'; value: CachedJsonResponse }
+    | { kind: 'uncacheable-success'; value: FetchedJsonResponse }
     | { kind: 'http-failure'; value: FetchedJsonResponse }
     | { kind: 'network-failure'; error: unknown };
 
@@ -61,6 +62,13 @@ function isAllowlistedPublicCmsJsonGet(url: URL, baseUrl: URL): boolean {
     return /^\/api\/v1\/conference\/[^/]+\/schedule$/.test(url.pathname);
 }
 
+function hasNoStoreNoCacheOrPrivate(headers: Headers): boolean {
+    const cacheControl = headers.get('cache-control')?.toLowerCase();
+    return cacheControl
+        ? /(?:^|,|\s)(?:no-store|no-cache|private)(?:,|\s|$)/.test(cacheControl)
+        : false;
+}
+
 function hasBypassHeader(headers: Headers): boolean {
     for (const header of BYPASS_HEADERS) {
         if (headers.has(header)) {
@@ -68,10 +76,15 @@ function hasBypassHeader(headers: Headers): boolean {
         }
     }
 
-    const cacheControl = headers.get('cache-control')?.toLowerCase();
-    return cacheControl
-        ? /(?:^|,|\s)(?:no-store|no-cache|private)(?:,|\s|$)/.test(cacheControl)
-        : false;
+    return hasNoStoreNoCacheOrPrivate(headers);
+}
+
+function hasPrivateResponseState(headers: Headers): boolean {
+    return (
+        hasNoStoreNoCacheOrPrivate(headers) ||
+        headers.has('set-cookie') ||
+        headers.has('set-cookie2')
+    );
 }
 
 function hasBypassCacheMode(request: Request): boolean {
@@ -102,18 +115,69 @@ function makeResponse(
     });
 }
 
+function cloneResponseHeaders(headers: Headers): [string, string][] {
+    return [...headers.entries()];
+}
+
 function cloneCacheableHeaders(headers: Headers): [string, string][] {
     const copied = new Headers(headers);
     copied.delete('set-cookie');
     copied.delete('set-cookie2');
-    return [...copied.entries()];
+    return cloneResponseHeaders(copied);
+}
+
+function makeSharedRefreshRequest(request: Request): Request {
+    return new Request(request, { signal: new AbortController().signal });
+}
+
+function getAbortReason(signal: AbortSignal): unknown {
+    return (
+        signal.reason ??
+        new DOMException('The operation was aborted.', 'AbortError')
+    );
+}
+
+function throwIfAborted(signal: AbortSignal): void {
+    if (signal.aborted) {
+        throw getAbortReason(signal);
+    }
+}
+
+async function waitForOutcome(
+    promise: Promise<FetchOutcome>,
+    signal: AbortSignal,
+): Promise<FetchOutcome> {
+    throwIfAborted(signal);
+
+    return await new Promise<FetchOutcome>((resolve, reject) => {
+        const cleanup = () => signal.removeEventListener('abort', onAbort);
+        const onAbort = () => {
+            cleanup();
+            reject(getAbortReason(signal));
+        };
+
+        signal.addEventListener('abort', onAbort, { once: true });
+        promise.then(
+            (value) => {
+                cleanup();
+                resolve(value);
+            },
+            (error: unknown) => {
+                cleanup();
+                reject(error);
+            },
+        );
+    });
 }
 
 async function readJsonResponse(
     response: Response,
     storedAt: number,
 ): Promise<FetchOutcome> {
-    const headers = cloneCacheableHeaders(response.headers);
+    const privateResponse = hasPrivateResponseState(response.headers);
+    const headers = privateResponse
+        ? cloneResponseHeaders(response.headers)
+        : cloneCacheableHeaders(response.headers);
     const bodyText = await response.text();
     const base = {
         status: response.status,
@@ -130,11 +194,20 @@ async function readJsonResponse(
 
     try {
         const parsed = bodyText ? JSON.parse(bodyText) : null;
+        const body = JSON.stringify(parsed);
+
+        if (privateResponse) {
+            return {
+                kind: 'uncacheable-success',
+                value: { ...base, body },
+            };
+        }
+
         return {
             kind: 'success',
             value: {
                 ...base,
-                body: JSON.stringify(parsed),
+                body,
                 storedAt,
             },
         };
@@ -203,7 +276,7 @@ export function createCmsJsonFetch(options: CmsJsonCacheOptions): typeof fetch {
             return existing.inFlight;
         }
 
-        const inFlight = fetchFn(request.clone())
+        const inFlight = fetchFn(makeSharedRefreshRequest(request))
             .then((response) => readJsonResponse(response, now()))
             .then((outcome) => {
                 const entry = cache.get(key);
@@ -211,6 +284,11 @@ export function createCmsJsonFetch(options: CmsJsonCacheOptions): typeof fetch {
                     cache.set(key, { value: outcome.value });
                     pruneExpiredEntries(now());
                     pruneSize();
+                    return outcome;
+                }
+
+                if (outcome.kind === 'uncacheable-success') {
+                    cache.delete(key);
                     return outcome;
                 }
 
@@ -248,6 +326,8 @@ export function createCmsJsonFetch(options: CmsJsonCacheOptions): typeof fetch {
             return fetchFn(input, init);
         }
 
+        throwIfAborted(request.signal);
+
         const currentTime = now();
         pruneExpiredEntries(currentTime);
 
@@ -268,9 +348,15 @@ export function createCmsJsonFetch(options: CmsJsonCacheOptions): typeof fetch {
             }
         }
 
-        const outcome = await startRefresh(key, request);
+        const outcome = await waitForOutcome(
+            startRefresh(key, request),
+            request.signal,
+        );
 
-        if (outcome.kind === 'success') {
+        if (
+            outcome.kind === 'success' ||
+            outcome.kind === 'uncacheable-success'
+        ) {
             return makeResponse(outcome.value);
         }
 
