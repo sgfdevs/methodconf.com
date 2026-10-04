@@ -7,20 +7,11 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
     {
         ignores: [
-            '.next/**',
             '.svelte-kit/**',
             'build/**',
             'coverage/**',
             'node_modules/**',
-            'next-env.d.ts',
-            'next.config.ts',
-            'src/app/**',
-            'src/components/**',
-            'src/config.ts',
-            'src/data/**',
             'src/lib/umbraco/*ApiSchema.d.ts',
-            'src/serverConfig.ts',
-            'src/util.ts',
         ],
     },
     js.configs.recommended,

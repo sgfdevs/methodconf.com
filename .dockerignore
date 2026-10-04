@@ -1,7 +1,6 @@
 .git
 .github
-.env
-.next
+.env*
 .svelte-kit
 backend
 build
