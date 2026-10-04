@@ -52,7 +52,8 @@ describe('shared UI static assets and root shell', () => {
             'https://plausible.sgf.dev/js/pa-MKQsdxqo5_oFk0NmM56b1.js',
         );
         expect(layout).toContain('plausible.init()');
-        expect(layout).toContain('page.status >= 400');
+        expect(layout).toContain('<Footer />');
+        expect(layout).not.toContain('page.status >= 400');
     });
 
     it('keeps a Next-like 404 shell distinct from generic errors', () => {
@@ -62,5 +63,7 @@ describe('shared UI static assets and root shell', () => {
         expect(errorPage).toContain('page.status === 404');
         expect(errorPage).toContain('page.status}: {page.error?.message');
         expect(errorPage).toContain('content="noindex"');
+        expect(errorPage).toContain('system-ui');
+        expect(errorPage).not.toContain('property="og:image"');
     });
 });

@@ -314,6 +314,79 @@ async function expectText(origin, path, status, text, init = {}) {
     return response;
 }
 
+function headHtml(html) {
+    const match = /<head[^>]*>([\s\S]*?)<\/head>/i.exec(html);
+    assert.ok(match, 'missing head');
+    return match[1];
+}
+
+function countHeadTags(head, pattern) {
+    return (head.match(pattern) ?? []).length;
+}
+
+function assertDefaultSharedHead(head, path, { assertTitle = true } = {}) {
+    if (assertTitle) {
+        assert.equal(countHeadTags(head, /<title[\s>]/g), 1, path);
+        assert.match(
+            head,
+            /<title>Method Conference - October 12th 2024 - Springfield, MO<\/title>/,
+            path,
+        );
+    }
+    assert.equal(countHeadTags(head, /property="og:title"/g), 1, path);
+    assert.match(
+        head,
+        /<meta property="og:title" content="Method Conference - October 12th 2024 - Springfield, MO"/,
+        path,
+    );
+    assert.equal(countHeadTags(head, /property="og:image"/g), 1, path);
+    assert.match(
+        head,
+        /<meta property="og:image" content="https:\/\/www\.example\.test\/opengraph-image\.jpg\?opengraph-image\.44rvcdk19e2xk\.jpg"/,
+        path,
+    );
+    assert.equal(countHeadTags(head, /property="og:image:type"/g), 1, path);
+    assert.equal(countHeadTags(head, /property="og:image:width"/g), 1, path);
+    assert.equal(countHeadTags(head, /property="og:image:height"/g), 1, path);
+    assert.equal(countHeadTags(head, /name="twitter:card"/g), 1, path);
+    assert.equal(countHeadTags(head, /name="twitter:title"/g), 1, path);
+    assert.equal(countHeadTags(head, /name="twitter:image"/g), 1, path);
+    assert.equal(countHeadTags(head, /name="twitter:image:type"/g), 1, path);
+    assert.equal(countHeadTags(head, /name="twitter:image:width"/g), 1, path);
+    assert.equal(countHeadTags(head, /name="twitter:image:height"/g), 1, path);
+    assert.match(head, /content="summary_large_image"/, path);
+    assert.match(head, /content="image\/jpeg"/, path);
+    assert.match(head, /content="1200"/, path);
+    assert.match(head, /content="630"/, path);
+    assert.equal(countHeadTags(head, /rel="icon"/g), 1, path);
+    assert.match(
+        head,
+        /<link rel="icon" href="\/icon\.png\?icon\.232taq741yhvg\.png" sizes="180x180" type="image\/png"/,
+        path,
+    );
+}
+
+async function expectHead(origin, path, status, init = {}) {
+    const response = await request(origin, path, init);
+    const html = await response.text();
+    assert.equal(response.status, status, `${path}\n${html}`);
+    return { html, head: headHtml(html) };
+}
+
+async function stylesheetText(origin, path, head) {
+    const links = [...head.matchAll(/<link href="([^"]+)" rel="stylesheet"/g)];
+    const styles = [];
+
+    for (const [, href] of links) {
+        const url = new URL(href, `${origin}${path}`).pathname;
+        const response = await request(origin, url);
+        assert.equal(response.status, 200, url);
+        styles.push(await response.text());
+    }
+
+    return styles.join('\n');
+}
+
 async function requestWithoutUserAgent(origin, path) {
     const url = new URL(`${origin}${path}`);
 
@@ -430,11 +503,53 @@ async function runMobileChecks(origin) {
     const desktop = await request(origin, '/mobile-app/', {
         headers: { 'user-agent': 'Mozilla/5.0 Macintosh' },
     });
+    const html = await desktop.text();
     assert.equal(desktop.status, 200);
     assert.match(
-        await desktop.text(),
+        html,
         /If you are not automatically redirected click\s*<a href="\/">here<\/a>/,
     );
+}
+
+async function runHeadChecks(origin, { searchIndexingEnabled }) {
+    const defaultPage = await expectHead(origin, '/mobile-app/', 200, {
+        headers: { 'user-agent': 'Mozilla/5.0 Macintosh' },
+    });
+    assertDefaultSharedHead(defaultPage.head, '/mobile-app/');
+    assert.equal(
+        countHeadTags(defaultPage.head, /name="robots"/g),
+        searchIndexingEnabled ? 0 : 1,
+        '/mobile-app/ robots',
+    );
+    if (!searchIndexingEnabled) {
+        assert.match(
+            defaultPage.head,
+            /<meta name="robots" content="noindex,nofollow"/,
+        );
+    }
+
+    const notFound = await expectHead(origin, '/2024/nope/', 404);
+    assertDefaultSharedHead(notFound.head, '/2024/nope/', {
+        assertTitle: false,
+    });
+    assert.equal(countHeadTags(notFound.head, /name="robots"/g), 1);
+    assert.match(notFound.head, /<meta name="robots" content="noindex"/);
+    assert.match(
+        notFound.head,
+        /<title>404: This page could not be found\.<\/title>/,
+    );
+    assert.equal(countHeadTags(notFound.head, /property="og:image"/g), 1);
+    const shellIndex = notFound.html.indexOf('next-error-shell');
+    const footerIndex = notFound.html.indexOf('<footer');
+    assert.ok(shellIndex >= 0, '404 shell missing');
+    assert.ok(footerIndex > shellIndex, '404 footer should render below shell');
+    const notFoundCss = await stylesheetText(
+        origin,
+        '/2024/nope/',
+        notFound.head,
+    );
+    assert.match(notFoundCss, /height:\s*100vh/);
+    assert.match(notFoundCss, /font-family:\s*system-ui/);
 }
 
 async function runRobotChecks(upstreamUrl) {
@@ -454,6 +569,9 @@ async function runRobotChecks(upstreamUrl) {
             response.headers.get('content-type') ?? '',
             /^text\/plain/,
         );
+        await runHeadChecks(enabledApp.origin, {
+            searchIndexingEnabled: true,
+        });
     } finally {
         await enabledApp.close();
     }
@@ -469,6 +587,9 @@ async function runRobotChecks(upstreamUrl) {
             200,
             'User-Agent: *\nDisallow: /\n\n',
         );
+        await runHeadChecks(disabledApp.origin, {
+            searchIndexingEnabled: false,
+        });
     } finally {
         await disabledApp.close();
     }
@@ -705,6 +826,7 @@ try {
     try {
         await runRouteChecks(app.origin);
         await runMobileChecks(app.origin);
+        await runHeadChecks(app.origin, { searchIndexingEnabled: true });
         await runMediaChecks(app.origin);
         await runImageOptimizerChecks(app.origin);
     } finally {

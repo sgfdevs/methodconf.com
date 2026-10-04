@@ -20,9 +20,9 @@
     const id = $props.id();
 </script>
 
-<div class={`relative ${className}`.trimEnd()}>
-    <div class="absolute h-1/2 bottom-0 left-0 right-0 bg-black -z-10"></div>
-    <div class="p-0.5 pt-0">
+<div class={`text-input-root ${className}`.trimEnd()}>
+    <div class="text-input-backdrop"></div>
+    <div class="text-input-field p-0.5 pt-0">
         <input
             {type}
             {id}

@@ -11,7 +11,6 @@
         >
     {/if}
     <meta name="robots" content="noindex" />
-    <meta property="og:image" content="/opengraph-image.jpg" />
 </svelte:head>
 
 <div class="next-error-shell">
@@ -38,7 +37,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Source Sans 3', 'Source Sans 3 Fallback';
+        color: #000;
+        font-family:
+            system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji';
     }
 
     .next-error-content {
@@ -46,7 +48,7 @@
         align-items: center;
     }
 
-    h1 {
+    .next-error-content h1 {
         display: inline-block;
         margin: 0 20px 0 0;
         padding-right: 23px;
@@ -57,7 +59,7 @@
         border-right: 1px solid rgb(0 0 0 / 30%);
     }
 
-    h2 {
+    .next-error-content h2 {
         font-size: 14px;
         font-weight: 400;
         line-height: 49px;

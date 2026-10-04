@@ -66,6 +66,9 @@ describe('shared UI components', () => {
             },
         }).body;
 
+        expect(html).toContain('text-input-root');
+        expect(html).toContain('text-input-backdrop');
+        expect(html).toContain('text-input-field');
         expect(html).toContain('name="email"');
         expect(html).toContain('type="email"');
         expect(html).toContain('required');
