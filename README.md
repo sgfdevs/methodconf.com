@@ -1,10 +1,12 @@
 # MethodConf
 
-The Next.js frontend for [MethodConf](https://www.methodconf.com/). The Umbraco CMS lives in [`sgfdevs/cms.methodconf.com`](https://github.com/sgfdevs/cms.methodconf.com).
+The MethodConf frontend is being migrated to SvelteKit. This branch only contains the temporary SvelteKit shell and tooling base. The old Next.js source stays in the repo as reference until the page migration layers replace it.
 
-## Local Development
+The Umbraco CMS lives in [`sgfdevs/cms.methodconf.com`](https://github.com/sgfdevs/cms.methodconf.com).
 
-1. Copy `.env.example` to `.env` and configure the CMS and site URLs.
+## Local development
+
+1. Copy `.env.example` to `.env` when working on routes that need CMS or newsletter configuration.
 2. Install dependencies and start the development server:
 
 ```bash
@@ -12,11 +14,17 @@ npm ci
 npm run dev
 ```
 
-The production image can be built locally with:
+Useful checks for this foundation layer:
 
 ```bash
-docker build \
-  --build-arg NEXT_PUBLIC_UMBRACO_BASE_URL=https://cms.methodconf.com/ \
-  --build-arg NEXT_PUBLIC_SITE_URL=https://www.methodconf.com/ \
-  -t methodconf.com .
+npm run lint
+npm run check
+npm run test
+npm run build
+```
+
+The production smoke image can be built locally with:
+
+```bash
+docker build -t methodconf.com .
 ```

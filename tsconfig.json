@@ -1,42 +1,37 @@
 {
-  "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "noUncheckedIndexedAccess": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+    "extends": "$app/tsconfig",
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true
     },
-    "target": "ES2017"
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    "include": [
+        ".svelte-kit/ambient.d.ts",
+        ".svelte-kit/non-ambient.d.ts",
+        ".svelte-kit/types/**/*.d.ts",
+        "src/app.html",
+        "src/app.css",
+        "src/env.ts",
+        "src/lib/**/*.ts",
+        "src/lib/**/*.svelte",
+        "src/routes/**/*.ts",
+        "src/routes/**/*.svelte",
+        "tests/**/*.ts",
+        "generateUmbracoApiClient.ts",
+        "vite.config.ts"
+    ],
+    "exclude": [
+        "src/app/**",
+        "src/components/**",
+        "src/data/**",
+        "src/config.ts",
+        "src/serverConfig.ts",
+        "src/util.ts"
+    ]
 }

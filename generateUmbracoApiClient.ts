@@ -1,11 +1,14 @@
 import fs from 'node:fs';
-import path from 'path';
-import { loadEnvConfig } from '@next/env';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import openapiTS, { astToString } from 'openapi-typescript';
-loadEnvConfig(process.cwd());
+import { loadEnv } from 'vite';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const env = loadEnv('', process.cwd(), '');
 
 async function main() {
-    const baseUrl = new URL(process.env.UMBRACO_BASE_URL ?? '');
+    const baseUrl = new URL(env.UMBRACO_BASE_URL ?? '');
 
     const schemaConfigs = [
         {
