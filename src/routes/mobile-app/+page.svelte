@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { resolve } from '$app/paths';
     import { onMount } from 'svelte';
     import { getMobileAppStoreRedirect } from '#lib/mobileApp.ts';
 
@@ -19,13 +20,15 @@
         if (appStoreUrl) {
             globalThis.location.href = appStoreUrl;
         } else {
-            globalThis.location.replace('/');
+            globalThis.location.replace(resolve(''));
         }
     });
 </script>
 
 <div class="content-container">
     <p>
-        If you are not automatically redirected click <a href="/">here</a>
+        If you are not automatically redirected click <a href={resolve('')}
+            >here</a
+        >
     </p>
 </div>

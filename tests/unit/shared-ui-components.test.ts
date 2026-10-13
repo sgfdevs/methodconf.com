@@ -10,13 +10,41 @@ import { rewriteRichTextMediaUrls } from '../../src/lib/components/richText.ts';
 import type { Sponsor } from '../../src/lib/types.ts';
 
 vi.mock('$app/state', () => ({
-    page: { data: { cmsPublicUrl: 'https://cms-public.example.test/' } },
+    page: {
+        url: new URL('https://methodconf.test/2024/?existing=1'),
+        data: { cmsPublicUrl: 'https://cms-public.example.test/' },
+    },
 }));
 
 describe('shared UI components', () => {
-    it.each<[string, ComponentProps<typeof Button>]>([
+    it.each<[string, ComponentProps<typeof Button>, boolean?, string?]>([
         ['href="/register/"', { url: '/register/' }],
-        ['target="_blank"', { url: 'https://example.com' }],
+        ['href="#schedule"', { url: '#schedule' }],
+        ['href="/2024/register/"', { url: 'register/' }],
+        [
+            'href="/2024/register/?ref=nav#tickets"',
+            { url: 'register/?ref=nav#tickets' },
+        ],
+        ['href="/2024/?track=2"', { url: '?track=2' }],
+        ['href="/register/"', { url: '//methodconf.test/register/' }],
+        [
+            'href="/register/"',
+            { url: 'https://methodconf.test/register/' },
+            false,
+            '_blank',
+        ],
+        [
+            'href="//example.com/file.pdf"',
+            { url: '//example.com/file.pdf' },
+            true,
+        ],
+        [
+            'href="https://example.com"',
+            { url: 'https://example.com' },
+            true,
+            '_blank',
+        ],
+        ['href="https://"', { url: 'https://' }, true],
         [
             'href="/page/?ref=nav"',
             {
@@ -33,6 +61,7 @@ describe('shared UI components', () => {
         [
             'href="https://cms-public.example.test/media/map.pdf"',
             { cmsLink: { linkType: 'Media', url: '/media/map.pdf' } },
+            true,
         ],
         [
             'href="https://cms-public.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
@@ -43,9 +72,13 @@ describe('shared UI components', () => {
                     queryString: '?download=true',
                 },
             },
+            true,
         ],
-    ])('renders button %s', (expected, props) => {
-        expect(render(Button, { props }).body).toContain(expected);
+    ])('renders button %s', (expected, props, external, target) => {
+        const html = render(Button, { props }).body;
+        expect(html).toContain(expected);
+        expect(html.includes('rel="external"')).toBe(Boolean(external));
+        if (target) expect(html).toContain(`target="${target}"`);
     });
 
     it('associates the text input label with its ID and keeps native validation', () => {

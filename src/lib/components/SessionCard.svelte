@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { resolve } from '$app/paths';
     import { page } from '$app/state';
     import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
     import Disclosure from '#lib/components/Disclosure.svelte';
@@ -89,8 +90,17 @@
                                         {speakerContent.name}
                                     {:else}
                                         <a
-                                            href={speakerContent.route.path ??
-                                                '#'}
+                                            href={speakerContent.route.path
+                                                ? resolve(
+                                                      ...([
+                                                          speakerContent.route.path.slice(
+                                                              1,
+                                                          ),
+                                                      ] as Parameters<
+                                                          typeof resolve
+                                                      >),
+                                                  )
+                                                : '#'}
                                             class="text-primary"
                                         >
                                             {speakerContent.name}</a
@@ -146,7 +156,15 @@
                             {speakerContent.name}
                         {:else}
                             <a
-                                href={speakerContent.route.path ?? '#'}
+                                href={speakerContent.route.path
+                                    ? resolve(
+                                          ...([
+                                              speakerContent.route.path.slice(
+                                                  1,
+                                              ),
+                                          ] as Parameters<typeof resolve>),
+                                      )
+                                    : '#'}
                                 class="text-primary"
                             >
                                 {speakerContent.name}</a
