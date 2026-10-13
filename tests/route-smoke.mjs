@@ -10,6 +10,7 @@ const GOOGLE_PLAY_STORE_LINK =
     'https://play.google.com/store/apps/details?id=com.sgfdevs.methodConfApp';
 const APPLE_APP_STORE_LINK =
     'https://apps.apple.com/us/app/method-conf/id1498359521';
+const NEWSLETTER_LIST_ID = 'fake-newsletter-list';
 
 const conference = (slug, date, callForSpeakersUrl) => ({
     contentType: 'conference',
@@ -44,6 +45,7 @@ const state = {
         ),
     ],
     mediaRequests: [],
+    newsletterRequests: [],
     cmsRequests: 0,
 };
 
@@ -107,6 +109,23 @@ async function startUpstream() {
             }
 
             writeJson(response, 200, item);
+            return;
+        }
+
+        if (url.pathname === '/api/public/subscription') {
+            let body = '';
+            request.setEncoding('utf8');
+            request.on('data', (chunk) => {
+                body += chunk;
+            });
+            request.on('end', () => {
+                state.newsletterRequests.push({
+                    method: request.method,
+                    contentType: request.headers['content-type'],
+                    body,
+                });
+                writeJson(response, 200, { data: true });
+            });
             return;
         }
 
@@ -244,6 +263,8 @@ async function startApp({ upstreamUrl, searchIndexingEnabled }) {
             CMS_PUBLIC_URL: 'https://cms.example.test/',
             SITE_URL: 'https://www.example.test/',
             SEARCH_INDEXING_ENABLED: searchIndexingEnabled ? 'true' : 'false',
+            NEWSLETTER_ENDPOINT: `${upstreamUrl}api/public/subscription`,
+            NEWSLETTER_LIST_ID,
         },
         stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -470,6 +491,50 @@ async function runRouteChecks(origin) {
             'https://sessionize.example/method-2024/',
         ),
     ];
+}
+
+async function runNewsletterChecks(origin) {
+    state.newsletterRequests = [];
+
+    const get = await request(origin, '/api/newsletter/');
+    assert.equal(get.status, 405);
+    assert.deepEqual(await get.json(), { success: false });
+
+    const success = await request(origin, '/api/newsletter/', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+            name: '  Ada Lovelace  ',
+            email: '  ada@example.com  ',
+            nullCheck: '',
+        }),
+    });
+    assert.equal(success.status, 200);
+    assert.deepEqual(await success.json(), { success: true });
+    assert.equal(state.newsletterRequests.length, 1);
+    assert.deepEqual(JSON.parse(state.newsletterRequests.at(-1).body), {
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+        list_uuids: [NEWSLETTER_LIST_ID],
+    });
+
+    const slashless = await request(origin, '/api/newsletter', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: 'a@b', nullCheck: '' }),
+    });
+    assert.equal(slashless.status, 200);
+    assert.deepEqual(await slashless.json(), { success: true });
+    assert.equal(state.newsletterRequests.length, 2);
+
+    const honeypot = await request(origin, '/api/newsletter/', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: '', nullCheck: 'bot' }),
+    });
+    assert.equal(honeypot.status, 200);
+    assert.deepEqual(await honeypot.json(), { success: true });
+    assert.equal(state.newsletterRequests.length, 2);
 }
 
 async function runMobileChecks(origin) {
@@ -818,6 +883,7 @@ try {
     try {
         await runRouteChecks(app.origin);
         await runMobileChecks(app.origin);
+        await runNewsletterChecks(app.origin);
         await runHeadChecks(app.origin, { searchIndexingEnabled: true });
         await runMediaChecks(app.origin);
         await runImageOptimizerChecks(app.origin);
