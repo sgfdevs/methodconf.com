@@ -3,10 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const privateEnv = vi.hoisted(() => ({
     UMBRACO_BASE_URL: 'https://cms-a.methodconf.test',
     CMS_PUBLIC_URL: 'https://cms-public.methodconf.test',
-    SITE_URL: 'https://www.methodconf.test',
-    SEARCH_INDEXING_ENABLED: false,
-    NEWSLETTER_ENDPOINT: undefined as string | undefined,
-    NEWSLETTER_LIST_ID: undefined as string | undefined,
 }));
 
 vi.mock('$app/env/private', () => ({
@@ -16,28 +12,7 @@ vi.mock('$app/env/private', () => ({
     get CMS_PUBLIC_URL() {
         return privateEnv.CMS_PUBLIC_URL;
     },
-    get SITE_URL() {
-        return privateEnv.SITE_URL;
-    },
-    get SEARCH_INDEXING_ENABLED() {
-        return privateEnv.SEARCH_INDEXING_ENABLED;
-    },
-    get NEWSLETTER_ENDPOINT() {
-        return privateEnv.NEWSLETTER_ENDPOINT;
-    },
-    get NEWSLETTER_LIST_ID() {
-        return privateEnv.NEWSLETTER_LIST_ID;
-    },
 }));
-
-function resetPrivateEnv(): void {
-    privateEnv.UMBRACO_BASE_URL = 'https://cms-a.methodconf.test';
-    privateEnv.CMS_PUBLIC_URL = 'https://cms-public.methodconf.test';
-    privateEnv.SITE_URL = 'https://www.methodconf.test';
-    privateEnv.SEARCH_INDEXING_ENABLED = false;
-    privateEnv.NEWSLETTER_ENDPOINT = undefined;
-    privateEnv.NEWSLETTER_LIST_ID = undefined;
-}
 
 function contentItem(value: number) {
     return {
@@ -48,89 +23,42 @@ function contentItem(value: number) {
     };
 }
 
-function stubFetch(fetch: typeof globalThis.fetch): void {
-    vi.stubGlobal('fetch', fetch);
-}
+const query = { filter: ['contentType:conference'] };
 
 describe('Umbraco helper cache wiring', () => {
     beforeEach(() => {
         vi.resetModules();
         vi.unstubAllGlobals();
-        resetPrivateEnv();
+        privateEnv.UMBRACO_BASE_URL = 'https://cms-a.methodconf.test';
+        privateEnv.CMS_PUBLIC_URL = 'https://cms-public.methodconf.test';
     });
 
-    it('reuses the CMS cache across repeated getItemsOrDefault helper calls', async () => {
-        const requests: string[] = [];
-        stubFetch(async (input, init) => {
-            const request =
-                input instanceof Request ? input : new Request(input, init);
-            requests.push(request.url);
-            return Response.json({ total: 0, items: [] });
+    it('coalesces helper calls and reuses the result on a warm third call', async () => {
+        let resolve!: (response: Response) => void;
+        const reply = new Promise<Response>((res) => {
+            resolve = res;
         });
+        const fetch = vi.fn(async () => await reply);
+        vi.stubGlobal('fetch', fetch);
         const { getItemsOrDefault } =
             await import('#lib/server/umbraco/getItems.ts');
-
-        await getItemsOrDefault({ filter: ['contentType:conference'] });
-        await getItemsOrDefault({ filter: ['contentType:conference'] });
-
-        expect(requests).toHaveLength(1);
+        const first = getItemsOrDefault(query);
+        const second = getItemsOrDefault(query);
+        const body = { total: 1, items: [contentItem(1)] };
+        resolve(Response.json(body));
+        await expect(first).resolves.toEqual(body);
+        await expect(second).resolves.toEqual(body);
+        await expect(getItemsOrDefault(query)).resolves.toEqual(body);
+        expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    it('coalesces simultaneous getItemsOrDefault helper calls', async () => {
-        let resolveResponse: (response: Response) => void = () => undefined;
-        const firstResponse = new Promise<Response>((resolve) => {
-            resolveResponse = resolve;
-        });
-        const requests: string[] = [];
-        stubFetch(async (input, init) => {
-            const request =
-                input instanceof Request ? input : new Request(input, init);
-            requests.push(request.url);
-            return await firstResponse;
-        });
-        const { getItemsOrDefault } =
-            await import('#lib/server/umbraco/getItems.ts');
-
-        const first = getItemsOrDefault({ filter: ['contentType:conference'] });
-        const second = getItemsOrDefault({
-            filter: ['contentType:conference'],
-        });
-        resolveResponse(Response.json({ total: 0, items: [] }));
-
-        await expect(first).resolves.toEqual({ total: 0, items: [] });
-        await expect(second).resolves.toEqual({ total: 0, items: [] });
-        expect(requests).toHaveLength(1);
-    });
-
-    it('reuses the CMS cache across repeated getItemByPathOrDefault helper calls', async () => {
-        const requests: string[] = [];
-        stubFetch(async (input, init) => {
-            const request =
-                input instanceof Request ? input : new Request(input, init);
-            requests.push(request.url);
-            return Response.json(contentItem(1));
-        });
-        const { getItemByPathOrDefault } =
-            await import('#lib/server/umbraco/getItemByPath.ts');
-
-        await expect(getItemByPathOrDefault('/2024/')).resolves.toEqual(
-            contentItem(1),
-        );
-        await expect(getItemByPathOrDefault('/2024/')).resolves.toEqual(
-            contentItem(1),
-        );
-
-        expect(requests).toHaveLength(1);
-    });
-
-    it('rewrites nested rich text with request-local CMS URLs outside the JSON cache', async () => {
+    it('rewrites cached content using the current public CMS URL without mutating prior results', async () => {
         const content = {
             ...contentItem(1),
             properties: {
                 image: {
                     url: 'https://cms-a.methodconf.test/media/photo.jpg?crop=center#photo',
                 },
-                external: { url: 'https://external.test/media/file.pdf' },
                 blocks: [
                     {
                         content: {
@@ -145,80 +73,66 @@ describe('Umbraco helper cache wiring', () => {
             },
         };
         const fetch = vi.fn(async () => Response.json(content));
-        stubFetch(fetch);
+        vi.stubGlobal('fetch', fetch);
         const { getItemByPathOrDefault } =
             await import('#lib/server/umbraco/getItemByPath.ts');
-
         const first = await getItemByPathOrDefault('/2024/');
-        expect(JSON.stringify(first)).toContain(
+        const firstJson = JSON.stringify(first);
+        expect(firstJson).toContain(
             'https://cms-public.methodconf.test/media/logo.svg?crop=center#logo',
         );
-        expect(JSON.stringify(first)).toContain(
-            'https://external.test/media/file.pdf',
-        );
-        expect(JSON.stringify(first)).toContain(
+        expect(firstJson).toContain(
             'https://cms-public.methodconf.test/media/logo.svg?crop=0,0,1,1 1x, https://cms-public.methodconf.test/media/logo-2.svg 2x',
         );
-        expect(JSON.stringify(first)).not.toContain(
-            'https://cms-a.methodconf.test/media/',
-        );
-        expect(JSON.stringify(first)).toContain(
+        expect(firstJson).toContain(
             'https://cms-public.methodconf.test/media/photo.jpg?crop=center#photo',
         );
+        expect(firstJson).toContain('https://external.test/media/file.pdf');
+        expect(firstJson).not.toContain('https://cms-a.methodconf.test/media/');
         expect(
             content.properties.blocks[0].content.properties.text.markup,
         ).toContain('https://cms-a.methodconf.test/media/logo.svg');
 
         privateEnv.CMS_PUBLIC_URL = 'https://cms-other.methodconf.test';
-        const second = await getItemByPathOrDefault('/2024/');
-        expect(JSON.stringify(second)).toContain(
+        const second = JSON.stringify(await getItemByPathOrDefault('/2024/'));
+        expect(second).toContain(
             'https://cms-other.methodconf.test/media/logo.svg?crop=center#logo',
         );
-        expect(JSON.stringify(second)).toContain(
+        expect(second).toContain(
             'https://cms-other.methodconf.test/media/photo.jpg?crop=center#photo',
         );
-        expect(JSON.stringify(first)).not.toContain('cms-other');
+        expect(JSON.stringify(first)).toBe(firstJson);
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    it('keeps helper caches isolated by runtime Umbraco base URL', async () => {
-        const requests: string[] = [];
-        stubFetch(async (input, init) => {
-            const request =
-                input instanceof Request ? input : new Request(input, init);
-            requests.push(request.url);
-            return Response.json({
-                total: 1,
-                items: [contentItem(request.url.includes('cms-a') ? 1 : 2)],
-            });
-        });
+    it('isolates helper caches by runtime Umbraco origin', async () => {
+        const origins: string[] = [];
+        vi.stubGlobal(
+            'fetch',
+            async (input: RequestInfo | URL, init?: RequestInit) => {
+                const request =
+                    input instanceof Request ? input : new Request(input, init);
+                origins.push(new URL(request.url).origin);
+                return Response.json({
+                    total: 1,
+                    items: [contentItem(request.url.includes('cms-a') ? 1 : 2)],
+                });
+            },
+        );
         const { getItemsOrDefault } =
             await import('#lib/server/umbraco/getItems.ts');
-
-        await expect(
-            getItemsOrDefault({ filter: ['contentType:conference'] }),
-        ).resolves.toEqual({
-            total: 1,
-            items: [contentItem(1)],
-        });
-
-        privateEnv.UMBRACO_BASE_URL = 'https://cms-b.methodconf.test';
-        await expect(
-            getItemsOrDefault({ filter: ['contentType:conference'] }),
-        ).resolves.toEqual({
-            total: 1,
-            items: [contentItem(2)],
-        });
-
-        privateEnv.UMBRACO_BASE_URL = 'https://cms-a.methodconf.test';
-        await expect(
-            getItemsOrDefault({ filter: ['contentType:conference'] }),
-        ).resolves.toEqual({
-            total: 1,
-            items: [contentItem(1)],
-        });
-
-        expect(requests.map((url) => new URL(url).origin)).toEqual([
+        for (const [host, expected] of [
+            ['a', 1],
+            ['b', 2],
+            ['a', 1],
+        ] as const) {
+            privateEnv.UMBRACO_BASE_URL = `https://cms-${host}.methodconf.test`;
+            await expect(getItemsOrDefault(query)).resolves.toEqual({
+                total: 1,
+                items: [contentItem(expected)],
+            });
+        }
+        expect(origins).toEqual([
             'https://cms-a.methodconf.test',
             'https://cms-b.methodconf.test',
         ]);

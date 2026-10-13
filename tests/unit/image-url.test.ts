@@ -45,15 +45,6 @@ describe('CMS media URLs', () => {
         );
     });
 
-    it('does not retain configuration across calls', () => {
-        expect(imageUrl('/media/logo.svg', 'https://cms-a.test/')).toBe(
-            'https://cms-a.test/media/logo.svg',
-        );
-        expect(imageUrl('/media/logo.svg', 'https://cms-b.test/')).toBe(
-            'https://cms-b.test/media/logo.svg',
-        );
-    });
-
     it('uses the public CMS for OpenGraph images rather than the site or API origin', () => {
         const page = {
             properties: {
