@@ -1,4 +1,8 @@
-import type { Schedule, ScheduleItem } from '#lib/types.ts';
+import type {
+    PublicScheduleGridCell,
+    Schedule,
+    ScheduleItem,
+} from '#lib/types.ts';
 import { treeByRoutePath } from '#lib/server/umbraco/treeByRoutePath.ts';
 import { parseSession } from '#lib/server/parseSession.ts';
 import { getFirstChildNodeOfType } from '#lib/server/umbraco/getChildNodesOfType.ts';
@@ -46,7 +50,7 @@ export async function getScheduleItems(
 
 export async function getScheduleGrid(
     conferenceId: string,
-): Promise<string[][]> {
+): Promise<PublicScheduleGridCell[][]> {
     const { data, error } = await getUmbracoClient().GET(
         '/api/v1/conference/{conferenceId}/schedule',
         { params: { path: { conferenceId } } },

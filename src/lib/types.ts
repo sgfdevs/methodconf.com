@@ -26,6 +26,8 @@ export type Sponsor = components['schemas']['SponsorElementModel'];
 
 export type Sessions = Extract<Content, { contentType: 'sessions' }>;
 
+export type Speaker = Extract<Content, { contentType: 'speaker' }>;
+
 export type Session = Extract<Content, { contentType: 'session' }>;
 
 export type ParsedSession = Overwrite<
@@ -47,9 +49,12 @@ export type TrackWithSessions = Track & { children: ParsedSession[] };
 
 export type ScheduleItem = ParsedSession | TrackWithSessions;
 
-export type Schedule = { items: ScheduleItem[]; grid: string[][] };
+export type PublicScheduleGridCell = string | null;
 
-export type Speaker = Extract<Content, { contentType: 'speaker' }>;
+export type Schedule = {
+    items: ScheduleItem[];
+    grid: PublicScheduleGridCell[][];
+};
 
 export type Page = Extract<Content, { contentType: 'home' | 'page' }>;
 
