@@ -1,5 +1,5 @@
-import { SEARCH_INDEXING_ENABLED } from '$app/env/private';
+import { isSearchIndexingEnabled } from '#lib/server/config.ts';
 
 export const load = () => ({
-    searchIndexingEnabled: SEARCH_INDEXING_ENABLED,
+    searchIndexingEnabled: isSearchIndexingEnabled(),
 });

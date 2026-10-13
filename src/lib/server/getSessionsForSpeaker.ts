@@ -1,6 +1,6 @@
-import type { ParsedSession } from '@/data/types';
-import { parseSession } from '@/data/parseSession';
-import { getItemsOrDefault } from '@/data/umbraco/getItems';
+import type { ParsedSession } from '#lib/types.ts';
+import { parseSession } from '#lib/server/parseSession.ts';
+import { getItemsOrDefault } from '#lib/server/umbraco/getItems.ts';
 
 export async function getSessionsForSpeaker(
     conferenceId: string,

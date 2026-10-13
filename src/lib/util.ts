@@ -1,9 +1,5 @@
-import { format } from 'date-fns';
-import { tz } from '@date-fns/tz';
-import { CST_TZ } from '@/config';
-
 export function _throw(msg: string): never {
-    throw msg;
+    throw new Error(msg);
 }
 
 export function parseUrl(urlStr?: string | null): URL | undefined {
@@ -42,12 +38,6 @@ export function splitBy<ItemType>(
     }
 
     return [validItems, invalidItems];
-}
-
-// Dates are actually strings when running on the client
-// hence the Date | string type
-export function formatDate(date: Date | string, formatStr: string): string {
-    return format(date, formatStr, { in: tz(CST_TZ) });
 }
 
 export type Overwrite<T, U> = Omit<T, keyof U> & U;

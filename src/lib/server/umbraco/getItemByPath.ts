@@ -1,10 +1,10 @@
-import { getUmbracoClient } from '@/data/umbraco/client';
-import type { paths } from '@/data/umbraco/deliveryApiSchema';
+import { getUmbracoClient } from '#lib/server/umbraco/client.ts';
+import type { paths } from '#lib/umbraco/deliveryApiSchema.d.ts';
 import type {
     UmbracoClientOptions,
     UmbracoContent,
-} from '@/data/umbraco/types';
-import { normalizeUmbracoContent } from '@/data/umbraco/types';
+} from '#lib/server/umbraco/types.ts';
+import { normalizeUmbracoContent } from '#lib/server/umbraco/types.ts';
 
 type GetItemByPathOptions =
     paths['/umbraco/delivery/api/v2/content/item/{path}']['get']['parameters']['query'] &

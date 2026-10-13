@@ -1,9 +1,9 @@
-import type { Schedule, ScheduleItem } from '@/data/types';
-import { treeByRoutePath } from '@/data/umbraco/treeByRoutePath';
-import { parseSession } from '@/data/parseSession';
-import { getFirstChildNodeOfType } from '@/data/umbraco/getChildNodesOfType';
-import { getItemsOrDefault } from '@/data/umbraco/getItems';
-import { getUmbracoClient } from '@/data/umbraco/client';
+import type { Schedule, ScheduleItem } from '#lib/types.ts';
+import { treeByRoutePath } from '#lib/server/umbraco/treeByRoutePath.ts';
+import { parseSession } from '#lib/server/parseSession.ts';
+import { getFirstChildNodeOfType } from '#lib/server/umbraco/getChildNodesOfType.ts';
+import { getItemsOrDefault } from '#lib/server/umbraco/getItems.ts';
+import { getUmbracoClient } from '#lib/server/umbraco/client.ts';
 
 const MAXIMUM_SCHEDULE_ITEMS = 100;
 

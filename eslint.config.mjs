@@ -18,6 +18,7 @@ export default tseslint.config(
             'src/components/**',
             'src/config.ts',
             'src/data/**',
+            'src/lib/umbraco/*ApiSchema.d.ts',
             'src/serverConfig.ts',
             'src/util.ts',
         ],

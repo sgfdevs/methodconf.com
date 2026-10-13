@@ -1,5 +1,5 @@
-import type { Sponsors } from '@/data/types';
-import { getFirstChildNodeOfType } from '@/data/umbraco/getChildNodesOfType';
+import type { Sponsors } from '#lib/types.ts';
+import { getFirstChildNodeOfType } from '#lib/server/umbraco/getChildNodesOfType.ts';
 
 export async function getSponsors(
     conferenceId: string,

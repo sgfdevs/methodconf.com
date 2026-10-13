@@ -1,7 +1,10 @@
-import { TZDate } from '@date-fns/tz';
-import { CST_TZ } from '@/config';
+import { TZDate, tz } from '@date-fns/tz';
+import { format } from 'date-fns';
+import { CST_TZ } from '#lib/config.ts';
 
-// Umbraco doesn't save dates with timezone information so we have to manually fix it
+// Umbraco stores Chicago-local date parts without reliable zone data. Interpret
+// the parts in America/Chicago, then return a plain Date instant so SvelteKit can
+// serialize load data without custom transport hooks.
 export function parseUtcAsCst(dateStr: string): Date {
     const match = dateStr.match(
         /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,7}))?)?)?(?:Z|[+-]\d{2}:\d{2})?$/,
@@ -32,7 +35,7 @@ export function parseUtcAsCst(dateStr: string): Date {
         (millisecondStr ?? '0').slice(0, 3).padEnd(3, '0'),
     );
 
-    return new TZDate(
+    const parsed = new TZDate(
         year,
         month,
         day,
@@ -42,4 +45,10 @@ export function parseUtcAsCst(dateStr: string): Date {
         millisecond,
         CST_TZ,
     );
+
+    return new Date(parsed.getTime());
+}
+
+export function formatDate(date: Date | string, formatStr: string): string {
+    return format(date, formatStr, { in: tz(CST_TZ) });
 }

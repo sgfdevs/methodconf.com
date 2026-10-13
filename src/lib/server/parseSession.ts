@@ -1,5 +1,5 @@
-import type { Session, ParsedSession } from '@/data/types';
-import { parseUtcAsCst } from '@/data/parseUtcAsCst';
+import type { Session, ParsedSession } from '#lib/types.ts';
+import { parseUtcAsCst } from '#lib/date.ts';
 
 export function parseSession(session: Session): ParsedSession {
     const { properties: { start, end, ...properties } = {}, ...original } =

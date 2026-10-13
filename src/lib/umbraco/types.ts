@@ -1,9 +1,9 @@
-import type { components } from '@/data/umbraco/deliveryApiSchema';
+import type { components } from '#lib/umbraco/deliveryApiSchema.d.ts';
 
-// The v18 OpenAPI schema intersects each content model with a base model that has
-// `properties: null | Record<string, never>`. This poisons the specific properties
-// model via the index signature. ResolveContent overrides `properties` with the
-// correct specific type for each content type.
+// Umbraco v18's OpenAPI schema intersects each content model with a base model
+// that has `properties: null | Record<string, never>`. That index signature
+// hides the specific properties model. ResolveContent restores the properties
+// type for the content types this site reads.
 type ContentPropertiesFor<C extends string> = C extends 'conference'
     ? components['schemas']['ConferenceContentPropertiesModel']
     : C extends 'conferences'
@@ -44,20 +44,3 @@ export type RawUmbracoContentCollection =
 
 export type ContentTypes = UmbracoContent;
 export type ContentTypeKeys = ContentTypes['contentType'];
-
-export function normalizeUmbracoContent<T>(content: T): UmbracoContent {
-    return content as unknown as UmbracoContent;
-}
-
-export function normalizeUmbracoContentCollection<T>(
-    collection: T,
-): UmbracoContentCollection {
-    return collection as unknown as UmbracoContentCollection;
-}
-
-export type UmbracoClientOptions = {
-    requestOptions?: {
-        next?: RequestInit['next'];
-        cache?: RequestInit['cache'];
-    };
-};

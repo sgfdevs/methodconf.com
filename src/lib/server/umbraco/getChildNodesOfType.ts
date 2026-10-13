@@ -1,5 +1,8 @@
-import type { ContentTypeKeys, ContentTypes } from '@/data/umbraco/types';
-import { getItemsOrDefault } from '@/data/umbraco/getItems';
+import type {
+    ContentTypeKeys,
+    ContentTypes,
+} from '#lib/server/umbraco/types.ts';
+import { getItemsOrDefault } from '#lib/server/umbraco/getItems.ts';
 
 export type GetChildNodesOfTypeArgs<T> = {
     nodeId: string;
