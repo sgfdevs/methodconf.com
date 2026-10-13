@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { page } from '$app/state';
     import { imageUrl } from '#lib/imageUrl.ts';
     import type { CmsLink } from '#lib/types.ts';
     import type { Snippet } from 'svelte';
@@ -48,9 +49,19 @@
             }
 
             if (cmsLink.linkType === 'Media' && cmsLink.url) {
+                const mediaUrl = new globalThis.URL(
+                    imageUrl(cmsLink.url, page.data.cmsPublicUrl),
+                );
+                if (queryString) {
+                    const query = new globalThis.URLSearchParams(queryString);
+                    for (const [key, value] of query) {
+                        mediaUrl.searchParams.set(key, value);
+                    }
+                }
+
                 return {
                     kind: 'anchor' as const,
-                    href: imageUrl(linkWithQuery(cmsLink.url, queryString)),
+                    href: mediaUrl.toString(),
                     target: target || undefined,
                 };
             }

@@ -1,11 +1,10 @@
-/* global TextEncoder, URL, process, fetch, setTimeout */
+/* global URL, process, fetch, setTimeout */
 
 import { spawn } from 'node:child_process';
 import { createServer, request as httpRequest } from 'node:http';
 import assert from 'node:assert/strict';
-import sharp from 'sharp';
+import { Buffer } from 'node:buffer';
 
-const TEXT_ENCODER = new TextEncoder();
 const GOOGLE_PLAY_STORE_LINK =
     'https://play.google.com/store/apps/details?id=com.sgfdevs.methodConfApp';
 const APPLE_APP_STORE_LINK =
@@ -49,24 +48,11 @@ const image = (url) => ({
     properties: null,
 });
 
-const imageFixture = await sharp({
-    create: {
-        width: 20,
-        height: 10,
-        channels: 3,
-        background: { r: 24, g: 88, b: 160 },
-    },
-})
-    .jpeg({ quality: 92 })
-    .toBuffer();
-
-const largeImagePlaceholderBytes = 16 * 1024 * 1024;
-
-const contentItems = [
+const contentItems = (cmsUrl) => [
     contentBase('home-2024', 'home', 'Home', '/2024/home/', {
         title: 'Home',
         metaDescription: 'Conference home description',
-        openGraphImage: [image('/media/home-og.jpg')],
+        openGraphImage: [image(new URL('/media/home-og.png', cmsUrl).href)],
         blocks: blocks(
             block('intro-block', 'introAndEmailSignupBlock'),
             block('schedule-block', 'scheduleBlock'),
@@ -82,11 +68,11 @@ const contentItems = [
         {
             title: 'Code of Conduct',
             metaDescription: 'Code page description',
-            openGraphImage: [image('/media/code-og.jpg')],
+            openGraphImage: [image('/media/code-og.png')],
             blocks: blocks(
                 block('rich-text-block', 'richText', {
                     text: {
-                        markup: '<p>Be kind to each other.</p>',
+                        markup: `<p>Be kind to each other.</p><img src="${new URL('/media/acme.svg?crop=center&height=120#logo', cmsUrl).href}" alt="Rich text logo"><a href="https://external.test/media/map.pdf">External map</a>`,
                         blocks: [],
                     },
                 }),
@@ -100,7 +86,7 @@ const contentItems = [
         '/2024/speakers/ada/',
         {
             jobTitle: 'Computer scientist',
-            profileImage: [image('/media/ada.jpg')],
+            profileImage: [image(new URL('/media/ada.png', cmsUrl).href)],
             bio: { markup: '<p>Ada wrote about computing.</p>', blocks: [] },
             websiteUrl: 'https://example.test/ada',
         },
@@ -122,7 +108,7 @@ const contentItems = [
                     '/2024/speakers/ada/',
                     {
                         jobTitle: 'Computer scientist',
-                        profileImage: [image('/media/ada.jpg')],
+                        profileImage: [image('/media/ada.png')],
                     },
                 ),
             ],
@@ -171,7 +157,8 @@ const defaultConferences = () => [
 
 const state = {
     conferences: defaultConferences(),
-    mediaRequests: [],
+    internalMediaRequests: [],
+    publicMediaRequests: [],
     newsletterRequests: [],
     cmsRequests: 0,
 };
@@ -198,6 +185,7 @@ async function getFreePort() {
 }
 
 async function startUpstream() {
+    let fixtures;
     const server = createServer((request, response) => {
         const url = new URL(request.url ?? '/', 'http://upstream.test');
 
@@ -208,11 +196,11 @@ async function startUpstream() {
             let items = state.conferences;
 
             if (fetch.startsWith('descendants:2024')) {
-                items = contentItems;
+                items = fixtures;
             }
 
             if (fetch.startsWith('descendants:sessions-root')) {
-                items = contentItems.filter((item) =>
+                items = fixtures.filter((item) =>
                     ['session', 'track'].includes(item.contentType),
                 );
             }
@@ -257,11 +245,11 @@ async function startUpstream() {
 
             const byPath = new Map([
                 ...state.conferences.map((item) => [item.name, item]),
-                ...contentItems.map((item) => [
+                ...fixtures.map((item) => [
                     item.route.path.replace(/^\//, '').replace(/\/$/, ''),
                     item,
                 ]),
-                ['2024/home', contentItems[0]],
+                ['2024/home', fixtures[0]],
             ]);
             const item = byPath.get(slug.replace(/\/$/, ''));
 
@@ -298,108 +286,8 @@ async function startUpstream() {
             return;
         }
 
-        if (url.pathname === '/media/image.jpg') {
-            state.mediaRequests.push({
-                method: request.method,
-                path: url.pathname,
-                search: url.search,
-                accept: request.headers.accept,
-                range: request.headers.range,
-                ifNoneMatch: request.headers['if-none-match'],
-                ifModifiedSince: request.headers['if-modified-since'],
-            });
-            response.writeHead(200, 'OK', {
-                'content-type': 'image/jpeg',
-                'content-length': String(imageFixture.byteLength),
-                etag: '"image-etag"',
-                'cache-control': 'public, max-age=604800, must-revalidate',
-            });
-            if (request.method !== 'HEAD') response.end(imageFixture);
-            else response.end();
-            return;
-        }
-
-        if (url.pathname === '/media/private-image.jpg') {
-            response.writeHead(200, 'OK', {
-                'content-type': 'image/jpeg',
-                'content-length': String(imageFixture.byteLength),
-                'cache-control': 'private, no-store',
-            });
-            response.end(imageFixture);
-            return;
-        }
-
-        if (url.pathname === '/media/broken.jpg') {
-            response.writeHead(200, 'OK', {
-                'content-type': 'image/jpeg',
-                'content-length': '12',
-                'cache-control': 'public, max-age=604800, must-revalidate',
-            });
-            response.end('not an image');
-            return;
-        }
-
-        if (url.pathname === '/media/too-large.jpg') {
-            response.writeHead(200, 'OK', {
-                'content-type': 'image/jpeg',
-                'content-length': String(largeImagePlaceholderBytes),
-                'cache-control': 'public, max-age=604800, must-revalidate',
-            });
-            response.end();
-            return;
-        }
-
-        if (url.pathname === '/media/redirect.jpg') {
-            response.writeHead(302, 'Found', {
-                location: 'https://evil.example/image.jpg',
-            });
-            response.end();
-            return;
-        }
-
         if (url.pathname.startsWith('/media/')) {
-            state.mediaRequests.push({
-                method: request.method,
-                path: url.pathname,
-                search: url.search,
-                accept: request.headers.accept,
-                range: request.headers.range,
-                ifNoneMatch: request.headers['if-none-match'],
-                ifModifiedSince: request.headers['if-modified-since'],
-            });
-
-            const baseHeaders = {
-                'content-type': 'application/pdf',
-                etag: '"media-etag"',
-                'accept-ranges': 'bytes',
-                'cache-control': 'public, max-age=604800, must-revalidate',
-                'last-modified': 'Wed, 01 Jan 2025 00:00:00 GMT',
-            };
-
-            if (request.headers['if-none-match'] === '"media-etag"') {
-                response.writeHead(304, 'Not Modified', baseHeaders);
-                response.end();
-                return;
-            }
-
-            if (request.headers.range === 'bytes=0-3') {
-                response.writeHead(206, 'Partial Content', {
-                    ...baseHeaders,
-                    'content-range': 'bytes 0-3/10',
-                    'content-length': '4',
-                });
-                if (request.method !== 'HEAD') response.end('medi');
-                else response.end();
-                return;
-            }
-
-            response.writeHead(200, 'OK', {
-                ...baseHeaders,
-                'content-length': '10',
-            });
-            if (request.method !== 'HEAD') response.end('media-body');
-            else response.end();
-            return;
+            state.internalMediaRequests.push(url.href);
         }
 
         response.writeHead(404, { 'content-type': 'text/plain' });
@@ -414,13 +302,63 @@ async function startUpstream() {
     const address = server.address();
     assert.equal(typeof address, 'object');
 
+    const url = `http://127.0.0.1:${address.port}/`;
+    fixtures = contentItems(url);
+
+    return {
+        url,
+        close: () => new Promise((resolve) => server.close(resolve)),
+    };
+}
+
+async function startPublicCms() {
+    const png = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQiFgAAAGcARHkSIEmAAAAAElFTkSuQmCC',
+        'base64',
+    );
+    const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="blue"/></svg>';
+    const media = new Map([
+        ['/media/home-og.png', ['image/png', png]],
+        ['/media/code-og.png', ['image/png', png]],
+        ['/media/ada.png', ['image/png', png]],
+        ['/media/acme.svg', ['image/svg+xml', svg]],
+    ]);
+    const server = createServer((request, response) => {
+        const url = new URL(request.url ?? '/', 'http://public-cms.test');
+        const fixture = media.get(url.pathname);
+        if (!fixture) {
+            response.writeHead(404);
+            response.end('not found');
+            return;
+        }
+
+        state.publicMediaRequests.push({
+            method: request.method,
+            path: url.pathname,
+            search: url.search,
+        });
+        response.writeHead(200, {
+            'content-type': fixture[0],
+            'cache-control': 'public, max-age=604800',
+        });
+        response.end(fixture[1]);
+    });
+
+    await new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(0, '127.0.0.1', resolve);
+    });
+
+    const address = server.address();
+    assert.equal(typeof address, 'object');
     return {
         url: `http://127.0.0.1:${address.port}/`,
         close: () => new Promise((resolve) => server.close(resolve)),
     };
 }
 
-async function startApp({ upstreamUrl, searchIndexingEnabled }) {
+async function startApp({ upstreamUrl, cmsPublicUrl, searchIndexingEnabled }) {
     const port = await getFreePort();
     const child = spawn(process.execPath, ['build'], {
         cwd: process.cwd(),
@@ -429,7 +367,7 @@ async function startApp({ upstreamUrl, searchIndexingEnabled }) {
             PORT: String(port),
             HOST: '127.0.0.1',
             UMBRACO_BASE_URL: upstreamUrl,
-            CMS_PUBLIC_URL: 'https://cms.example.test/',
+            CMS_PUBLIC_URL: cmsPublicUrl,
             SITE_URL: 'https://www.example.test/',
             SEARCH_INDEXING_ENABLED: searchIndexingEnabled ? 'true' : 'false',
             NEWSLETTER_ENDPOINT: `${upstreamUrl}api/public/subscription`,
@@ -605,7 +543,7 @@ async function requestWithoutUserAgent(origin, path) {
     });
 }
 
-async function runRouteChecks(origin) {
+async function runRouteChecks(origin, cmsPublicUrl) {
     await expectRedirect(origin, '/', 307, '/2024/', {
         headers: { accept: 'text/html' },
     });
@@ -615,7 +553,7 @@ async function runRouteChecks(origin) {
     await expectRedirect(origin, '/tickets?utm=1', 308, '/tickets/?utm=1');
     await expectRedirect(origin, '/tickets/?utm=1', 307, '/register/');
     await expectRedirect(origin, '/speak/', 307, '/2024/');
-    await expectRedirect(origin, '/umbraco/', 307, 'https://cms.example.test/');
+    await expectRedirect(origin, '/umbraco/', 307, cmsPublicUrl);
     await expectRedirect(origin, '/umbraco', 308, '/umbraco/');
     await expectRedirect(
         origin,
@@ -634,12 +572,6 @@ async function runRouteChecks(origin) {
         '/2024/tickets/?utm=1',
         308,
         '/2024/register/',
-    );
-    await expectRedirect(
-        origin,
-        '/cms-media/media/file.pdf/',
-        308,
-        '/cms-media/media/file.pdf',
     );
     await expectRedirect(origin, '/robots.txt/', 308, '/robots.txt');
 
@@ -663,9 +595,11 @@ async function runRouteChecks(origin) {
         home.head,
         /<meta name="description" content="Conference home description"/,
     );
-    assert.match(
-        home.head,
-        /<meta property="og:image" content="https:\/\/www\.example\.test\/cms-media\/media\/home-og\.jpg\?width=1200&amp;height=630"/,
+    assert.ok(
+        home.head.includes(
+            `<meta property="og:image" content="${cmsPublicUrl}media/home-og.png?width=1200&amp;height=630"`,
+        ),
+        'home Open Graph image should use the public CMS origin',
     );
     assert.equal(countHeadTags(home.head, /property="og:image:type"/g), 0);
 
@@ -675,6 +609,12 @@ async function runRouteChecks(origin) {
     assert.match(
         generic.head,
         /<title>Method Conference - Code of Conduct<\/title>/,
+    );
+    assert.ok(
+        generic.head.includes(
+            `<meta property="og:image" content="${cmsPublicUrl}media/code-og.png?width=1200&amp;height=630"`,
+        ),
+        'relative Open Graph images should use the public CMS origin',
     );
 
     const speaker = await expectHead(origin, '/2024/speakers/ada/', 200);
@@ -816,10 +756,11 @@ async function runHeadChecks(origin, { searchIndexingEnabled }) {
     assert.match(notFoundCss, /font-family:\s*system-ui/);
 }
 
-async function runRobotChecks(upstreamUrl) {
+async function runRobotChecks(upstreamUrl, cmsPublicUrl) {
     const before = state.cmsRequests;
     const enabledApp = await startApp({
         upstreamUrl,
+        cmsPublicUrl,
         searchIndexingEnabled: true,
     });
     try {
@@ -843,6 +784,7 @@ async function runRobotChecks(upstreamUrl) {
 
     const disabledApp = await startApp({
         upstreamUrl,
+        cmsPublicUrl,
         searchIndexingEnabled: false,
     });
     try {
@@ -866,243 +808,93 @@ async function runRobotChecks(upstreamUrl) {
     }
 }
 
-async function runImageOptimizerChecks(origin) {
-    state.mediaRequests = [];
+async function runImageChecks(origin, upstreamUrl, cmsPublicUrl) {
+    state.internalMediaRequests = [];
+    state.publicMediaRequests = [];
+    assert.notEqual(new URL(cmsPublicUrl).origin, new URL(upstreamUrl).origin);
 
-    const imagePath = `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?width=20&height=10')}&w=32&q=75`;
-    await expectRedirect(
-        origin,
-        imagePath.replace('/_image?', '/_image/?'),
-        308,
-        imagePath,
-    );
-
-    const image = await request(origin, imagePath, {
-        headers: {
-            accept: 'image/webp,image/apng,*/*',
-        },
-    });
-    const imageBytes = new Uint8Array(await image.arrayBuffer());
-    const imageMetadata = await sharp(imageBytes).metadata();
-
-    assert.equal(image.status, 200);
-    assert.equal(image.headers.get('content-type'), 'image/webp');
-    assert.equal(
-        image.headers.get('cache-control'),
-        'public, max-age=604800, must-revalidate',
-    );
-    assert.equal(image.headers.get('vary'), 'Accept');
-    assert.equal(
-        image.headers.get('content-length'),
-        String(imageBytes.length),
-    );
-    assert.match(image.headers.get('etag') ?? '', /^"[A-Za-z0-9_-]+"$/);
-    assert.equal(imageMetadata.width, 20);
-    assert.equal(imageMetadata.height, 10);
-    assert.deepEqual(state.mediaRequests.at(-1), {
-        method: 'GET',
-        path: '/media/image.jpg',
-        search: '?width=20&height=10',
-        accept: '*/*',
-        range: undefined,
-        ifNoneMatch: undefined,
-        ifModifiedSince: undefined,
-    });
-
-    const cropped = await request(
-        origin,
-        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?crop=0,0,1,1&maxsize=50')}&w=32&q=75`,
-        { headers: { accept: 'image/webp' } },
-    );
-    assert.equal(cropped.status, 200);
-    assert.equal(
-        state.mediaRequests.at(-1).search,
-        '?crop=0%2C0%2C1%2C1&maxsize=50',
-    );
-
-    const notModified = await request(origin, imagePath, {
-        headers: {
-            accept: 'image/webp',
-            'if-none-match': image.headers.get('etag'),
-        },
-    });
-    assert.equal(notModified.status, 304);
-    assert.equal(await notModified.text(), '');
-    assert.equal(notModified.headers.get('etag'), image.headers.get('etag'));
-
-    const head = await request(origin, imagePath, {
-        method: 'HEAD',
-        headers: { accept: 'image/webp' },
-    });
-    assert.equal(head.status, 200);
-    assert.equal(head.headers.get('content-type'), 'image/webp');
-    assert.equal(TEXT_ENCODER.encode(await head.text()).byteLength, 0);
-
-    const jpegFallback = await request(origin, imagePath, {
-        headers: { accept: 'image/jpeg,*/*' },
-    });
-    assert.equal(jpegFallback.status, 200);
-    assert.equal(jpegFallback.headers.get('content-type'), 'image/jpeg');
-
-    const acceptCases = [
-        ['image/webp;q=1,image/jpeg', 'image/webp'],
-        ['image/webp;foo=bar;q=.5,image/jpeg', 'image/webp'],
-        ['image/webp;q=0,image/jpeg,*/*;q=.8', 'image/jpeg'],
-        ['image/*,*/*', 'image/jpeg'],
-        ['*/*', 'image/jpeg'],
-        ['', 'image/jpeg'],
-        ['IMAGE/WEBP,image/jpeg', 'image/jpeg'],
+    const pages = [
+        ['/2024/', ['/media/ada.png', '/media/acme.svg']],
+        ['/2024/speakers/ada/', ['/media/ada.png']],
+        ['/2024/code-of-conduct/', ['/media/acme.svg']],
     ];
 
-    for (const [accept, contentType] of acceptCases) {
-        const response = await request(origin, imagePath, {
-            headers: { accept },
-        });
-        assert.equal(response.status, 200, accept);
-        assert.equal(response.headers.get('content-type'), contentType, accept);
+    for (const [path, expectedPaths] of pages) {
+        const { html } = await expectHead(origin, path, 200);
+        if (path === '/2024/code-of-conduct/') {
+            assert.ok(
+                html.includes(
+                    `src="${cmsPublicUrl}media/acme.svg?crop=center&height=120#logo"`,
+                ),
+            );
+            assert.ok(
+                html.includes('href="https://external.test/media/map.pdf"'),
+            );
+        }
+        const tags = [...html.matchAll(/<img\b[^>]*>/g)].map(([tag]) => tag);
+        const loadedPaths = new Set();
+
+        for (const tag of tags) {
+            assert.doesNotMatch(tag, /\/_image[/?]|\/cms-media\//, path);
+            const src = /\bsrc="([^"]+)"/.exec(tag)?.[1];
+            assert.ok(src, `missing image source on ${path}`);
+            const url = new URL(src.replaceAll('&amp;', '&'), origin);
+            if (!url.pathname.startsWith('/media/')) continue;
+
+            assert.equal(url.origin, new URL(cmsPublicUrl).origin, tag);
+            const response = await fetch(url, { redirect: 'manual' });
+            assert.equal(response.status, 200, url.href);
+            assert.equal(
+                response.headers.get('content-type'),
+                url.pathname.endsWith('.svg') ? 'image/svg+xml' : 'image/png',
+                url.href,
+            );
+            assert.ok((await response.arrayBuffer()).byteLength > 0, url.href);
+            loadedPaths.add(url.pathname);
+        }
+
+        for (const expectedPath of expectedPaths) {
+            assert.ok(
+                loadedPaths.has(expectedPath),
+                `${path}: ${expectedPath}`,
+            );
+        }
     }
 
-    const privateCache = await request(
-        origin,
-        `/_image?url=${encodeURIComponent('/cms-media/media/private-image.jpg')}&w=32&q=75`,
-        { headers: { accept: 'image/webp' } },
+    assert.ok(
+        state.publicMediaRequests.some(
+            ({ path, search }) =>
+                path === '/media/acme.svg' &&
+                search === '?crop=center&height=120',
+        ),
+        'SVG images should load from the public CMS',
     );
-    assert.equal(privateCache.status, 200);
-    assert.equal(
-        privateCache.headers.get('cache-control'),
-        'private, no-store',
+    assert.deepEqual(
+        state.internalMediaRequests,
+        [],
+        'images should not load from the internal CMS',
     );
-
-    const cases = [
-        `/_image?url=${encodeURIComponent('https://example.com/image.jpg')}&w=32&q=75`,
-        `/_image?url=${encodeURIComponent('//example.com/image.jpg')}&w=32&q=75`,
-        '/_image?url=%E0%A4%A&w=32&q=75',
-        `/_image?url=${encodeURIComponent('/cms-media/../secret.jpg')}&w=32&q=75`,
-        `/_image?url=${encodeURIComponent('/cms-media/media/file.pdf')}&w=32&q=75`,
-        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg#fragment')}&w=32&q=75`,
-        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?format=webp')}&w=32&q=75`,
-        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg?width=0')}&w=32&q=75`,
-        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg')}&w=33&q=75`,
-        `/_image?url=${encodeURIComponent('/cms-media/media/image.jpg')}&w=32&q=80`,
-    ];
-
-    for (const path of cases) {
-        const response = await request(origin, path, {
-            headers: { accept: 'image/webp' },
-        });
-        assert.equal(response.status, 400, path);
-    }
-
-    const tooLarge = await request(
-        origin,
-        `/_image?url=${encodeURIComponent('/cms-media/media/too-large.jpg')}&w=32&q=75`,
-        { headers: { accept: 'image/webp' } },
-    );
-    assert.equal(tooLarge.status, 502);
-
-    const redirect = await request(
-        origin,
-        `/_image?url=${encodeURIComponent('/cms-media/media/redirect.jpg')}&w=32&q=75`,
-        { headers: { accept: 'image/webp' } },
-    );
-    assert.equal(redirect.status, 502);
-
-    const processingFailure = await request(
-        origin,
-        `/_image?url=${encodeURIComponent('/cms-media/media/broken.jpg')}&w=32&q=75`,
-        { headers: { accept: 'image/webp' } },
-    );
-    assert.equal(processingFailure.status, 502);
-    assert.equal(await processingFailure.text(), 'Image optimization failed');
-}
-
-async function runMediaChecks(origin) {
-    state.mediaRequests = [];
-
-    const media = await request(
-        origin,
-        '/cms-media/media/a%20b/%23file.pdf?width=10&format=webp',
-        {
-            headers: {
-                accept: 'application/pdf',
-            },
-        },
-    );
-    assert.equal(media.status, 200);
-    assert.equal(media.statusText, 'OK');
-    assert.equal(media.headers.get('content-type'), 'application/pdf');
-    assert.equal(media.headers.get('etag'), '"media-etag"');
-    assert.equal(
-        media.headers.get('cache-control'),
-        'public, max-age=604800, must-revalidate',
-    );
-    assert.equal(await media.text(), 'media-body');
-    assert.deepEqual(state.mediaRequests.at(-1), {
-        method: 'GET',
-        path: '/media/a%20b/%23file.pdf',
-        search: '?width=10&format=webp',
-        accept: 'application/pdf',
-        range: undefined,
-        ifNoneMatch: undefined,
-        ifModifiedSince: undefined,
-    });
-
-    const range = await request(origin, '/cms-media/media/file.pdf', {
-        headers: {
-            range: 'bytes=0-3',
-        },
-    });
-    assert.equal(range.status, 206);
-    assert.equal(range.statusText, 'Partial Content');
-    assert.equal(range.headers.get('content-range'), 'bytes 0-3/10');
-    assert.equal(range.headers.get('accept-ranges'), 'bytes');
-    assert.equal(await range.text(), 'medi');
-
-    const notModified = await request(origin, '/cms-media/media/file.pdf', {
-        headers: {
-            'if-none-match': '"media-etag"',
-            'if-modified-since': 'Wed, 01 Jan 2025 00:00:00 GMT',
-        },
-    });
-    assert.equal(notModified.status, 304);
-    assert.equal(notModified.statusText, 'Not Modified');
-    assert.equal(await notModified.text(), '');
-    assert.equal(state.mediaRequests.at(-1).ifNoneMatch, '"media-etag"');
-    assert.equal(
-        state.mediaRequests.at(-1).ifModifiedSince,
-        'Wed, 01 Jan 2025 00:00:00 GMT',
-    );
-
-    const head = await request(origin, '/cms-media/media/file.pdf', {
-        method: 'HEAD',
-        headers: {
-            range: 'bytes=0-3',
-        },
-    });
-    assert.equal(head.status, 206);
-    assert.equal(head.headers.get('content-length'), '4');
-    assert.equal(TEXT_ENCODER.encode(await head.text()).byteLength, 0);
-    assert.equal(state.mediaRequests.at(-1).method, 'HEAD');
 }
 
 const upstream = await startUpstream();
+const publicCms = await startPublicCms();
 try {
-    await runRobotChecks(upstream.url);
+    await runRobotChecks(upstream.url, publicCms.url);
 
     const app = await startApp({
         upstreamUrl: upstream.url,
+        cmsPublicUrl: publicCms.url,
         searchIndexingEnabled: true,
     });
     try {
-        await runRouteChecks(app.origin);
+        await runRouteChecks(app.origin, publicCms.url);
         await runMobileChecks(app.origin);
         await runNewsletterChecks(app.origin);
         await runHeadChecks(app.origin, { searchIndexingEnabled: true });
-        await runMediaChecks(app.origin);
-        await runImageOptimizerChecks(app.origin);
+        await runImageChecks(app.origin, upstream.url, publicCms.url);
     } finally {
         await app.close();
     }
 } finally {
-    await upstream.close();
+    await Promise.all([upstream.close(), publicCms.close()]);
 }

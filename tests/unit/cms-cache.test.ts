@@ -205,7 +205,7 @@ describe('CMS JSON cache', () => {
             headers: { 'x-umbraco-preview': 'true' },
         });
         await cachedFetch(new Request(contentUrl, { cache: 'no-store' }));
-        await cachedFetch(`${baseUrl}/cms-media/media/file.pdf`);
+        await cachedFetch(`${baseUrl}/media/file.pdf`);
         await cachedFetch(contentUrl, { method: 'POST', body: '{}' });
 
         expect(requests).toHaveLength(6);

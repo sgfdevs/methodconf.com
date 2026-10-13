@@ -1,7 +1,7 @@
 <script lang="ts">
+    import { page } from '$app/state';
     import { imageUrl } from '#lib/imageUrl.ts';
     import type { Sponsor } from '#lib/types.ts';
-    import CmsImage from './CmsImage.svelte';
 
     export type CardSize = 'large' | 'medium' | 'small';
 
@@ -36,7 +36,11 @@
         `p-2 sm:p-5 shadow-[0_8px_15px_rgba(0,0,0,0.1)] rounded-2xl h-full ${minHeight}${properties.darkBackground ? ' bg-black' : ''}`,
     );
     const logoUrl = $derived(
-        image?.url ? imageUrl(image.url, { height: imageHeight }) : undefined,
+        image?.url
+            ? imageUrl(image.url, page.data.cmsPublicUrl, {
+                  height: imageHeight,
+              })
+            : undefined,
     );
 </script>
 
@@ -50,11 +54,11 @@
         >
             <div class="flex items-center justify-center h-full">
                 {#if image && logoUrl}
-                    <CmsImage
+                    <img
                         src={logoUrl}
                         height={image.height ?? 200}
                         width={image.width ?? 300}
-                        quality={100}
+                        loading="lazy"
                         alt={`${title} logo`}
                     />
                 {:else}
@@ -66,11 +70,11 @@
         <div class={cardStyles}>
             <div class="flex items-center justify-center h-full">
                 {#if image && logoUrl}
-                    <CmsImage
+                    <img
                         src={logoUrl}
                         height={image.height ?? 200}
                         width={image.width ?? 300}
-                        quality={100}
+                        loading="lazy"
                         alt={`${title} logo`}
                     />
                 {:else}

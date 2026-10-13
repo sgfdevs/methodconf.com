@@ -1,6 +1,6 @@
 <script lang="ts">
+    import { page } from '$app/state';
     import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
-    import CmsImage from '#lib/components/CmsImage.svelte';
     import Disclosure from '#lib/components/Disclosure.svelte';
     import FontAwesomeIcon from '#lib/components/FontAwesomeIcon.svelte';
     import RichText from '#lib/components/RichText.svelte';
@@ -33,7 +33,10 @@
     );
     const profileImageUrl = $derived(
         profileImage?.url
-            ? imageUrl(profileImage.url, { width: 100, height: 100 })
+            ? imageUrl(profileImage.url, page.data.cmsPublicUrl, {
+                  width: 100,
+                  height: 100,
+              })
             : undefined,
     );
     const jobTitle = $derived(speakerContent?.properties?.jobTitle);
@@ -65,8 +68,9 @@
                 <div class="flex justify-between items-center">
                     <div class="flex items-center w-full text-left">
                         {#if profileImageUrl}
-                            <CmsImage
+                            <img
                                 src={profileImageUrl}
+                                loading="lazy"
                                 width={100}
                                 height={100}
                                 alt={`${speakerContent?.name ?? ''} profile image`}
@@ -121,8 +125,9 @@
     {:else}
         <div class="flex items-center w-full text-left">
             {#if profileImageUrl}
-                <CmsImage
+                <img
                     src={profileImageUrl}
+                    loading="lazy"
                     width={100}
                     height={100}
                     alt={`${speakerContent?.name ?? ''} profile image`}

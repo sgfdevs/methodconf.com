@@ -9,9 +9,11 @@ const OG_IMAGE_HEIGHT = 630;
 export function buildGenericPageHead({
     page,
     siteUrl,
+    cmsPublicUrl,
 }: {
     page: Page;
     siteUrl: string;
+    cmsPublicUrl: string;
 }): SharedHead {
     const {
         title,
@@ -28,7 +30,7 @@ export function buildGenericPageHead({
             openGraph: openGraphImage?.url
                 ? {
                       image: {
-                          url: imageUrl(openGraphImage.url, {
+                          url: imageUrl(openGraphImage.url, cmsPublicUrl, {
                               width: OG_IMAGE_WIDTH,
                               height: OG_IMAGE_HEIGHT,
                           }),

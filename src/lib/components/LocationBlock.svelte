@@ -1,20 +1,22 @@
 <script lang="ts">
+    import { page } from '$app/state';
+    import { imageUrl } from '#lib/imageUrl.ts';
     import { BUILDING_MAP, PARKING_MAP } from '#lib/config.ts';
     import SectionTitleBar from './SectionTitleBar.svelte';
 
     export const LOCATION_IFRAME_URL =
         'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3177.5064710178376!2d-93.29300142284976!3d37.211950144379166!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x87cf62fce4b64373%3A0xb83189288308d87f!2sefactory!5e0!3m2!1sen!2sus!4v1717465582324!5m2!1sen!2sus';
 
-    const details = [
+    const details = $derived([
         {
             heading: 'Event Location',
             content:
                 '<a target="_blank" href="https://maps.app.goo.gl/ZHNKbCreeTA3spxR9">405 N Jefferson Ave, Springfield, MO 65806</a><br>' +
-                `<a href="${BUILDING_MAP}">Building Map</a>`,
+                `<a href="${imageUrl(BUILDING_MAP, page.data.cmsPublicUrl)}">Building Map</a>`,
         },
         {
             heading: 'Parking',
-            content: `<p>There is free on-site parking at the event location.<br><a href="${PARKING_MAP}">Parking Map</a></p>`,
+            content: `<p>There is free on-site parking at the event location.<br><a href="${imageUrl(PARKING_MAP, page.data.cmsPublicUrl)}">Parking Map</a></p>`,
         },
         {
             heading: 'Airport',
@@ -37,7 +39,7 @@
                 '<a target="_blank" href="https://www.marriott.com/hotels/travel/sgfts-towneplace-suites-springfield/">TownePlace Suites by Marriott Springfield</a> <br>' +
                 '<a target="_blank" href="https://doubletree3.hilton.com/en/hotels/missouri/doubletree-by-hilton-hotel-springfield-SGFDTDT/index.html">DoubleTree by Hilton</a>',
         },
-    ];
+    ]);
 </script>
 
 <section id="location" class="mb-12 sm:mb-20">

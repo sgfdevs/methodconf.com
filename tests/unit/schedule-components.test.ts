@@ -1,5 +1,5 @@
 import { render } from 'svelte/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import ScheduleBlock from '../../src/lib/components/ScheduleBlock.svelte';
 import ScheduleGrid from '../../src/lib/components/ScheduleGrid.svelte';
 import SessionCard from '../../src/lib/components/SessionCard.svelte';
@@ -22,6 +22,10 @@ import type {
     Speaker,
     TrackWithSessions,
 } from '../../src/lib/types.ts';
+
+vi.mock('$app/state', () => ({
+    page: { data: { cmsPublicUrl: 'https://cms-public.example.test/' } },
+}));
 
 const bryanSpeaker = {
     id: 'speaker-bryan',
@@ -264,9 +268,14 @@ describe('schedule SSR components', () => {
         expect(html).toContain('How Fast Is My App?');
         expect(html).toContain('href="/2024/speakers/bryan-mccann/"');
         expect(html).toContain(' Bryan McCann profile image');
-        expect(html).toContain('width%3D100%26height%3D100');
-        expect(html).toContain('w=128');
-        expect(html).toContain('q=75');
+        expect(html).toContain(
+            'src="https://cms-public.example.test/media/bryan.jpg?width=100&amp;height=100"',
+        );
+        expect(html).toContain('width="100"');
+        expect(html).toContain('height="100"');
+        expect(html).toContain('loading="lazy"');
+        expect(html).not.toContain('srcset=');
+        expect(html).not.toContain('/_image');
         expect(html).toContain(
             'w-[50px] h-[50px] md:w-[70px] md:h-[70px] lg:w-[75px] lg:h-[75px] 2xl:w-[80px] 2xl:h-[80px] rounded-full mr-3',
         );

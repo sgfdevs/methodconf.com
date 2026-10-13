@@ -123,6 +123,64 @@ describe('Umbraco helper cache wiring', () => {
         expect(requests).toHaveLength(1);
     });
 
+    it('rewrites nested rich text with request-local CMS URLs outside the JSON cache', async () => {
+        const content = {
+            ...contentItem(1),
+            properties: {
+                image: {
+                    url: 'https://cms-a.methodconf.test/media/photo.jpg?crop=center#photo',
+                },
+                external: { url: 'https://external.test/media/file.pdf' },
+                blocks: [
+                    {
+                        content: {
+                            properties: {
+                                text: {
+                                    markup: '<p><img src = "https://cms-a.methodconf.test/media/logo.svg?crop=center#logo" srcset="https://cms-a.methodconf.test/media/logo.svg?crop=0,0,1,1 1x, /media/logo-2.svg 2x"><a href="https://external.test/media/file.pdf">External</a></p>',
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
+        };
+        const fetch = vi.fn(async () => Response.json(content));
+        stubFetch(fetch);
+        const { getItemByPathOrDefault } =
+            await import('#lib/server/umbraco/getItemByPath.ts');
+
+        const first = await getItemByPathOrDefault('/2024/');
+        expect(JSON.stringify(first)).toContain(
+            'https://cms-public.methodconf.test/media/logo.svg?crop=center#logo',
+        );
+        expect(JSON.stringify(first)).toContain(
+            'https://external.test/media/file.pdf',
+        );
+        expect(JSON.stringify(first)).toContain(
+            'https://cms-public.methodconf.test/media/logo.svg?crop=0,0,1,1 1x, https://cms-public.methodconf.test/media/logo-2.svg 2x',
+        );
+        expect(JSON.stringify(first)).not.toContain(
+            'https://cms-a.methodconf.test/media/',
+        );
+        expect(JSON.stringify(first)).toContain(
+            'https://cms-public.methodconf.test/media/photo.jpg?crop=center#photo',
+        );
+        expect(
+            content.properties.blocks[0].content.properties.text.markup,
+        ).toContain('https://cms-a.methodconf.test/media/logo.svg');
+
+        privateEnv.CMS_PUBLIC_URL = 'https://cms-other.methodconf.test';
+        const second = await getItemByPathOrDefault('/2024/');
+        expect(JSON.stringify(second)).toContain(
+            'https://cms-other.methodconf.test/media/logo.svg?crop=center#logo',
+        );
+        expect(JSON.stringify(second)).toContain(
+            'https://cms-other.methodconf.test/media/photo.jpg?crop=center#photo',
+        );
+        expect(JSON.stringify(first)).not.toContain('cms-other');
+        expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
     it('keeps helper caches isolated by runtime Umbraco base URL', async () => {
         const requests: string[] = [];
         stubFetch(async (input, init) => {

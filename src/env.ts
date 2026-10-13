@@ -18,7 +18,7 @@ export const variables = defineEnvVars({
     CMS_PUBLIC_URL: {
         schema: optionalUrl,
         description:
-            'Private public CMS URL used by server redirects. Runtime only.',
+            'Browser-accessible CMS URL for media and redirects. Exposed through layout data at runtime.',
     },
     SITE_URL: {
         schema: optionalUrl,
