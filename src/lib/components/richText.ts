@@ -1,32 +1,58 @@
-const CMS_MEDIA_URL_PATTERN =
-    /(?<attribute>\b(?:href|src)=["'])(?<url>(?:https?:\/\/[^"']+)?\/media\/[^"']+)(?<quote>["'])/gi;
+import { imageUrl } from '#lib/imageUrl.ts';
 
-function rewriteCmsMediaUrl(url: string): string {
-    if (url.startsWith('/cms-media/')) {
-        return url;
-    }
+const MEDIA_ATTRIBUTE_PATTERN =
+    /(\b(?:href|src|srcset)\s*=\s*)(?:"([^"]*)"|'([^']*)')/gi;
 
-    if (url.startsWith('/media/')) {
-        return `/cms-media${url}`;
-    }
+export function rewriteRichTextMediaUrls(
+    markup: string,
+    cmsPublicUrl: string,
+    cmsInternalUrl?: string,
+): string {
+    const cmsOrigins = [cmsPublicUrl, cmsInternalUrl]
+        .filter((url): url is string => Boolean(url))
+        .map((url) => new URL(url).origin);
 
-    try {
-        const parsed = new URL(url);
+    function rewriteUrl(url: string): string {
+        try {
+            const parsed = new URL(url, cmsPublicUrl);
 
-        if (!parsed.hostname.endsWith('methodconf.com')) {
-            return url;
+            if (
+                parsed.pathname.startsWith('/media/') &&
+                cmsOrigins.includes(parsed.origin)
+            ) {
+                return imageUrl(url, cmsPublicUrl);
+            }
+        } catch {
+            // Leave malformed and non-URL attributes unchanged.
         }
 
-        return `/cms-media${parsed.pathname}${parsed.search}${parsed.hash}`;
-    } catch {
         return url;
     }
-}
 
-export function rewriteRichTextMediaUrls(markup: string): string {
     return markup.replace(
-        CMS_MEDIA_URL_PATTERN,
-        (_match, attribute: string, url: string, quote: string) =>
-            `${attribute}${rewriteCmsMediaUrl(url)}${quote}`,
+        MEDIA_ATTRIBUTE_PATTERN,
+        (
+            _match,
+            attribute: string,
+            doubleQuoted: string | undefined,
+            singleQuoted: string | undefined,
+        ) => {
+            const quote = doubleQuoted !== undefined ? '"' : "'";
+            const value = doubleQuoted ?? singleQuoted ?? '';
+            const rewritten = /^srcset\b/i.test(attribute)
+                ? value.replace(/\S+/g, (token) => {
+                      // URLs may contain crop commas, but trailing commas
+                      // separate srcset candidates. Descriptors stay unchanged.
+                      const separator = /,+$/.exec(token)?.[0] ?? '';
+                      const url = token.slice(
+                          0,
+                          token.length - separator.length,
+                      );
+                      return rewriteUrl(url) + separator;
+                  })
+                : rewriteUrl(value);
+
+            return `${attribute}${quote}${rewritten}${quote}`;
+        },
     );
 }

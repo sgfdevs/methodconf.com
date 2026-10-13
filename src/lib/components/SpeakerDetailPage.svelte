@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { page } from '$app/state';
     import {
         faInstagram,
         faLinkedin,
@@ -6,7 +7,6 @@
         type IconDefinition,
     } from '@fortawesome/free-brands-svg-icons';
     import { faGlobe } from '@fortawesome/free-solid-svg-icons';
-    import CmsImage from '#lib/components/CmsImage.svelte';
     import FontAwesomeIcon from '#lib/components/FontAwesomeIcon.svelte';
     import RichText from '#lib/components/RichText.svelte';
     import SessionCard from '#lib/components/SessionCard.svelte';
@@ -78,8 +78,12 @@
         <div class="flex flex-wrap flex-col md:flex-row-reverse">
             <div class="w-full mb-5 md:mb-0 md:w-1/3">
                 {#if image?.url}
-                    <CmsImage
-                        src={imageUrl(image.url, { width: 500, height: 560 })}
+                    <img
+                        src={imageUrl(image.url, page.data.cmsPublicUrl, {
+                            width: 500,
+                            height: 560,
+                        })}
+                        loading="lazy"
                         height={image.height ?? 200}
                         width={image.width ?? 300}
                         alt={`${speaker.name} profile image`}

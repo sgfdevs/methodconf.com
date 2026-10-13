@@ -1,4 +1,5 @@
 import { getUmbracoClient } from '#lib/server/umbraco/client.ts';
+import { rewriteContentMedia } from '#lib/server/umbraco/publicMedia.ts';
 import type { paths } from '#lib/umbraco/deliveryApiSchema.d.ts';
 import type {
     UmbracoClientOptions,
@@ -20,7 +21,7 @@ export async function getItemByPathOrDefault(
         return;
     }
 
-    return normalizeUmbracoContent(data);
+    return normalizeUmbracoContent(rewriteContentMedia(data));
 }
 
 export async function getItemByPath(

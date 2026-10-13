@@ -6,7 +6,7 @@ import {
     getPageDataForBlocks,
     type AdditionalPageData,
 } from '#lib/server/getPageDataForBlocks.ts';
-import { getSiteUrl } from '#lib/server/config.ts';
+import { getCmsPublicUrl, getSiteUrl } from '#lib/server/config.ts';
 import { getItemByPathOrDefault } from '#lib/server/umbraco/getItemByPath.ts';
 import type { Page } from '#lib/types.ts';
 import type { PageServerLoad } from './$types';
@@ -38,6 +38,7 @@ export const load: PageServerLoad = async ({ params }) => {
         page: page as Page,
         ...pageData,
         sharedHead: buildGenericPageHead({
+            cmsPublicUrl: getCmsPublicUrl().toString(),
             page: page as Page,
             siteUrl: getSiteUrl().toString(),
         }),

@@ -1,9 +1,10 @@
 import { render } from 'svelte/server';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import Button from '../../src/lib/components/Button.svelte';
 import DefaultNav from '../../src/lib/components/DefaultNav.svelte';
 import HomeNav from '../../src/lib/components/HomeNav.svelte';
 import Navigation from '../../src/lib/components/Navigation.svelte';
+import LocationBlock from '../../src/lib/components/LocationBlock.svelte';
 import RichText from '../../src/lib/components/RichText.svelte';
 import SponsorCard from '../../src/lib/components/SponsorCard.svelte';
 import SponsorsBlock from '../../src/lib/components/SponsorsBlock.svelte';
@@ -15,6 +16,10 @@ import type {
     Sponsor,
     Sponsors,
 } from '../../src/lib/types.ts';
+
+vi.mock('$app/state', () => ({
+    page: { data: { cmsPublicUrl: 'https://cms-public.example.test/' } },
+}));
 
 const conference = {
     contentType: 'conference',
@@ -55,7 +60,27 @@ describe('shared UI components', () => {
         };
         expect(
             render(Button, { props: { cmsLink: mediaLink } }).body,
-        ).toContain('href="/cms-media/media/wixhir55/building-map.pdf"');
+        ).toContain(
+            'href="https://cms-public.example.test/media/wixhir55/building-map.pdf"',
+        );
+    });
+
+    it('rebases absolute CMS media buttons without dropping query parameters or fragments', () => {
+        const html = render(Button, {
+            props: {
+                cmsLink: {
+                    linkType: 'Media',
+                    title: 'Download',
+                    url: 'http://cms-internal.test/media/file.pdf?crop=center#page=2',
+                    queryString: '?download=true',
+                },
+            },
+        }).body;
+
+        expect(html).toContain(
+            'href="https://cms-public.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
+        );
+        expect(html).not.toContain('cms-internal.test');
     });
 
     it('keeps text input label, input name, and peer focus classes', () => {
@@ -110,10 +135,12 @@ describe('shared UI components', () => {
     it('rewrites only CMS rich text media URLs before trusted HTML rendering', () => {
         expect(
             rewriteRichTextMediaUrls(
-                '<p><a href="/media/wixhir55/building-map.pdf">Map</a><img src="https://cms.methodconf.com/media/logo.png?width=100"><a href="https://example.com/media/file.pdf">External</a></p>',
+                '<p><a href="/media/wixhir55/building-map.pdf">Map</a><img src="https://cms-private.example.test/media/logo.png?crop=0,0,1,1&amp;width=100#logo"><a href="https://example.com/media/file.pdf">External</a></p>',
+                'https://cms-public.example.test/',
+                'https://cms-private.example.test/',
             ),
         ).toBe(
-            '<p><a href="/cms-media/media/wixhir55/building-map.pdf">Map</a><img src="/cms-media/media/logo.png?width=100"><a href="https://example.com/media/file.pdf">External</a></p>',
+            '<p><a href="https://cms-public.example.test/media/wixhir55/building-map.pdf">Map</a><img src="https://cms-public.example.test/media/logo.png?crop=0,0,1,1&amp;width=100#logo"><a href="https://example.com/media/file.pdf">External</a></p>',
         );
 
         const html = render(RichText, {
@@ -124,7 +151,40 @@ describe('shared UI components', () => {
         }).body;
         expect(html).toContain('prose-a:text-primary');
         expect(html).toContain('class="prose');
-        expect(html).toContain('src="/cms-media/media/logo.png"');
+        expect(html).toContain(
+            'src="https://cms-public.example.test/media/logo.png"',
+        );
+    });
+
+    it('rewrites CMS rich text srcsets while keeping descriptors, crop commas, and external hosts', () => {
+        const markup = `<img src = "/media/speaker's-photo.png" srcset = "http://cms-private.test/media/photo.png?crop=0,0,1,1#photo 1x, /media/photo-2.png 2x, https://external.test/media/photo.png 3x"><a href = '/media/map.pdf#page=2'>Map</a>`;
+        expect(
+            rewriteRichTextMediaUrls(
+                markup,
+                'https://cms-public.example.test/',
+                'http://cms-private.test/',
+            ),
+        ).toBe(
+            `<img src = "https://cms-public.example.test/media/speaker's-photo.png" srcset = "https://cms-public.example.test/media/photo.png?crop=0,0,1,1#photo 1x, https://cms-public.example.test/media/photo-2.png 2x, https://external.test/media/photo.png 3x"><a href = 'https://cms-public.example.test/media/map.pdf#page=2'>Map</a>`,
+        );
+        expect(
+            rewriteRichTextMediaUrls(
+                `<img srcset='/media/a.svg, /media/b.svg'>`,
+                'https://cms-public.example.test/',
+            ),
+        ).toBe(
+            `<img srcset='https://cms-public.example.test/media/a.svg, https://cms-public.example.test/media/b.svg'>`,
+        );
+    });
+
+    it('uses the public CMS for location maps', () => {
+        const html = render(LocationBlock).body;
+        expect(html).toContain(
+            'href="https://cms-public.example.test/media/wixhir55/building-map.pdf"',
+        );
+        expect(html).toContain(
+            'href="https://cms-public.example.test/media/pw1lyaa4/parking-map.pdf"',
+        );
     });
 
     it('keeps the sponsor CTA Method logo intrinsic dimensions', () => {
@@ -152,7 +212,7 @@ describe('shared UI components', () => {
         expect(html).toContain('height="78"');
     });
 
-    it('uses the fixed-width CMS image helper at quality 100 for sponsor logos', () => {
+    it('loads sponsor SVGs directly from the public CMS with intrinsic dimensions', () => {
         const sponsor = {
             id: 'sponsor-id',
             contentType: 'sponsor',
@@ -179,7 +239,12 @@ describe('shared UI components', () => {
 
         expect(html).toContain('href="https://example.com"');
         expect(html).toContain('alt="Acme logo"');
-        expect(html).toContain('q=100');
+        expect(html).toContain(
+            'src="https://cms-public.example.test/media/logo.svg?height=240"',
+        );
+        expect(html).toContain('loading="lazy"');
+        expect(html).not.toContain('srcset=');
+        expect(html).not.toContain('/_image');
         expect(html).toContain('width="300"');
         expect(html).toContain('height="120"');
         expect(html).toContain('min-h-[80px] sm:min-h-[150px]');
