@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { resolve } from '$app/paths';
     import { formatDate } from '#lib/date.ts';
     import type { ParsedConference } from '#lib/types.ts';
     import Navigation from './Navigation.svelte';
@@ -37,7 +38,7 @@
             <br />
             <br />
             <a
-                href={`/${params.conference}/register/`}
+                href={resolve(`${params.conference}/register/`)}
                 class="button secondary inline-block"
             >
                 Register Now

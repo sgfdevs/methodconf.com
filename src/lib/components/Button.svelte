@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { resolve } from '$app/paths';
     import { page } from '$app/state';
     import { imageUrl } from '#lib/imageUrl.ts';
     import type { CmsLink } from '#lib/types.ts';
@@ -82,22 +83,66 @@
             target: isExternalUrl ? '_blank' : undefined,
         };
     });
+
+    const internalPath = $derived.by(() => {
+        if (resolved.kind !== 'anchor' || resolved.href.startsWith('#')) {
+            return null;
+        }
+        if (resolved.href.startsWith('/') && !resolved.href.startsWith('//')) {
+            return resolved.href.slice(1);
+        }
+        try {
+            const root = new globalThis.URL(resolve(''), page.url.href);
+            const destination = new globalThis.URL(
+                resolved.href,
+                page.url.href,
+            );
+            return destination.href.startsWith(root.href)
+                ? destination.href.slice(root.href.length)
+                : null;
+        } catch {
+            return null;
+        }
+    });
 </script>
 
+{#snippet content()}
+    {#if children}
+        {@render children()}
+    {:else}
+        {label}
+    {/if}
+{/snippet}
+
 {#if resolved.kind === 'anchor'}
-    <a class={combinedClass} href={resolved.href} target={resolved.target}>
-        {#if children}
-            {@render children()}
-        {:else}
-            {label}
-        {/if}
-    </a>
+    {#if resolved.href.startsWith('#')}
+        <a
+            class={combinedClass}
+            href={`#${resolved.href.slice(1)}`}
+            target={resolved.target}
+        >
+            {@render content()}
+        </a>
+    {:else if internalPath !== null}
+        <a
+            class={combinedClass}
+            href={resolve(...([internalPath] as Parameters<typeof resolve>))}
+            target={resolved.target}
+        >
+            {@render content()}
+        </a>
+    {:else}
+        <a
+            class={combinedClass}
+            href={resolved.href}
+            target={resolved.target}
+            rel="external"
+        >
+            {@render content()}
+        </a>
+    {/if}
 {:else}
     <button class={combinedClass}>
-        {#if children}
-            {@render children()}
-        {:else}
-            {label}
-        {/if}
+        {@render content()}
     </button>
 {/if}

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { resolve } from '$app/paths';
     import ChildPageShell from '#lib/components/ChildPageShell.svelte';
     import type { PageProps } from './$types';
 
@@ -28,7 +29,7 @@
             </p>
             <br />
             <a
-                href={`/${data.conferenceSlug}/`}
+                href={resolve(`${data.conferenceSlug}/`)}
                 class="button secondary inline-block"
             >
                 Back Home

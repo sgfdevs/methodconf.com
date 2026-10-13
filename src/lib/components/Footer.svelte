@@ -41,6 +41,7 @@
             {#each socialLinks as { icon, url, title } (url)}
                 <a
                     href={url}
+                    rel="external"
                     target="_blank"
                     class="text-primary text-lg"
                     aria-label={title}

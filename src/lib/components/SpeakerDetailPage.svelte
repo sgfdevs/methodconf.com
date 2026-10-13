@@ -104,6 +104,7 @@
                     {#each links as { title, url, icon } (title)}
                         <a
                             href={url}
+                            rel="external"
                             target="_blank"
                             {title}
                             class="text-primary text-2xl"

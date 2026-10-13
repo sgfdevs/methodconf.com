@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { resolve } from '$app/paths';
     import NewsletterForm from '#lib/components/NewsletterForm.svelte';
     import {
         APPLE_APP_STORE_LINK,
@@ -31,7 +32,7 @@
                 </p>
             </div>
             <a
-                href={`/${params.conference}/register/`}
+                href={resolve(`${params.conference}/register/`)}
                 class="button inline-block mb-8"
             >
                 Register Now
@@ -43,6 +44,7 @@
                 <a
                     class="block"
                     href={APPLE_APP_STORE_LINK}
+                    rel="external"
                     title="Download iOS app"
                 >
                     <img
@@ -55,6 +57,7 @@
                 <a
                     class="block"
                     href={GOOGLE_PLAY_STORE_LINK}
+                    rel="external"
                     title="Download android app"
                 >
                     <img

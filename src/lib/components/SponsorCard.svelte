@@ -49,6 +49,7 @@
         <a
             class={`block ${cardStyles}`}
             href={properties.url}
+            rel="external"
             target="_blank"
             title={title || undefined}
         >
