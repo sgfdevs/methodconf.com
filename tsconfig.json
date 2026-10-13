@@ -26,13 +26,5 @@
         "tests/**/*.ts",
         "generateUmbracoApiClient.ts",
         "vite.config.ts"
-    ],
-    "exclude": [
-        "src/app/**",
-        "src/components/**",
-        "src/data/**",
-        "src/config.ts",
-        "src/serverConfig.ts",
-        "src/util.ts"
     ]
 }
