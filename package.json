@@ -10,7 +10,7 @@
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-    "test": "vitest run && npm run build && node tests/route-smoke.mjs",
+    "test": "npm run test:unit && npm run test:routes",
     "test:unit": "vitest run",
     "test:routes": "npm run build && node tests/route-smoke.mjs",
     "generate:umbraco-api-client": "tsx generateUmbracoApiClient.ts"

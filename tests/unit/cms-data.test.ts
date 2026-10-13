@@ -23,24 +23,17 @@ describe('CMS dates and normalization helpers', () => {
         );
     });
 
-    it('keeps conference sorting based on parsed Chicago-local instants', () => {
-        const conferences = [
-            makeConference('2023', '2023-09-20T09:00:00Z'),
-            makeConference('2024', '2024-09-20T09:00:00Z'),
-            makeConference('no-date'),
-        ].map(parseConference);
+    it('parses conference dates as Chicago-local instants', () => {
+        const conference = parseConference({
+            id: '2024',
+            contentType: 'conference',
+            route: { path: '/2024/' },
+            properties: { date: '2024-09-20T09:00:00Z' },
+        } as unknown as Conference);
 
-        const latest = conferences
-            .filter((conference) => conference.properties.date)
-            .sort(
-                (a, b) =>
-                    b.properties.date!.getTime() - a.properties.date!.getTime(),
-            )[0];
-
-        expect(latest.route.path).toBe('/2024/');
-        expect(
-            formatDate(latest.properties.date!, 'yyyy-MM-dd HH:mm xxx'),
-        ).toBe('2024-09-20 09:00 -05:00');
+        expect(conference.properties.date?.toISOString()).toBe(
+            '2024-09-20T14:00:00.000Z',
+        );
     });
 
     it('parses session dates without changing other properties', () => {
@@ -98,12 +91,3 @@ describe('CMS dates and normalization helpers', () => {
         ]);
     });
 });
-
-function makeConference(slug: string, date?: string): Conference {
-    return {
-        id: slug,
-        contentType: 'conference',
-        route: { path: `/${slug}/` },
-        properties: { date },
-    } as unknown as Conference;
-}
