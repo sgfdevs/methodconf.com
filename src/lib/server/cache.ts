@@ -23,11 +23,6 @@ type FetchOutcome =
     | { kind: 'http-failure'; value: FetchedJsonResponse }
     | { kind: 'network-failure'; error: unknown };
 
-type CacheEntry = {
-    value?: CachedJsonResponse;
-    inFlight?: Promise<FetchOutcome>;
-};
-
 // This cache approximates Next's 60-second public CMS revalidation for JSON GETs.
 // Stale-while-revalidate is a short resilience window, not a promise that CMS
 // publishes are invisible for exactly 60 seconds.
@@ -243,79 +238,73 @@ export function createCmsJsonFetch(options: CmsJsonCacheOptions): typeof fetch {
     const maxEntries = options.maxEntries ?? DEFAULT_MAX_ENTRIES;
     const freshMs = options.freshMs ?? DEFAULT_FRESH_MS;
     const maxAgeMs = options.maxAgeMs ?? DEFAULT_MAX_AGE_MS;
-    const cache = new Map<string, CacheEntry>();
+    const cache = new Map<string, CachedJsonResponse>();
+    const activeRequests = new Map<string, Promise<FetchOutcome>>();
 
     function pruneExpiredEntries(currentTime: number): void {
-        for (const [key, entry] of cache) {
-            if (
-                !entry.inFlight &&
-                entry.value &&
-                currentTime - entry.value.storedAt > maxAgeMs
-            ) {
+        for (const [key, value] of cache) {
+            if (currentTime - value.storedAt > maxAgeMs) {
                 cache.delete(key);
             }
         }
     }
 
-    function pruneSize(): void {
-        while (cache.size > maxEntries) {
-            const oldestKey = cache.keys().next().value as string | undefined;
-            if (!oldestKey) {
-                return;
+    function storeResponse(key: string, value: CachedJsonResponse): void {
+        if (!cache.has(key) && cache.size >= maxEntries) {
+            const oldestKey = cache.keys().next().value;
+            if (oldestKey !== undefined) {
+                cache.delete(oldestKey);
             }
-            cache.delete(oldestKey);
         }
+        cache.set(key, value);
     }
 
     function startRefresh(
         key: string,
         request: Request,
-    ): Promise<FetchOutcome> {
-        const existing = cache.get(key);
-        if (existing?.inFlight) {
-            return existing.inFlight;
+    ): Promise<FetchOutcome> | undefined {
+        const existing = activeRequests.get(key);
+        if (existing) {
+            return existing;
         }
 
-        const inFlight = fetchFn(makeSharedRefreshRequest(request))
-            .then((response) => readJsonResponse(response, now()))
-            .then((outcome) => {
-                const entry = cache.get(key);
-                if (outcome.kind === 'success') {
-                    cache.set(key, { value: outcome.value });
-                    pruneExpiredEntries(now());
-                    pruneSize();
-                    return outcome;
-                }
+        // Never evict active requests. Their callers must keep coalescing even
+        // if the completed response is evicted or the upstream fetch hangs.
+        if (activeRequests.size >= maxEntries) {
+            return undefined;
+        }
 
-                if (outcome.kind === 'uncacheable-success') {
-                    cache.delete(key);
-                    return outcome;
-                }
-
-                if (
-                    outcome.kind === 'http-failure' &&
-                    outcome.value.status >= 400 &&
-                    outcome.value.status < 500
-                ) {
-                    cache.delete(key);
-                } else if (entry) {
-                    delete entry.inFlight;
-                }
-
+        const inFlight = (async (): Promise<FetchOutcome> => {
+            try {
+                const response = await fetchFn(
+                    makeSharedRefreshRequest(request),
+                );
+                return await readJsonResponse(response, now());
+            } catch (error) {
+                return { kind: 'network-failure', error };
+            }
+        })().then((outcome) => {
+            if (activeRequests.get(key) !== inFlight) {
                 return outcome;
-            })
-            .catch((error: unknown) => {
-                const entry = cache.get(key);
-                if (entry) {
-                    delete entry.inFlight;
-                }
-                return {
-                    kind: 'network-failure',
-                    error,
-                } satisfies FetchOutcome;
-            });
+            }
 
-        cache.set(key, { value: existing?.value, inFlight });
+            activeRequests.delete(key);
+            pruneExpiredEntries(now());
+            if (outcome.kind === 'success') {
+                storeResponse(key, outcome.value);
+            } else if (
+                outcome.kind === 'uncacheable-success' ||
+                (outcome.kind === 'http-failure' &&
+                    outcome.value.status >= 400 &&
+                    outcome.value.status < 500)
+            ) {
+                cache.delete(key);
+            }
+
+            return outcome;
+        });
+
+        activeRequests.set(key, inFlight);
         return inFlight;
     }
 
@@ -332,8 +321,7 @@ export function createCmsJsonFetch(options: CmsJsonCacheOptions): typeof fetch {
         pruneExpiredEntries(currentTime);
 
         const key = getCacheKey(request);
-        const entry = cache.get(key);
-        const value = entry?.value;
+        const value = cache.get(key);
 
         if (value) {
             const age = currentTime - value.storedAt;
@@ -348,10 +336,14 @@ export function createCmsJsonFetch(options: CmsJsonCacheOptions): typeof fetch {
             }
         }
 
-        const outcome = await waitForOutcome(
-            startRefresh(key, request),
-            request.signal,
-        );
+        const inFlight = startRefresh(key, request);
+        if (!inFlight) {
+            // Excess distinct requests are caller-owned and cannot write to or
+            // invalidate the cache when they eventually finish.
+            return fetchFn(input, init);
+        }
+
+        const outcome = await waitForOutcome(inFlight, request.signal);
 
         if (
             outcome.kind === 'success' ||
