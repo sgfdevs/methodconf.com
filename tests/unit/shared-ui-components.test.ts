@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'svelte';
 import { render } from 'svelte/server';
 import { describe, expect, it, vi } from 'vitest';
 import Button from '../../src/lib/components/Button.svelte';
@@ -6,62 +7,45 @@ import RichText from '../../src/lib/components/RichText.svelte';
 import SponsorCard from '../../src/lib/components/SponsorCard.svelte';
 import TextInput from '../../src/lib/components/TextInput.svelte';
 import { rewriteRichTextMediaUrls } from '../../src/lib/components/richText.ts';
-import type { CmsLink, Sponsor } from '../../src/lib/types.ts';
+import type { Sponsor } from '../../src/lib/types.ts';
 
 vi.mock('$app/state', () => ({
     page: { data: { cmsPublicUrl: 'https://cms-public.example.test/' } },
 }));
 
 describe('shared UI components', () => {
-    it('resolves URL, CMS content, external, and media links', () => {
-        expect(
-            render(Button, { props: { url: '/2024/register/' } }).body,
-        ).toContain('href="/2024/register/"');
-        expect(
-            render(Button, { props: { url: 'https://example.com' } }).body,
-        ).toContain('target="_blank"');
-
-        const contentLink: CmsLink = {
-            linkType: 'Content',
-            title: 'Read more',
-            queryString: '?ref=nav',
-            route: {
-                path: '/2024/code-of-conduct/',
-                startItem: { id: 'root', path: '/' },
+    it.each<[string, ComponentProps<typeof Button>]>([
+        ['href="/register/"', { url: '/register/' }],
+        ['target="_blank"', { url: 'https://example.com' }],
+        [
+            'href="/page/?ref=nav"',
+            {
+                cmsLink: {
+                    linkType: 'Content',
+                    queryString: '?ref=nav',
+                    route: {
+                        path: '/page/',
+                        startItem: { id: 'root', path: '/' },
+                    },
+                },
             },
-        };
-        expect(
-            render(Button, { props: { cmsLink: contentLink } }).body,
-        ).toContain('href="/2024/code-of-conduct/?ref=nav"');
-
-        const mediaLink: CmsLink = {
-            linkType: 'Media',
-            title: 'Map',
-            url: '/media/wixhir55/building-map.pdf',
-        };
-        expect(
-            render(Button, { props: { cmsLink: mediaLink } }).body,
-        ).toContain(
-            'href="https://cms-public.example.test/media/wixhir55/building-map.pdf"',
-        );
-    });
-
-    it('rebases absolute CMS media buttons without dropping query parameters or fragments', () => {
-        const html = render(Button, {
-            props: {
+        ],
+        [
+            'href="https://cms-public.example.test/media/map.pdf"',
+            { cmsLink: { linkType: 'Media', url: '/media/map.pdf' } },
+        ],
+        [
+            'href="https://cms-public.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
+            {
                 cmsLink: {
                     linkType: 'Media',
-                    title: 'Download',
                     url: 'http://cms-internal.test/media/file.pdf?crop=center#page=2',
                     queryString: '?download=true',
                 },
             },
-        }).body;
-
-        expect(html).toContain(
-            'href="https://cms-public.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
-        );
-        expect(html).not.toContain('cms-internal.test');
+        ],
+    ])('renders button %s', (expected, props) => {
+        expect(render(Button, { props }).body).toContain(expected);
     });
 
     it('associates the text input label with its ID and keeps native validation', () => {

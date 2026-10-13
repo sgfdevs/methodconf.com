@@ -23,20 +23,23 @@ function jsonRequest(body: unknown): Request {
 }
 
 describe('newsletter server handler', () => {
-    it('posts the listmonk payload with trimmed fields', async () => {
+    it.each([
+        [
+            'trimmed fields',
+            { name: '  Ada  ', email: '  ada@example.com  ', nullCheck: '' },
+            { name: 'Ada', email: 'ada@example.com' },
+        ],
+        [
+            'an omitted name and browser-valid a@b address',
+            { email: 'a@b' },
+            { name: '', email: 'a@b' },
+        ],
+    ])('posts the listmonk payload with %s', async (_, body, expected) => {
         const fetcher = vi
             .fn<NewsletterFetch>()
             .mockResolvedValue(Response.json({ data: true }));
         expect(
-            await handleNewsletterRequest(
-                jsonRequest({
-                    name: '  Ada  ',
-                    email: '  ada@example.com  ',
-                    nullCheck: '',
-                }),
-                config,
-                fetcher,
-            ),
+            await handleNewsletterRequest(jsonRequest(body), config, fetcher),
         ).toEqual({ body: { success: true }, status: 200 });
         expect(fetcher).toHaveBeenCalledOnce();
         const [url, init] = fetcher.mock.calls[0];
@@ -44,25 +47,7 @@ describe('newsletter server handler', () => {
         expect(init.method).toBe('POST');
         expect(init.headers).toEqual({ 'Content-Type': 'application/json' });
         expect(JSON.parse(init.body as string)).toEqual({
-            name: 'Ada',
-            email: 'ada@example.com',
-            list_uuids: [listId],
-        });
-    });
-
-    it('allows an omitted name and browser-valid a@b addresses', async () => {
-        const fetcher = vi
-            .fn<NewsletterFetch>()
-            .mockResolvedValue(Response.json({ data: true }));
-        const result = await handleNewsletterRequest(
-            jsonRequest({ email: 'a@b' }),
-            config,
-            fetcher,
-        );
-        expect(result.status).toBe(200);
-        expect(JSON.parse(fetcher.mock.calls[0][1].body as string)).toEqual({
-            name: '',
-            email: 'a@b',
+            ...expected,
             list_uuids: [listId],
         });
     });

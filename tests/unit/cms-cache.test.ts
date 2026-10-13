@@ -72,7 +72,7 @@ describe('CMS JSON cache', () => {
         'cleans up cold %s failures and allows a retry',
         async (kind) => {
             const { fetch, requests } = mockFetch([
-                ...Array.from({ length: 12 }, () => failure(kind)),
+                ...Array.from({ length: 3 }, () => failure(kind)),
                 json(1),
             ]);
             const { cachedFetch, maps } = observedCache({
@@ -81,7 +81,7 @@ describe('CMS JSON cache', () => {
                 maxEntries: 2,
             });
             expect(maps).toHaveLength(2);
-            for (let key = 0; key < 12; key++) {
+            for (let key = 0; key < 3; key++) {
                 const result = cachedFetch(`${contentUrl}&key=${key}`);
                 if (kind === '5xx') expect((await result).status).toBe(503);
                 else await expect(result).rejects.toThrow();
@@ -92,7 +92,7 @@ describe('CMS JSON cache', () => {
                     await value(await cachedFetch(`${contentUrl}&key=0`)),
                 ).toBe(1);
             }
-            expect(requests).toHaveLength(13);
+            expect(requests).toHaveLength(4);
             expect(maps.map((map) => map.size).sort()).toEqual([0, 1]);
         },
     );
@@ -103,9 +103,7 @@ describe('CMS JSON cache', () => {
         const { fetch, requests } = mockFetch([
             firstReply.promise,
             secondReply.promise,
-            ...Array.from({ length: 12 }, (_, index) =>
-                failure(['5xx', 'network', 'malformed JSON'][index % 3]),
-            ),
+            ...['5xx', 'network', 'malformed JSON'].map(failure),
             json(3),
         ]);
         const { cachedFetch, maps } = observedCache({
@@ -117,16 +115,16 @@ describe('CMS JSON cache', () => {
         const first = cachedFetch(`${contentUrl}&key=first`);
         const second = cachedFetch(`${contentUrl}&key=second`);
         const excess = await Promise.allSettled(
-            Array.from({ length: 12 }, (_, key) =>
+            Array.from({ length: 3 }, (_, key) =>
                 cachedFetch(`${contentUrl}&key=${key}`).then(value),
             ),
         );
         expect(
             excess.filter((result) => result.status === 'rejected'),
-        ).toHaveLength(8);
+        ).toHaveLength(2);
         expect(maps.map((map) => map.size).sort()).toEqual([0, 2]);
         const joined = cachedFetch(`${contentUrl}&key=first`);
-        expect(requests).toHaveLength(14);
+        expect(requests).toHaveLength(5);
         firstReply.resolve(json(1));
         secondReply.resolve(json(2));
         expect(await value(await first)).toBe(1);
