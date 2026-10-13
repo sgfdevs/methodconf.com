@@ -19,7 +19,7 @@ npm run check
 npm test
 ```
 
-`npm test` runs unit tests, builds the app, and checks routes against local CMS and newsletter fixtures. `npm run test:unit` runs only unit tests.
+`npm test` runs the unit tests without starting servers.
 
 ## Runtime configuration
 
