@@ -1,24 +1,48 @@
-import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
-import nextTypeScript from 'eslint-config-next/typescript';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
+import svelte from 'eslint-plugin-svelte';
+import tseslint from 'typescript-eslint';
 
-const eslintConfig = [
+export default tseslint.config(
     {
-        ignores: ['src/data/umbraco/*.d.ts'],
+        ignores: [
+            '.next/**',
+            '.svelte-kit/**',
+            'build/**',
+            'coverage/**',
+            'node_modules/**',
+            'next-env.d.ts',
+            'next.config.ts',
+            'src/app/**',
+            'src/components/**',
+            'src/config.ts',
+            'src/data/**',
+            'src/serverConfig.ts',
+            'src/util.ts',
+        ],
     },
-    ...nextCoreWebVitals,
-    ...nextTypeScript,
+    js.configs.recommended,
+    ...tseslint.configs.recommended,
+    ...svelte.configs.recommended,
+    ...svelte.configs.prettier,
+    prettier,
     {
-        settings: {
-            react: {
-                version: '19.0',
+        files: ['src/routes/**/*.svelte', 'src/lib/**/*.svelte'],
+        languageOptions: {
+            parserOptions: {
+                parser: tseslint.parser,
+                extraFileExtensions: ['.svelte'],
             },
         },
+    },
+    {
+        files: ['**/*.{js,ts,mjs,svelte}'],
+        plugins: {
+            prettier: prettierPlugin,
+        },
         rules: {
-            '@typescript-eslint/consistent-type-imports': 'error',
+            'prettier/prettier': 'error',
         },
     },
-    eslintPluginPrettierRecommended,
-];
-
-export default eslintConfig;
+);
