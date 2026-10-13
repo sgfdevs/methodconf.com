@@ -12,14 +12,41 @@ const APPLE_APP_STORE_LINK =
     'https://apps.apple.com/us/app/method-conf/id1498359521';
 const NEWSLETTER_LIST_ID = 'fake-newsletter-list';
 
-const conference = (slug, date, callForSpeakersUrl) => ({
-    contentType: 'conference',
-    name: slug,
-    route: { path: `/${slug}/` },
-    properties: {
+const contentBase = (id, contentType, name, path, properties = {}) => ({
+    id,
+    contentType,
+    name,
+    createDate: '2024-01-01T00:00:00Z',
+    updateDate: '2024-01-01T00:00:00Z',
+    route: { path, startItem: { id: 'root', path: '/' } },
+    properties,
+});
+
+const conference = (slug, date, callForSpeakersUrl, registerUrl) =>
+    contentBase(slug, 'conference', slug, `/${slug}/`, {
         date,
         callForSpeakersUrl,
-    },
+        registerUrl,
+    });
+
+const block = (id, contentType, properties = {}) => ({
+    id,
+    contentType,
+    properties,
+});
+
+const blocks = (...items) => ({
+    items: items.map((content) => ({ content })),
+});
+
+const image = (url) => ({
+    id: `${url}-id`,
+    name: url,
+    mediaType: 'Image',
+    url,
+    width: 1200,
+    height: 630,
+    properties: null,
 });
 
 const imageFixture = await sharp({
@@ -35,15 +62,115 @@ const imageFixture = await sharp({
 
 const largeImagePlaceholderBytes = 16 * 1024 * 1024;
 
-const state = {
-    conferences: [
-        conference('2023', '2023-09-01T09:00:00Z'),
-        conference(
-            '2024',
-            '2024-09-01T09:00:00Z',
-            'https://sessionize.example/method-2024/',
+const contentItems = [
+    contentBase('home-2024', 'home', 'Home', '/2024/home/', {
+        title: 'Home',
+        metaDescription: 'Conference home description',
+        openGraphImage: [image('/media/home-og.jpg')],
+        blocks: blocks(
+            block('intro-block', 'introAndEmailSignupBlock'),
+            block('schedule-block', 'scheduleBlock'),
+            block('location-block', 'locationBlock'),
+            block('sponsors-block', 'sponsorsBlock'),
         ),
-    ],
+    }),
+    contentBase(
+        'conduct-page',
+        'page',
+        'Code of Conduct',
+        '/2024/code-of-conduct/',
+        {
+            title: 'Code of Conduct',
+            metaDescription: 'Code page description',
+            openGraphImage: [image('/media/code-og.jpg')],
+            blocks: blocks(
+                block('rich-text-block', 'richText', {
+                    text: {
+                        markup: '<p>Be kind to each other.</p>',
+                        blocks: [],
+                    },
+                }),
+            ),
+        },
+    ),
+    contentBase(
+        'speaker-ada',
+        'speaker',
+        'Ada Lovelace',
+        '/2024/speakers/ada/',
+        {
+            jobTitle: 'Computer scientist',
+            profileImage: [image('/media/ada.jpg')],
+            bio: { markup: '<p>Ada wrote about computing.</p>', blocks: [] },
+            websiteUrl: 'https://example.test/ada',
+        },
+    ),
+    contentBase('sessions-root', 'sessions', 'Sessions', '/2024/sessions/'),
+    contentBase(
+        'session-1',
+        'session',
+        'Opening keynote',
+        '/2024/sessions/opening/',
+        {
+            start: '2024-09-01T09:00:00Z',
+            end: '2024-09-01T10:00:00Z',
+            speakers: [
+                contentBase(
+                    'speaker-ada',
+                    'speaker',
+                    'Ada Lovelace',
+                    '/2024/speakers/ada/',
+                    {
+                        jobTitle: 'Computer scientist',
+                        profileImage: [image('/media/ada.jpg')],
+                    },
+                ),
+            ],
+            description: { markup: '<p>Opening remarks.</p>', blocks: [] },
+        },
+    ),
+    contentBase('sponsors-root', 'sponsors', 'Sponsors', '/2024/sponsors/', {
+        tiers: {
+            items: [
+                {
+                    content: block('sponsor-tier', 'sponsorTier', {
+                        title: 'Community',
+                        sponsors: {
+                            items: [
+                                {
+                                    content: block('sponsor-acme', 'sponsor', {
+                                        title: 'Acme',
+                                        url: 'https://example.test',
+                                        logo: [image('/media/acme.svg')],
+                                    }),
+                                },
+                            ],
+                        },
+                    }),
+                },
+            ],
+        },
+    }),
+    contentBase(
+        'unsupported',
+        'sessions',
+        'Sessions leaf',
+        '/2024/not-a-page/',
+    ),
+];
+
+const defaultConferences = () => [
+    conference('2023', '2023-09-01T09:00:00Z'),
+    conference(
+        '2024',
+        '2024-09-01T09:00:00Z',
+        'https://sessionize.example/method-2024/',
+        'https://tickets.example/embed?id=5b12c452dc',
+    ),
+];
+
+const state = {
+    conferences: defaultConferences(),
     mediaRequests: [],
     newsletterRequests: [],
     cmsRequests: 0,
@@ -76,9 +203,36 @@ async function startUpstream() {
 
         if (url.pathname === '/umbraco/delivery/api/v2/content') {
             state.cmsRequests += 1;
+            const filters = url.searchParams.getAll('filter');
+            const fetch = url.searchParams.get('fetch') ?? '';
+            let items = state.conferences;
+
+            if (fetch.startsWith('descendants:2024')) {
+                items = contentItems;
+            }
+
+            if (fetch.startsWith('descendants:sessions-root')) {
+                items = contentItems.filter((item) =>
+                    ['session', 'track'].includes(item.contentType),
+                );
+            }
+
+            for (const filter of filters) {
+                if (filter.startsWith('contentType:')) {
+                    const contentType = filter.replace('contentType:', '');
+                    items = items.filter(
+                        (item) => item.contentType === contentType,
+                    );
+                }
+
+                if (filter === 'speaker:speaker-ada') {
+                    items = items.filter((item) => item.id === 'session-1');
+                }
+            }
+
             writeJson(response, 200, {
-                total: state.conferences.length,
-                items: state.conferences,
+                total: items.length,
+                items,
             });
             return;
         }
@@ -101,7 +255,15 @@ async function startUpstream() {
                 return;
             }
 
-            const item = state.conferences.find((item) => item.name === slug);
+            const byPath = new Map([
+                ...state.conferences.map((item) => [item.name, item]),
+                ...contentItems.map((item) => [
+                    item.route.path.replace(/^\//, '').replace(/\/$/, ''),
+                    item,
+                ]),
+                ['2024/home', contentItems[0]],
+            ]);
+            const item = byPath.get(slug.replace(/\/$/, ''));
 
             if (!item) {
                 writeJson(response, 404, { message: 'not found' });
@@ -109,6 +271,13 @@ async function startUpstream() {
             }
 
             writeJson(response, 200, item);
+            return;
+        }
+
+        if (url.pathname === '/api/v1/conference/2024/schedule') {
+            writeJson(response, 200, {
+                scheduleGrid: [['session-1']],
+            });
             return;
         }
 
@@ -479,18 +648,56 @@ async function runRouteChecks(origin) {
         (await request(origin, '/2024/sessions/not-a-page/')).status,
         404,
     );
-    assert.equal((await request(origin, '/sitemap.xml')).status, 404);
+    assert.equal((await request(origin, '/2024/not-a-page/')).status, 404);
+    await expectRedirect(origin, '/sitemap.xml', 308, './sitemap.xml/');
+    assert.equal((await request(origin, '/sitemap.xml/')).status, 404);
+
+    const home = await expectHead(origin, '/2024/', 200);
+    assert.match(home.html, /Invest In Yourself and Hone Your Craft/);
+    assert.match(home.html, /Stay in-the-know about event updates/);
+    assert.match(home.html, /Schedule/);
+    assert.match(home.html, /Location Info/);
+    assert.match(home.html, /Sponsors/);
+    assert.match(home.head, /<title>Method Conference - Home<\/title>/);
+    assert.match(
+        home.head,
+        /<meta name="description" content="Conference home description"/,
+    );
+    assert.match(
+        home.head,
+        /<meta property="og:image" content="https:\/\/www\.example\.test\/cms-media\/media\/home-og\.jpg\?width=1200&amp;height=630"/,
+    );
+    assert.equal(countHeadTags(home.head, /property="og:image:type"/g), 0);
+
+    const generic = await expectHead(origin, '/2024/code-of-conduct/', 200);
+    assert.match(generic.html, /Be kind to each other\./);
+    assert.match(generic.html, /href="\/2024\/register\/"/);
+    assert.match(
+        generic.head,
+        /<title>Method Conference - Code of Conduct<\/title>/,
+    );
+
+    const speaker = await expectHead(origin, '/2024/speakers/ada/', 200);
+    assert.match(speaker.html, /Ada Lovelace/);
+    assert.match(speaker.html, /Opening keynote/);
+    assert.match(speaker.html, /Ada Lovelace Website/);
+    assert.match(
+        speaker.head,
+        /<title>Method Conference - Ada Lovelace<\/title>/,
+    );
+
+    const register = await expectHead(origin, '/2024/register/', 200);
+    assert.match(register.html, /Loading\.\.\./);
+    assert.doesNotMatch(register.html, /<iframe/);
+
+    const success = await expectHead(origin, '/2024/register/success/', 200);
+    assert.match(success.html, /Thank You for Registering/);
+    assert.match(success.html, /href="\/2024\/"/);
+    assert.match(success.head, /<meta name="robots" content="noindex"/);
 
     state.conferences = [];
     assert.equal((await request(origin, '/')).status, 404);
-    state.conferences = [
-        conference('2023', '2023-09-01T09:00:00Z'),
-        conference(
-            '2024',
-            '2024-09-01T09:00:00Z',
-            'https://sessionize.example/method-2024/',
-        ),
-    ];
+    state.conferences = defaultConferences();
 }
 
 async function runNewsletterChecks(origin) {
@@ -591,8 +798,8 @@ async function runHeadChecks(origin, { searchIndexingEnabled }) {
         );
     }
 
-    const notFound = await expectHead(origin, '/2024/nope/', 404);
-    assertDefaultSharedHead(notFound.head, '/2024/nope/');
+    const notFound = await expectHead(origin, '/missing/', 404);
+    assertDefaultSharedHead(notFound.head, '/missing/');
     assert.equal(countHeadTags(notFound.head, /name="robots"/g), 1);
     assert.match(notFound.head, /<meta name="robots" content="noindex"/);
     assert.equal(countHeadTags(notFound.head, /property="og:image"/g), 1);
@@ -602,7 +809,7 @@ async function runHeadChecks(origin, { searchIndexingEnabled }) {
     assert.ok(footerIndex > shellIndex, '404 footer should render below shell');
     const notFoundCss = await stylesheetText(
         origin,
-        '/2024/nope/',
+        '/missing/',
         notFound.head,
     );
     assert.match(notFoundCss, /height:\s*100vh/);
@@ -626,6 +833,7 @@ async function runRobotChecks(upstreamUrl) {
             response.headers.get('content-type') ?? '',
             /^text\/plain/,
         );
+        assert.equal(state.cmsRequests, before, 'robots should not hit CMS');
         await runHeadChecks(enabledApp.origin, {
             searchIndexingEnabled: true,
         });
@@ -638,11 +846,17 @@ async function runRobotChecks(upstreamUrl) {
         searchIndexingEnabled: false,
     });
     try {
+        const beforeDisabledRobots = state.cmsRequests;
         await expectText(
             disabledApp.origin,
             '/robots.txt',
             200,
             'User-Agent: *\nDisallow: /\n\n',
+        );
+        assert.equal(
+            state.cmsRequests,
+            beforeDisabledRobots,
+            'robots should not hit CMS',
         );
         await runHeadChecks(disabledApp.origin, {
             searchIndexingEnabled: false,
@@ -650,7 +864,6 @@ async function runRobotChecks(upstreamUrl) {
     } finally {
         await disabledApp.close();
     }
-    assert.equal(state.cmsRequests, before, 'robots should not hit CMS');
 }
 
 async function runImageOptimizerChecks(origin) {
