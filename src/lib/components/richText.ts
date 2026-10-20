@@ -20,7 +20,10 @@ export function rewriteRichTextMediaUrls(
                 parsed.pathname.startsWith('/media/') &&
                 cmsOrigins.includes(parsed.origin)
             ) {
-                return imageUrl(url, cmsPublicUrl);
+                return imageUrl(
+                    parsed.pathname + parsed.search + parsed.hash,
+                    cmsPublicUrl,
+                );
             }
         } catch {
             // Leave malformed and non-URL attributes unchanged.

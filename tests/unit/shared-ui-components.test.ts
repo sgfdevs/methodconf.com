@@ -64,11 +64,11 @@ describe('shared UI components', () => {
             true,
         ],
         [
-            'href="https://cms-public.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
+            'href="https://media.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
             {
                 cmsLink: {
                     linkType: 'Media',
-                    url: 'http://cms-internal.test/media/file.pdf?crop=center#page=2',
+                    url: 'https://media.example.test/media/file.pdf?crop=center#page=2',
                     queryString: '?download=true',
                 },
             },
@@ -142,6 +142,19 @@ describe('shared UI components', () => {
         );
     });
 
+    it('leaves CMS-provided CDN rich text URLs unchanged', () => {
+        const markup =
+            '<img src="https://media.example.test/media/logo.png" srcset="https://media.example.test/media/logo.png 1x, https://media.example.test/media/logo-2.png 2x"><a href="https://media.example.test/media/file.pdf">Map</a>';
+        expect(
+            rewriteRichTextMediaUrls(
+                markup,
+                'https://cms-public.example.test/',
+                'http://cms-private.test/',
+            ),
+        ).toBe(markup);
+        expect(render(RichText, { props: { markup } }).body).toContain(markup);
+    });
+
     it('uses the public CMS for location maps', () => {
         const html = render(LocationBlock).body;
         expect(html).toContain(
@@ -152,32 +165,39 @@ describe('shared UI components', () => {
         );
     });
 
-    it('loads sponsor SVGs directly from the public CMS with intrinsic dimensions', () => {
-        const sponsor = {
-            properties: {
-                title: 'Acme',
-                url: 'https://example.com',
-                logo: [
-                    {
-                        url: '/media/logo.svg',
-                        width: 300,
-                        height: 120,
-                    },
-                ],
-            },
-        } as Sponsor;
+    it.each([
+        ['/media/logo.svg', 'https://cms-public.example.test/media/logo.svg'],
+        [
+            'https://media.example.test/media/logo.svg',
+            'https://media.example.test/media/logo.svg',
+        ],
+    ])(
+        'loads sponsor SVG %s without replacing its origin',
+        (url, expectedUrl) => {
+            const sponsor = {
+                properties: {
+                    title: 'Acme',
+                    url: 'https://example.com',
+                    logo: [
+                        {
+                            url,
+                            width: 300,
+                            height: 120,
+                        },
+                    ],
+                },
+            } as Sponsor;
 
-        const html = render(SponsorCard, {
-            props: { sponsor, cardSize: 'medium' },
-        }).body;
+            const html = render(SponsorCard, {
+                props: { sponsor, cardSize: 'medium' },
+            }).body;
 
-        expect(html).toContain('href="https://example.com"');
-        expect(html).toContain('alt="Acme logo"');
-        expect(html).toContain(
-            'src="https://cms-public.example.test/media/logo.svg?height=240"',
-        );
-        expect(html).toContain('loading="lazy"');
-        expect(html).toContain('width="300"');
-        expect(html).toContain('height="120"');
-    });
+            expect(html).toContain('href="https://example.com"');
+            expect(html).toContain('alt="Acme logo"');
+            expect(html).toContain(`src="${expectedUrl}?height=240"`);
+            expect(html).toContain('loading="lazy"');
+            expect(html).toContain('width="300"');
+            expect(html).toContain('height="120"');
+        },
+    );
 });

@@ -1,6 +1,6 @@
 # MethodConf
 
-The MethodConf frontend uses Svelte 5 and SvelteKit 3. Server-rendered conference pages, schedules, speakers, sponsors, and registration content come from the [Umbraco CMS](https://github.com/sgfdevs/cms.methodconf.com). Static assets and self-hosted fonts live in `static/`; CMS media loads directly from the public CMS URL. Umbraco handles image resizing.
+The MethodConf frontend uses Svelte 5 and SvelteKit 3. Server-rendered conference pages, schedules, speakers, sponsors, and registration content come from the [Umbraco CMS](https://github.com/sgfdevs/cms.methodconf.com). Static assets and self-hosted fonts live in `static/`; CMS media loads directly from the URLs returned by Umbraco, including its configured CDN. Umbraco handles image resizing.
 
 ## Local development
 
@@ -26,7 +26,7 @@ npm test
 SvelteKit reads the server variables declared in `src/env.ts` at runtime. The root layout exposes only `CMS_PUBLIC_URL` to media components. Keep credentials server-side.
 
 - `UMBRACO_BASE_URL` must point to the internal Umbraco Delivery API used by page loaders.
-- `CMS_PUBLIC_URL` is the browser-accessible CMS URL for media, OpenGraph images, and the `/umbraco/` redirect. It can differ from `UMBRACO_BASE_URL`. Images use CMS `width` and `height` query parameters; the frontend does not process or proxy media.
+- `CMS_PUBLIC_URL` is the browser-accessible CMS URL for relative media URLs and the `/umbraco/` redirect. It can differ from `UMBRACO_BASE_URL`. Absolute media URLs returned by Umbraco are preserved, including CDN URLs and OpenGraph images. Images use CMS `width` and `height` query parameters; the frontend does not process or proxy media.
 - `SITE_URL` is the canonical frontend URL, including its scheme.
 - `SEARCH_INDEXING_ENABLED=true` allows indexing. Any other value disables it.
 - `NEWSLETTER_ENDPOINT` and `NEWSLETTER_LIST_ID` configure the server-side newsletter subscription request. Without both, subscriptions return a configuration error. For local work, use a fake local endpoint and list ID so form submissions cannot reach the live service.

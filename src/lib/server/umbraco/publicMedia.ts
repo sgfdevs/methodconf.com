@@ -16,7 +16,10 @@ export function rewriteContentMedia<T>(content: T): T {
                 parsed.pathname.startsWith('/media/') &&
                 cmsOrigins.includes(parsed.origin)
             ) {
-                return imageUrl(url, publicUrl);
+                return imageUrl(
+                    parsed.pathname + parsed.search + parsed.hash,
+                    publicUrl,
+                );
             }
         } catch {
             // Keep malformed CMS fields unchanged.

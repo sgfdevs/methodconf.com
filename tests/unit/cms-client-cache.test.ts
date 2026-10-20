@@ -105,6 +105,33 @@ describe('Umbraco helper cache wiring', () => {
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
+    it('preserves CMS-provided CDN URLs through cached content and rich text', async () => {
+        const content = {
+            ...contentItem(1),
+            properties: {
+                image: {
+                    url: 'https://media.methodconf.test/media/photo.jpg?crop=center#photo',
+                },
+                text: {
+                    markup: '<img src="https://media.methodconf.test/media/logo.svg?width=100" srcset="https://media.methodconf.test/media/logo.svg 1x, https://media.methodconf.test/media/logo-2.svg 2x"><a href="https://media.methodconf.test/media/file.pdf#page=2">Map</a>',
+                },
+            },
+        };
+        const fetch = vi.fn(async () => Response.json(content));
+        vi.stubGlobal('fetch', fetch);
+        const { getItemByPathOrDefault } =
+            await import('#lib/server/umbraco/getItemByPath.ts');
+
+        await expect(getItemByPathOrDefault('/2024/')).resolves.toEqual(
+            content,
+        );
+        privateEnv.CMS_PUBLIC_URL = 'https://cms-other.methodconf.test';
+        await expect(getItemByPathOrDefault('/2024/')).resolves.toEqual(
+            content,
+        );
+        expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
     it('isolates helper caches by runtime Umbraco origin', async () => {
         const origins: string[] = [];
         vi.stubGlobal(

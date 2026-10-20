@@ -8,13 +8,8 @@ export function imageUrl(
     cmsPublicUrl: string,
     { width, height }: ImageUrlOptions = {},
 ): string {
-    const parsedUrl = new URL(url, cmsPublicUrl);
-    const publicUrl = new URL(cmsPublicUrl);
-
-    // CMS media can arrive with the private API origin. Keep only its path.
-    publicUrl.pathname = parsedUrl.pathname;
-    publicUrl.search = parsedUrl.search;
-    publicUrl.hash = parsedUrl.hash;
+    // The CMS owns absolute media URLs. Resolve only relative URLs locally.
+    const publicUrl = new URL(url, cmsPublicUrl);
 
     if (width) {
         publicUrl.searchParams.set('width', width.toString());
