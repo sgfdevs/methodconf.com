@@ -37,7 +37,7 @@
     );
     const logoUrl = $derived(
         image?.url
-            ? imageUrl(image.url, page.data.cmsPublicUrl, {
+            ? imageUrl(image.url, page.data.mediaPublicUrl, {
                   height: imageHeight,
               })
             : undefined,

@@ -5,22 +5,22 @@ const MEDIA_ATTRIBUTE_PATTERN =
 
 export function rewriteRichTextMediaUrls(
     markup: string,
-    cmsPublicUrl: string,
-    cmsInternalUrl?: string,
+    mediaPublicUrl: string,
+    ...cmsUrls: string[]
 ): string {
-    const cmsOrigins = [cmsPublicUrl, cmsInternalUrl]
+    const cmsOrigins = [mediaPublicUrl, ...cmsUrls]
         .filter((url): url is string => Boolean(url))
         .map((url) => new URL(url).origin);
 
     function rewriteUrl(url: string): string {
         try {
-            const parsed = new URL(url, cmsPublicUrl);
+            const parsed = new URL(url, mediaPublicUrl);
 
             if (
                 parsed.pathname.startsWith('/media/') &&
                 cmsOrigins.includes(parsed.origin)
             ) {
-                return imageUrl(url, cmsPublicUrl);
+                return imageUrl(url, mediaPublicUrl);
             }
         } catch {
             // Leave malformed and non-URL attributes unchanged.

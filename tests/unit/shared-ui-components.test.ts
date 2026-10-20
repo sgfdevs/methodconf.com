@@ -12,7 +12,10 @@ import type { Sponsor } from '../../src/lib/types.ts';
 vi.mock('$app/state', () => ({
     page: {
         url: new URL('https://methodconf.test/2024/?existing=1'),
-        data: { cmsPublicUrl: 'https://cms-public.example.test/' },
+        data: {
+            cmsPublicUrl: 'https://cms-public.example.test/',
+            mediaPublicUrl: 'https://media.example.test/',
+        },
     },
 }));
 
@@ -59,12 +62,12 @@ describe('shared UI components', () => {
             },
         ],
         [
-            'href="https://cms-public.example.test/media/map.pdf"',
+            'href="https://media.example.test/media/map.pdf"',
             { cmsLink: { linkType: 'Media', url: '/media/map.pdf' } },
             true,
         ],
         [
-            'href="https://cms-public.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
+            'href="https://media.example.test/media/file.pdf?crop=center&amp;download=true#page=2"',
             {
                 cmsLink: {
                     linkType: 'Media',
@@ -113,11 +116,11 @@ describe('shared UI components', () => {
 
         const html = render(RichText, {
             props: {
-                markup: '<p><img src="/media/logo.png"></p>',
+                markup: '<p><img src="https://cms-public.example.test/media/logo.png"></p>',
             },
         }).body;
         expect(html).toContain(
-            'src="https://cms-public.example.test/media/logo.png"',
+            'src="https://media.example.test/media/logo.png"',
         );
     });
 
@@ -142,17 +145,33 @@ describe('shared UI components', () => {
         );
     });
 
-    it('uses the public CMS for location maps', () => {
+    it('normalizes all CMS origins to the media host without changing external URLs', () => {
+        const markup = `<img src="http://cms-private.test/media/a.png?width=100#photo" srcset="https://cms-public.example.test/media/a.png 1x, /media/b.png 2x"><a href="https://external.test/media/file.pdf">External</a><a href="https://cms-public.example.test/umbraco/">CMS</a>`;
+        const rewrite = (html: string) =>
+            rewriteRichTextMediaUrls(
+                html,
+                'https://media.example.test/',
+                'https://cms-public.example.test/',
+                'http://cms-private.test/',
+            );
+        const rewritten = rewrite(markup);
+        expect(rewritten).toBe(
+            `<img src="https://media.example.test/media/a.png?width=100#photo" srcset="https://media.example.test/media/a.png 1x, https://media.example.test/media/b.png 2x"><a href="https://external.test/media/file.pdf">External</a><a href="https://cms-public.example.test/umbraco/">CMS</a>`,
+        );
+        expect(rewrite(rewritten)).toBe(rewritten);
+    });
+
+    it('uses the media host for location maps', () => {
         const html = render(LocationBlock).body;
         expect(html).toContain(
-            'href="https://cms-public.example.test/media/wixhir55/building-map.pdf"',
+            'href="https://media.example.test/media/wixhir55/building-map.pdf"',
         );
         expect(html).toContain(
-            'href="https://cms-public.example.test/media/pw1lyaa4/parking-map.pdf"',
+            'href="https://media.example.test/media/pw1lyaa4/parking-map.pdf"',
         );
     });
 
-    it('loads sponsor SVGs directly from the public CMS with intrinsic dimensions', () => {
+    it('loads sponsor SVGs directly from the media host with intrinsic dimensions', () => {
         const sponsor = {
             properties: {
                 title: 'Acme',
@@ -174,7 +193,7 @@ describe('shared UI components', () => {
         expect(html).toContain('href="https://example.com"');
         expect(html).toContain('alt="Acme logo"');
         expect(html).toContain(
-            'src="https://cms-public.example.test/media/logo.svg?height=240"',
+            'src="https://media.example.test/media/logo.svg?height=240"',
         );
         expect(html).toContain('loading="lazy"');
         expect(html).toContain('width="300"');

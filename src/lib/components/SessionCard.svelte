@@ -34,7 +34,7 @@
     );
     const profileImageUrl = $derived(
         profileImage?.url
-            ? imageUrl(profileImage.url, page.data.cmsPublicUrl, {
+            ? imageUrl(profileImage.url, page.data.mediaPublicUrl, {
                   width: 100,
                   height: 100,
               })

@@ -18,7 +18,12 @@ export const variables = defineEnvVars({
     CMS_PUBLIC_URL: {
         schema: optionalUrl,
         description:
-            'Browser-accessible CMS URL for media and redirects. Exposed through layout data at runtime.',
+            'Browser-accessible CMS URL for backoffice redirects. Runtime only.',
+    },
+    MEDIA_PUBLIC_URL: {
+        schema: optionalUrl,
+        description:
+            'Browser-accessible media origin. Defaults to CMS_PUBLIC_URL at runtime.',
     },
     SITE_URL: {
         schema: optionalUrl,

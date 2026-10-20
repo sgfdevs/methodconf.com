@@ -79,7 +79,7 @@
             <div class="w-full mb-5 md:mb-0 md:w-1/3">
                 {#if image?.url}
                     <img
-                        src={imageUrl(image.url, page.data.cmsPublicUrl, {
+                        src={imageUrl(image.url, page.data.mediaPublicUrl, {
                             width: 500,
                             height: 560,
                         })}

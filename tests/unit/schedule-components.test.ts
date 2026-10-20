@@ -24,7 +24,12 @@ import type {
 } from '../../src/lib/types.ts';
 
 vi.mock('$app/state', () => ({
-    page: { data: { cmsPublicUrl: 'https://cms-public.example.test/' } },
+    page: {
+        data: {
+            cmsPublicUrl: 'https://cms-public.example.test/',
+            mediaPublicUrl: 'https://media.example.test/',
+        },
+    },
 }));
 
 const ada = {
@@ -147,7 +152,7 @@ describe('schedule SSR components', () => {
         expect(html).toContain('href="/speakers/ada/"');
         expect(html).toContain('Ada profile image');
         expect(html).toContain(
-            'src="https://cms-public.example.test/media/ada.jpg?width=100&amp;height=100"',
+            'src="https://media.example.test/media/ada.jpg?width=100&amp;height=100"',
         );
         expect(html).toContain('width="100"');
         expect(html).toContain('height="100"');

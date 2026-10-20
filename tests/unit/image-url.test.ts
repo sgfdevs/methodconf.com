@@ -45,7 +45,7 @@ describe('CMS media URLs', () => {
         );
     });
 
-    it('uses the public CMS for OpenGraph images rather than the site or API origin', () => {
+    it('uses the media origin for OpenGraph images rather than the CMS or site origin', () => {
         const page = {
             properties: {
                 openGraphImage: [
@@ -58,11 +58,11 @@ describe('CMS media URLs', () => {
         const head = buildGenericPageHead({
             page,
             siteUrl: 'https://www.example.test/',
-            cmsPublicUrl,
+            mediaPublicUrl: 'https://media.example.test/',
         });
 
         expect(head.openGraph.image?.url).toBe(
-            'https://cms-public.example.test/media/og.png?crop=center&width=1200&height=630#og',
+            'https://media.example.test/media/og.png?crop=center&width=1200&height=630#og',
         );
     });
 });

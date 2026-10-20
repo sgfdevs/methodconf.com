@@ -51,7 +51,7 @@
 
             if (cmsLink.linkType === 'Media' && cmsLink.url) {
                 const mediaUrl = new globalThis.URL(
-                    imageUrl(cmsLink.url, page.data.cmsPublicUrl),
+                    imageUrl(cmsLink.url, page.data.mediaPublicUrl),
                 );
                 if (queryString) {
                     const query = new globalThis.URLSearchParams(queryString);

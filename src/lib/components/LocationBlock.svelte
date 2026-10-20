@@ -12,11 +12,11 @@
             heading: 'Event Location',
             content:
                 '<a target="_blank" href="https://maps.app.goo.gl/ZHNKbCreeTA3spxR9">405 N Jefferson Ave, Springfield, MO 65806</a><br>' +
-                `<a href="${imageUrl(BUILDING_MAP, page.data.cmsPublicUrl)}">Building Map</a>`,
+                `<a href="${imageUrl(BUILDING_MAP, page.data.mediaPublicUrl)}">Building Map</a>`,
         },
         {
             heading: 'Parking',
-            content: `<p>There is free on-site parking at the event location.<br><a href="${imageUrl(PARKING_MAP, page.data.cmsPublicUrl)}">Parking Map</a></p>`,
+            content: `<p>There is free on-site parking at the event location.<br><a href="${imageUrl(PARKING_MAP, page.data.mediaPublicUrl)}">Parking Map</a></p>`,
         },
         {
             heading: 'Airport',

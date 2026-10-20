@@ -5,11 +5,11 @@ export interface ImageUrlOptions {
 
 export function imageUrl(
     url: string,
-    cmsPublicUrl: string,
+    mediaPublicUrl: string,
     { width, height }: ImageUrlOptions = {},
 ): string {
-    const parsedUrl = new URL(url, cmsPublicUrl);
-    const publicUrl = new URL(cmsPublicUrl);
+    const parsedUrl = new URL(url, mediaPublicUrl);
+    const publicUrl = new URL(mediaPublicUrl);
 
     // CMS media can arrive with the private API origin. Keep only its path.
     publicUrl.pathname = parsedUrl.pathname;
