@@ -19,12 +19,6 @@ export function getCmsPublicUrl(): URL {
     return getRequiredUrl('CMS_PUBLIC_URL', privateEnv.CMS_PUBLIC_URL);
 }
 
-export function getMediaPublicUrl(): URL {
-    return privateEnv.MEDIA_PUBLIC_URL
-        ? getRequiredUrl('MEDIA_PUBLIC_URL', privateEnv.MEDIA_PUBLIC_URL)
-        : getCmsPublicUrl();
-}
-
 export function getSiteUrl(): URL {
     return getRequiredUrl('SITE_URL', privateEnv.SITE_URL);
 }

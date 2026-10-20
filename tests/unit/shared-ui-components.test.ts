@@ -12,10 +12,7 @@ import type { Sponsor } from '../../src/lib/types.ts';
 vi.mock('$app/state', () => ({
     page: {
         url: new URL('https://methodconf.test/2024/?existing=1'),
-        data: {
-            cmsPublicUrl: 'https://cms-public.example.test/',
-            mediaPublicUrl: 'https://media.example.test/',
-        },
+        data: { cmsPublicUrl: 'https://cms-public.example.test/' },
     },
 }));
 
@@ -62,7 +59,7 @@ describe('shared UI components', () => {
             },
         ],
         [
-            'href="https://media.example.test/media/map.pdf"',
+            'href="https://cms-public.example.test/media/map.pdf"',
             { cmsLink: { linkType: 'Media', url: '/media/map.pdf' } },
             true,
         ],
@@ -71,7 +68,7 @@ describe('shared UI components', () => {
             {
                 cmsLink: {
                     linkType: 'Media',
-                    url: 'http://cms-internal.test/media/file.pdf?crop=center#page=2',
+                    url: 'https://media.example.test/media/file.pdf?crop=center#page=2',
                     queryString: '?download=true',
                 },
             },
@@ -116,11 +113,11 @@ describe('shared UI components', () => {
 
         const html = render(RichText, {
             props: {
-                markup: '<p><img src="https://cms-public.example.test/media/logo.png"></p>',
+                markup: '<p><img src="/media/logo.png"></p>',
             },
         }).body;
         expect(html).toContain(
-            'src="https://media.example.test/media/logo.png"',
+            'src="https://cms-public.example.test/media/logo.png"',
         );
     });
 
@@ -145,58 +142,62 @@ describe('shared UI components', () => {
         );
     });
 
-    it('normalizes all CMS origins to the media host without changing external URLs', () => {
-        const markup = `<img src="http://cms-private.test/media/a.png?width=100#photo" srcset="https://cms-public.example.test/media/a.png 1x, /media/b.png 2x"><a href="https://external.test/media/file.pdf">External</a><a href="https://cms-public.example.test/umbraco/">CMS</a>`;
-        const rewrite = (html: string) =>
+    it('leaves CMS-provided CDN rich text URLs unchanged', () => {
+        const markup =
+            '<img src="https://media.example.test/media/logo.png" srcset="https://media.example.test/media/logo.png 1x, https://media.example.test/media/logo-2.png 2x"><a href="https://media.example.test/media/file.pdf">Map</a>';
+        expect(
             rewriteRichTextMediaUrls(
-                html,
-                'https://media.example.test/',
+                markup,
                 'https://cms-public.example.test/',
                 'http://cms-private.test/',
-            );
-        const rewritten = rewrite(markup);
-        expect(rewritten).toBe(
-            `<img src="https://media.example.test/media/a.png?width=100#photo" srcset="https://media.example.test/media/a.png 1x, https://media.example.test/media/b.png 2x"><a href="https://external.test/media/file.pdf">External</a><a href="https://cms-public.example.test/umbraco/">CMS</a>`,
-        );
-        expect(rewrite(rewritten)).toBe(rewritten);
+            ),
+        ).toBe(markup);
+        expect(render(RichText, { props: { markup } }).body).toContain(markup);
     });
 
-    it('uses the media host for location maps', () => {
+    it('uses the public CMS for location maps', () => {
         const html = render(LocationBlock).body;
         expect(html).toContain(
-            'href="https://media.example.test/media/wixhir55/building-map.pdf"',
+            'href="https://cms-public.example.test/media/wixhir55/building-map.pdf"',
         );
         expect(html).toContain(
-            'href="https://media.example.test/media/pw1lyaa4/parking-map.pdf"',
+            'href="https://cms-public.example.test/media/pw1lyaa4/parking-map.pdf"',
         );
     });
 
-    it('loads sponsor SVGs directly from the media host with intrinsic dimensions', () => {
-        const sponsor = {
-            properties: {
-                title: 'Acme',
-                url: 'https://example.com',
-                logo: [
-                    {
-                        url: '/media/logo.svg',
-                        width: 300,
-                        height: 120,
-                    },
-                ],
-            },
-        } as Sponsor;
+    it.each([
+        ['/media/logo.svg', 'https://cms-public.example.test/media/logo.svg'],
+        [
+            'https://media.example.test/media/logo.svg',
+            'https://media.example.test/media/logo.svg',
+        ],
+    ])(
+        'loads sponsor SVG %s without replacing its origin',
+        (url, expectedUrl) => {
+            const sponsor = {
+                properties: {
+                    title: 'Acme',
+                    url: 'https://example.com',
+                    logo: [
+                        {
+                            url,
+                            width: 300,
+                            height: 120,
+                        },
+                    ],
+                },
+            } as Sponsor;
 
-        const html = render(SponsorCard, {
-            props: { sponsor, cardSize: 'medium' },
-        }).body;
+            const html = render(SponsorCard, {
+                props: { sponsor, cardSize: 'medium' },
+            }).body;
 
-        expect(html).toContain('href="https://example.com"');
-        expect(html).toContain('alt="Acme logo"');
-        expect(html).toContain(
-            'src="https://media.example.test/media/logo.svg?height=240"',
-        );
-        expect(html).toContain('loading="lazy"');
-        expect(html).toContain('width="300"');
-        expect(html).toContain('height="120"');
-    });
+            expect(html).toContain('href="https://example.com"');
+            expect(html).toContain('alt="Acme logo"');
+            expect(html).toContain(`src="${expectedUrl}?height=240"`);
+            expect(html).toContain('loading="lazy"');
+            expect(html).toContain('width="300"');
+            expect(html).toContain('height="120"');
+        },
+    );
 });

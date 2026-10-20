@@ -1,20 +1,13 @@
 import { rewriteRichTextMediaUrls } from '#lib/components/richText.ts';
 import { imageUrl } from '#lib/imageUrl.ts';
-import {
-    getCmsPublicUrl,
-    getMediaPublicUrl,
-    getUmbracoBaseUrl,
-} from '#lib/server/config.ts';
+import { getCmsPublicUrl, getUmbracoBaseUrl } from '#lib/server/config.ts';
 
 // Rewrite media after fetching, not in the shared JSON cache. Private media
 // origins stay out of serialized URL fields and nested rich text.
 export function rewriteContentMedia<T>(content: T): T {
-    const publicUrl = getMediaPublicUrl().toString();
-    const cmsUrl = getCmsPublicUrl().toString();
+    const publicUrl = getCmsPublicUrl().toString();
     const internalUrl = getUmbracoBaseUrl().toString();
-    const cmsOrigins = [publicUrl, cmsUrl, internalUrl].map(
-        (url) => new URL(url).origin,
-    );
+    const cmsOrigins = [new URL(publicUrl).origin, new URL(internalUrl).origin];
 
     function rewriteMediaUrl(url: string): string {
         try {
@@ -23,7 +16,10 @@ export function rewriteContentMedia<T>(content: T): T {
                 parsed.pathname.startsWith('/media/') &&
                 cmsOrigins.includes(parsed.origin)
             ) {
-                return imageUrl(url, publicUrl);
+                return imageUrl(
+                    parsed.pathname + parsed.search + parsed.hash,
+                    publicUrl,
+                );
             }
         } catch {
             // Keep malformed CMS fields unchanged.
@@ -44,7 +40,6 @@ export function rewriteContentMedia<T>(content: T): T {
                         ? rewriteRichTextMediaUrls(
                               child,
                               publicUrl,
-                              cmsUrl,
                               internalUrl,
                           )
                         : key === 'url' && typeof child === 'string'

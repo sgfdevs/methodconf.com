@@ -15,15 +15,15 @@ describe('CMS media URLs', () => {
         );
     });
 
-    it('rebases absolute CMS URLs and preserves crop parameters and fragments', () => {
+    it('preserves the CMS-provided media origin, crop parameters, and fragments', () => {
         const result = new URL(
             imageUrl(
-                'http://cms-internal.test/media/a%20b/photo.jpg?crop=0,0,1,1&width=900&height=800&rmode=crop#photo',
+                'https://media.example.test/media/a%20b/photo.jpg?crop=0,0,1,1&width=900&height=800&rmode=crop#photo',
                 cmsPublicUrl,
                 { width: 100, height: 100 },
             ),
         );
-        expect(result.origin).toBe('https://cms-public.example.test');
+        expect(result.origin).toBe('https://media.example.test');
         expect(result.pathname).toBe('/media/a%20b/photo.jpg');
         expect(Object.fromEntries(result.searchParams)).toEqual({
             crop: '0,0,1,1',
@@ -37,20 +37,20 @@ describe('CMS media URLs', () => {
     it('keeps existing queries unchanged when no dimensions are requested', () => {
         expect(
             imageUrl(
-                '//cms-internal.test/media/photo.jpg?crop=0,0,1,1&foo=a%20b#photo',
+                '//media.example.test/media/photo.jpg?crop=0,0,1,1&foo=a%20b#photo',
                 cmsPublicUrl,
             ),
         ).toBe(
-            'https://cms-public.example.test/media/photo.jpg?crop=0,0,1,1&foo=a%20b#photo',
+            'https://media.example.test/media/photo.jpg?crop=0,0,1,1&foo=a%20b#photo',
         );
     });
 
-    it('uses the media origin for OpenGraph images rather than the CMS or site origin', () => {
+    it('preserves the CMS-provided media origin for OpenGraph images', () => {
         const page = {
             properties: {
                 openGraphImage: [
                     {
-                        url: 'http://cms-internal.test/media/og.png?crop=center#og',
+                        url: 'https://media.example.test/media/og.png?crop=center#og',
                     },
                 ],
             },
@@ -58,7 +58,7 @@ describe('CMS media URLs', () => {
         const head = buildGenericPageHead({
             page,
             siteUrl: 'https://www.example.test/',
-            mediaPublicUrl: 'https://media.example.test/',
+            cmsPublicUrl,
         });
 
         expect(head.openGraph.image?.url).toBe(

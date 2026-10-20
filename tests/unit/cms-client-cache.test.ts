@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const privateEnv = vi.hoisted(() => ({
     UMBRACO_BASE_URL: 'https://cms-a.methodconf.test',
     CMS_PUBLIC_URL: 'https://cms-public.methodconf.test',
-    MEDIA_PUBLIC_URL: 'https://media.methodconf.test' as string | undefined,
 }));
 
 vi.mock('$app/env/private', () => ({
@@ -12,9 +11,6 @@ vi.mock('$app/env/private', () => ({
     },
     get CMS_PUBLIC_URL() {
         return privateEnv.CMS_PUBLIC_URL;
-    },
-    get MEDIA_PUBLIC_URL() {
-        return privateEnv.MEDIA_PUBLIC_URL;
     },
 }));
 
@@ -35,7 +31,6 @@ describe('Umbraco helper cache wiring', () => {
         vi.unstubAllGlobals();
         privateEnv.UMBRACO_BASE_URL = 'https://cms-a.methodconf.test';
         privateEnv.CMS_PUBLIC_URL = 'https://cms-public.methodconf.test';
-        privateEnv.MEDIA_PUBLIC_URL = 'https://media.methodconf.test';
     });
 
     it('coalesces helper calls and reuses the result on a warm third call', async () => {
@@ -57,21 +52,12 @@ describe('Umbraco helper cache wiring', () => {
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    it('rewrites cached content using the current media URL without mutating prior results', async () => {
+    it('rewrites cached content using the current public CMS URL without mutating prior results', async () => {
         const content = {
             ...contentItem(1),
             properties: {
                 image: {
                     url: 'https://cms-a.methodconf.test/media/photo.jpg?crop=center#photo',
-                },
-                publicImage: {
-                    url: 'https://cms-public.methodconf.test/media/public.svg',
-                },
-                mediaImage: {
-                    url: 'https://media.methodconf.test/media/already.svg',
-                },
-                externalImage: {
-                    url: 'https://external.test/media/external.svg',
                 },
                 blocks: [
                     {
@@ -93,57 +79,57 @@ describe('Umbraco helper cache wiring', () => {
         const first = await getItemByPathOrDefault('/2024/');
         const firstJson = JSON.stringify(first);
         expect(firstJson).toContain(
-            'https://media.methodconf.test/media/logo.svg?crop=center#logo',
+            'https://cms-public.methodconf.test/media/logo.svg?crop=center#logo',
         );
         expect(firstJson).toContain(
-            'https://media.methodconf.test/media/logo.svg?crop=0,0,1,1 1x, https://media.methodconf.test/media/logo-2.svg 2x',
+            'https://cms-public.methodconf.test/media/logo.svg?crop=0,0,1,1 1x, https://cms-public.methodconf.test/media/logo-2.svg 2x',
         );
         expect(firstJson).toContain(
-            'https://media.methodconf.test/media/photo.jpg?crop=center#photo',
+            'https://cms-public.methodconf.test/media/photo.jpg?crop=center#photo',
         );
         expect(firstJson).toContain('https://external.test/media/file.pdf');
-        expect(firstJson).toContain(
-            'https://media.methodconf.test/media/public.svg',
-        );
-        expect(firstJson).toContain(
-            'https://media.methodconf.test/media/already.svg',
-        );
-        expect(firstJson).toContain('https://external.test/media/external.svg');
-        expect(firstJson).not.toContain(
-            'https://cms-public.methodconf.test/media/',
-        );
         expect(firstJson).not.toContain('https://cms-a.methodconf.test/media/');
         expect(
             content.properties.blocks[0].content.properties.text.markup,
         ).toContain('https://cms-a.methodconf.test/media/logo.svg');
 
-        privateEnv.MEDIA_PUBLIC_URL = 'https://media-other.methodconf.test';
+        privateEnv.CMS_PUBLIC_URL = 'https://cms-other.methodconf.test';
         const second = JSON.stringify(await getItemByPathOrDefault('/2024/'));
         expect(second).toContain(
-            'https://media-other.methodconf.test/media/logo.svg?crop=center#logo',
+            'https://cms-other.methodconf.test/media/logo.svg?crop=center#logo',
         );
         expect(second).toContain(
-            'https://media-other.methodconf.test/media/photo.jpg?crop=center#photo',
+            'https://cms-other.methodconf.test/media/photo.jpg?crop=center#photo',
         );
         expect(JSON.stringify(first)).toBe(firstJson);
         expect(fetch).toHaveBeenCalledTimes(1);
     });
 
-    it('falls back to the public CMS when no media origin is configured', async () => {
-        privateEnv.MEDIA_PUBLIC_URL = undefined;
-        const { getMediaPublicUrl, getCmsPublicUrl } =
-            await import('#lib/server/config.ts');
-        expect(getMediaPublicUrl().origin).toBe(getCmsPublicUrl().origin);
-    });
+    it('preserves CMS-provided CDN URLs through cached content and rich text', async () => {
+        const content = {
+            ...contentItem(1),
+            properties: {
+                image: {
+                    url: 'https://media.methodconf.test/media/photo.jpg?crop=center#photo',
+                },
+                text: {
+                    markup: '<img src="https://media.methodconf.test/media/logo.svg?width=100" srcset="https://media.methodconf.test/media/logo.svg 1x, https://media.methodconf.test/media/logo-2.svg 2x"><a href="https://media.methodconf.test/media/file.pdf#page=2">Map</a>',
+                },
+            },
+        };
+        const fetch = vi.fn(async () => Response.json(content));
+        vi.stubGlobal('fetch', fetch);
+        const { getItemByPathOrDefault } =
+            await import('#lib/server/umbraco/getItemByPath.ts');
 
-    it('keeps CMS redirects separate from the media origin', async () => {
-        const { GET } = await import('../../src/routes/umbraco/+server.ts');
-        const response = await GET({
-            url: new URL('https://methodconf.test/umbraco/'),
-        } as Parameters<typeof GET>[0]);
-        expect(response.headers.get('location')).toBe(
-            'https://cms-public.methodconf.test/',
+        await expect(getItemByPathOrDefault('/2024/')).resolves.toEqual(
+            content,
         );
+        privateEnv.CMS_PUBLIC_URL = 'https://cms-other.methodconf.test';
+        await expect(getItemByPathOrDefault('/2024/')).resolves.toEqual(
+            content,
+        );
+        expect(fetch).toHaveBeenCalledTimes(1);
     });
 
     it('isolates helper caches by runtime Umbraco origin', async () => {

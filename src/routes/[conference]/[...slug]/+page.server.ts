@@ -8,7 +8,7 @@ import {
 } from '#lib/server/getPageDataForBlocks.ts';
 import { getSessionsForSpeaker } from '#lib/server/getSessionsForSpeaker.ts';
 import { getSponsors } from '#lib/server/getSponsors.ts';
-import { getMediaPublicUrl, getSiteUrl } from '#lib/server/config.ts';
+import { getCmsPublicUrl, getSiteUrl } from '#lib/server/config.ts';
 import { getItemByPathOrDefault } from '#lib/server/umbraco/getItemByPath.ts';
 import type { Page, Speaker } from '#lib/types.ts';
 import type { PageServerLoad } from './$types';
@@ -67,7 +67,7 @@ export const load: PageServerLoad = async ({ params }) => {
             layoutSponsors,
             ...pageData,
             sharedHead: buildGenericPageHead({
-                mediaPublicUrl: getMediaPublicUrl().toString(),
+                cmsPublicUrl: getCmsPublicUrl().toString(),
                 page: item as Page,
                 siteUrl,
             }),

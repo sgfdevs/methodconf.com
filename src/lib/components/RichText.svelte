@@ -10,11 +10,7 @@
     let { markup, class: className = '' }: Props = $props();
 
     const renderedMarkup = $derived(
-        rewriteRichTextMediaUrls(
-            markup,
-            page.data.mediaPublicUrl,
-            page.data.cmsPublicUrl,
-        ),
+        rewriteRichTextMediaUrls(markup, page.data.cmsPublicUrl),
     );
     const richTextClass = $derived(
         `prose prose-a:text-primary prose-a:decoration-0 prose-a:font-normal max-w-none ${className}`.trimEnd(),
@@ -22,7 +18,7 @@
 </script>
 
 <div class={richTextClass}>
-    <!-- Trusted CMS rich text. Media URLs use the public media origin. -->
+    <!-- Trusted CMS rich text. CMS media URLs use the public CMS origin. -->
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html renderedMarkup}
 </div>
